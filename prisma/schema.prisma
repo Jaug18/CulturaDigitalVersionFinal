@@ -1,0 +1,150 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+}
+
+model User {
+  id                    Int              @id @default(autoincrement())
+  username              String           @unique
+  email                 String           @unique
+  password              String
+  fullName              String?          @map("full_name")
+  avatarUrl             String?          @map("avatar_url")
+  role                  String           @default("user")
+  isActive              Boolean          @default(true) @map("is_active")
+  resetPasswordToken    String?          @map("reset_password_token")
+  resetPasswordExpires  DateTime?        @map("reset_password_expires")
+  emailVerified         Boolean          @default(false) @map("email_verified")
+  emailVerificationToken String?         @map("email_verification_token")
+  createdAt             DateTime         @default(now()) @map("created_at")
+  updatedAt             DateTime         @default(now()) @map("updated_at")
+  
+  refreshTokens         RefreshToken[]
+  contacts              Contact[]
+  lists                 List[]
+  emails                Email[]
+  scheduledEmails       ScheduledEmail[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model LoginAttempt {
+  id         Int      @id @default(autoincrement())
+  username   String
+  ipAddress  String   @map("ip_address")
+  attemptedAt DateTime @default(now()) @map("attempted_at")
+  success    Boolean  @default(false)
+  userAgent  String?  @map("user_agent")
+
+  @@map("login_attempts")
+}
+
+model Contact {
+  id        Int       @id @default(autoincrement())
+  userId    Int       @map("user_id")
+  name      String
+  email     String
+  status    String    @default("active")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @default(now()) @map("updated_at")
+  
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lists     ListContact[]
+
+  @@unique([userId, email])
+  @@map("contacts")
+}
+
+model List {
+  id          Int       @id @default(autoincrement())
+  userId      Int       @map("user_id")
+  name        String
+  description String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @default(now()) @map("updated_at")
+  
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contacts    ListContact[]
+
+  @@map("lists")
+}
+
+model ListContact {
+  listId     Int       @map("list_id")
+  contactId  Int       @map("contact_id")
+  addedAt    DateTime  @default(now()) @map("added_at")
+  
+  list       List      @relation(fields: [listId], references: [id], onDelete: Cascade)
+  contact    Contact   @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@id([listId, contactId])
+  @@map("list_contacts")
+}
+
+model Email {
+  id              Int       @id @default(autoincrement())
+  userId          Int       @map("user_id")
+  toEmail         String[]  @map("to_email")
+  subject         String
+  fromEmail       String    @map("from_email")
+  fromName        String?   @map("from_name")
+  status          String
+  message         String?
+  emailId         String?   @map("email_id")
+  contentPreview  String?   @map("content_preview")
+  tituloPrincipal String?   @map("titulo_principal")
+  subtitulo       String?
+  contenido       String?
+  templateId      String?   @map("template_id")
+  imagenesBase64  Int?      @map("imagenes_base64")
+  imagenesUrl     Int?      @map("imagenes_url")
+  imagenesTotalKb Int?      @map("imagenes_total_kb")
+  timestamp       DateTime  @default(now())
+  
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("emails")
+}
+
+model ScheduledEmail {
+  id              Int       @id @default(autoincrement())
+  userId          Int       @map("user_id")
+  toEmail         String[]  @map("to_email")
+  subject         String
+  htmlContent     String    @map("html_content")
+  fromEmail       String    @map("from_email")
+  fromName        String?   @map("from_name")
+  scheduledFor    DateTime  @map("scheduled_for")
+  status          String    @default("pending")
+  tituloPrincipal String?   @map("titulo_principal")
+  subtitulo       String?
+  contenido       String?
+  templateId      String?   @map("template_id")
+  imageUrl        String?   @map("image_url")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @default(now()) @map("updated_at")
+  processedAt     DateTime? @map("processed_at")
+  errorMessage    String?   @map("error_message")
+  
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("scheduled_emails")
+}
