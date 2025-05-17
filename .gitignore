@@ -30,6 +30,9 @@ out
 .env.production.local
 .env.*
 server/.env
+pgadmin_data/
+postgres_data/
+bun.lockb
 
 # Editor directories and files
 .vscode/*
