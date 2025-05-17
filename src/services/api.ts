@@ -15,10 +15,13 @@ const getApiBaseUrl = () => {
     console.log("API Service - Using Railway config (relative URL)");
     baseUrl = '/api';
   }
-  // Si estamos en Vercel, necesitamos la URL completa de Railway
+  // Verifica si estamos en Vercel o cualquier otro dominio que no sea Railway
   else if (isProduction) {
-    console.log("API Service - Using Vercel config (absolute URL to Railway)");
+    // FORZAR SIEMPRE la URL de Railway en producción
+    console.log("API Service - FORCING Railway absolute URL");
     baseUrl = 'https://culturadigitalversionfinal-production.up.railway.app/api';
+    console.log("API Service - Base URL (forced):", baseUrl);
+    return baseUrl;
   }
   // En desarrollo local usamos ruta relativa
   else {
@@ -47,6 +50,15 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // IMPORTANTE: Validar que no haya prefijos duplicados
+    if (config.url?.startsWith('/api') && config.baseURL?.endsWith('/api')) {
+      // Eliminar el prefijo /api duplicado
+      config.url = config.url.substring(4);
+      console.log("Corrigiendo URL duplicada:", config.url);
+    }
+    
+    // Mostrar la URL completa para depuración
     console.log(`Request to: ${config.baseURL}${config.url}`);
     return config;
   },

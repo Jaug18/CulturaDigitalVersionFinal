@@ -157,51 +157,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, [token]);
 
-const login = async (username: string, password: string, rememberMe: boolean = true) => {
+const login = async (username: string, password: string) => {
     try {
-      setIsLoading(true);
-      // Asegurar que usamos la ruta completa con /api/
-      const response = await api.post('/api/auth/login', { username, password });
+      console.log("Intentando iniciar sesión con:", username);
+      console.log("URL base actual:", api.defaults.baseURL);
+      
+      // Usar el cliente API configurado correctamente
+      // IMPORTANTE: No añadir /api/ al inicio de la ruta
+      const response = await api.post("/auth/login", { username, password });
       
       if (response.data.success) {
-        const { token, user, refreshToken } = response.data;
+        const { token, refreshToken, user } = response.data;
         
-        // Guardar en estado
-        setToken(token);
+        // Guardar tokens y datos de usuario
+        localStorage.setItem("token", token);
+        localStorage.setItem("refreshToken", refreshToken);
+        localStorage.setItem("user", JSON.stringify(user));
+        
         setUser(user);
-        
-      if (rememberMe) {
-        localStorage.setItem('token', token);
-        localStorage.setItem('refreshToken', refreshToken);
-        localStorage.setItem('user', JSON.stringify(user));
-        sessionStorage.removeItem('token');
-        sessionStorage.removeItem('refreshToken');
-        sessionStorage.removeItem('user');
-      } else {
-        sessionStorage.setItem('token', token);
-        sessionStorage.setItem('refreshToken', refreshToken);
-        sessionStorage.setItem('user', JSON.stringify(user));
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
-      }
+        setToken(token);
         
         // Configurar token en api para futuras peticiones
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       } else {
+        console.error("Error de login:", response.data.message);
         throw new Error(response.data.message || 'Error de autenticación');
       }
     } catch (error) {
-      console.error('Error en AuthContext.login:', error);
-      // Asegurar que no queden datos parciales
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      localStorage.removeItem('refreshToken');
-      setToken(null);
-      setUser(null);
+      console.error("Error de conexión con el servidor:", error);
       throw error;
-    } finally {
-      setIsLoading(false);
     }
   };
 
