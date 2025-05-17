@@ -99,6 +99,13 @@ const upload = multer({
 // Variables globales para servicios
 let transporter;
 
+// Nueva configuración para servir archivos estáticos del frontend
+const frontendBuildPath = path.join(__dirname, '../dist');
+if (fs.existsSync(frontendBuildPath)) {
+  console.log('Sirviendo archivos estáticos desde:', frontendBuildPath);
+  app.use(express.static(frontendBuildPath));
+}
+
 // Basic route to check if server is running
 app.get('/', (req, res) => {
   res.status(200).send('Servidor de correo electrónico funcionando correctamente (Nodemailer)');
@@ -2572,6 +2579,20 @@ app.get('/api/auth/me', authenticateToken, async (req, res) => {
       success: false, 
       message: 'Error del servidor' 
     });
+  }
+});
+
+// Ruta wildcard para manejar rutas del frontend (debe ir después de todas las rutas API)
+app.get('*', (req, res) => {
+  // Solo para rutas que no empiezan con /api
+  if (!req.path.startsWith('/api')) {
+    if (fs.existsSync(path.join(frontendBuildPath, 'index.html'))) {
+      res.sendFile(path.join(frontendBuildPath, 'index.html'));
+    } else {
+      res.status(404).send('Frontend not built');
+    }
+  } else {
+    res.status(404).json({ success: false, message: 'API endpoint not found' });
   }
 });
 
