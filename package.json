@@ -9,7 +9,7 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "railway:setup": "npm install && npm run build && cd server && npm install",
+    "railway:setup": "npm install --include=dev && npm run build && cd server && npm install",
     "railway:start": "cd server && npm start"
   },
   "dependencies": {
