@@ -49,8 +49,8 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      // Modificamos la ruta para asegurar que incluya /api/
-      const response = await api.post('/api/auth/login', {
+      // CORREGIDO: Eliminamos el prefijo /api/ redundante
+      const response = await api.post('/auth/login', {
         username,
         password
       });
