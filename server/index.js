@@ -40,6 +40,7 @@ const allowedOrigins = [
   // URLs de producción
   'https://culturadigital.vercel.app',
   'https://www.culturadigital.vercel.app',
+  'https://culturadigitalversionfinal-production.up.railway.app',
   // URLs de desarrollo - comentadas en producción
   // 'http://localhost:8080',
   // 'http://localhost:8081',
@@ -52,8 +53,7 @@ const allowedOrigins = [
 // Updated CORS configuration
 app.use(cors({
   origin: function(origin, callback) {
-    // Durante el desarrollo, podemos permitir todas las solicitudes
-    // En producción, esto debería ser más estricto
+    // Para solicitudes sin origen (como las herramientas API) o en desarrollo
     if (!origin || process.env.NODE_ENV !== 'production') {
       return callback(null, true);
     }
@@ -61,8 +61,9 @@ app.use(cors({
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      console.warn(`Origin ${origin} not allowed by CORS policy, but allowing in development`);
-      callback(null, true); // Permitir en desarrollo aunque no esté en la lista
+      console.warn(`Origin ${origin} not allowed by CORS policy. Adding to allowed list temporarily.`);
+      allowedOrigins.push(origin); // Añadir dinámicamente al whitelist
+      callback(null, true);
     }
   },
   credentials: true,

@@ -1,10 +1,30 @@
 import axios from 'axios';
 
+// Determinar la URL base de la API según el entorno
+const getApiBaseUrl = () => {
+  const hostname = window.location.hostname;
+  const isProduction = process.env.NODE_ENV === 'production' || !hostname.includes('localhost');
+  
+  console.log("API Service - Environment:", isProduction ? "PRODUCTION" : "DEVELOPMENT");
+  console.log("API Service - Hostname:", hostname);
+  
+  // Si estamos en Railway (todo en uno), usamos ruta relativa
+  if (hostname.includes('railway.app')) {
+    return '/api';
+  }
+  
+  // Si estamos en Vercel, necesitamos la URL completa de Railway
+  if (isProduction) {
+    return 'https://culturadigitalversionfinal-production.up.railway.app/api';
+  }
+  
+  // En desarrollo local usamos ruta relativa
+  return '/api';
+};
+
 // Configuración base de axios
 const api = axios.create({
-  // En lugar de una URL absoluta, usamos una ruta relativa
-  // esto funcionará tanto en desarrollo como en producción
-  baseURL: '/api',
+  baseURL: getApiBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
   },
