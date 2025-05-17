@@ -8,7 +8,6 @@ import { toast } from "sonner";
 import { Eye, EyeOff, AlertCircle, Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import api from "@/services/api";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -49,49 +48,29 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      // CORREGIDO: Eliminamos el prefijo /api/ redundante
-      const response = await api.post('/auth/login', {
-        username,
-        password
-      });
-
-      // Si hemos llegado aquí, la petición fue exitosa
-      // La respuesta contiene los datos del usuario y tokens
-      if (response.data && response.data.success) {
-        // Usar el método login del contexto de autenticación
-        await login(username, password);
-        // La redirección se maneja en el useEffect
-      } else {
-        // Si la respuesta no indica éxito, mostrar mensaje
-        setError(response.data.message || "Error al iniciar sesión");
-      }
+      // CAMBIO CRÍTICO: Usar el método de login del contexto directamente
+      // sin intentar hacer la petición desde este componente
+      await login(username, password);
+      // La redirección se maneja en el useEffect
     } catch (error: any) {
       console.error('Error al iniciar sesión:', error);
-      console.log('Detalles de error:', error.config?.url, error.response?.status);
-
+      
       // Mostrar mensaje específico según el tipo de error
       if (error.response) {
-        // El servidor respondió con un código de estado diferente de 2xx
         const { data } = error.response;
 
         if (data && data.message) {
-          // Usar el mensaje específico del servidor
           setError(data.message);
         } else if (error.response.status === 401) {
-          // Fallback para error 401 sin mensaje específico
           setError("No se pudo iniciar sesión. Verifica tus credenciales e intenta nuevamente.");
         } else if (error.response.status === 429) {
-          // Demasiados intentos
           setError("Demasiados intentos fallidos. Intenta de nuevo más tarde.");
         } else {
-          // Otro tipo de error
           setError("Error al conectar con el servidor. Intenta de nuevo más tarde.");
         }
       } else if (error.request) {
-        // La solicitud se realizó pero no se recibió respuesta
-        setError("No se pudo establecer conexión con el servidor. Verifica tu conexión a internet.");
+        setError("No se pudo establecer conexión con el servidor. Intenta de nuevo en unos minutos.");
       } else {
-        // Error al configurar la solicitud
         setError("Error al intentar iniciar sesión. Intenta de nuevo más tarde.");
       }
     } finally {

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from "@/services/api";
+import axios from 'axios';
 
 interface User {
   id: number;
@@ -158,36 +159,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [token]);
 
 const login = async (username: string, password: string) => {
+  try {
+    console.log("Intentando iniciar sesión con:", username);
+    
+    // CRÍTICO: Crear petición con URL absolutamente correcta como fallback
+    let response;
     try {
-      console.log("Intentando iniciar sesión con:", username);
-      console.log("URL base actual:", api.defaults.baseURL);
-      
-      // Usar el cliente API configurado correctamente
-      // IMPORTANTE: No añadir /api/ al inicio de la ruta
-      const response = await api.post("/auth/login", { username, password });
-      
-      if (response.data.success) {
-        const { token, refreshToken, user } = response.data;
-        
-        // Guardar tokens y datos de usuario
-        localStorage.setItem("token", token);
-        localStorage.setItem("refreshToken", refreshToken);
-        localStorage.setItem("user", JSON.stringify(user));
-        
-        setUser(user);
-        setToken(token);
-        
-        // Configurar token en api para futuras peticiones
-        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      } else {
-        console.error("Error de login:", response.data.message);
-        throw new Error(response.data.message || 'Error de autenticación');
-      }
+      // Intentar primero con el cliente api configurado
+      response = await api.post("/auth/login", { username, password });
     } catch (error) {
-      console.error("Error de conexión con el servidor:", error);
-      throw error;
+      console.error("Error en primera petición, intentando con URL absoluta:", error);
+      
+      // Si falla, intentar directamente con axios y URL absoluta
+      const backupUrl = 'https://culturadigitalversionfinal-production.up.railway.app/api/auth/login';
+      console.log("Intentando con URL de respaldo:", backupUrl);
+      
+      response = await axios.post(backupUrl, { username, password }, {
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
-  };
+    
+    if (response.data.success) {
+      const { token, refreshToken, user } = response.data;
+      
+      // Guardar tokens y datos de usuario
+      localStorage.setItem("token", token);
+      localStorage.setItem("refreshToken", refreshToken);
+      localStorage.setItem("user", JSON.stringify(user));
+      
+      setUser(user);
+      setToken(token);
+      
+      console.log("Login exitoso:", user);
+      return true;
+    } else {
+      console.error("Error de login:", response.data.message);
+      throw new Error(response.data.message || 'Error de autenticación');
+    }
+  } catch (error) {
+    console.error("Error de conexión con el servidor:", error);
+    throw error;
+  }
+};
 
   const register = async (
     username: string, 
