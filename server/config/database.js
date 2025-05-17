@@ -1,30 +1,37 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
+// PostgreSQL connection string para Railway
+const connectionString = process.env.DATABASE_URL;
+console.log('Connection string disponible:', !!connectionString);
+
 // Configuración para conectar a PostgreSQL
-const pool = new Pool({
-  // Cuando se ejecuta en Railway, usar las variables de entorno proporcionadas por Railway
-  // En lugar de intentar conectar a localhost
-  host: process.env.PGHOST || 'localhost',
-  user: process.env.PGUSER || 'postgres',
-  password: process.env.PGPASSWORD || 'postgres',
-  database: process.env.PGDATABASE || 'cultura_digital',
-  port: process.env.PGPORT || 5432,
-  // Añadir un tiempo de espera para intentos de conexión
-  connectionTimeoutMillis: 10000,
-  // Importante: establecer SSL según el entorno
-  ssl: process.env.NODE_ENV === 'production' ? 
-    { rejectUnauthorized: false } : false
-});
+const pool = new Pool(
+  connectionString 
+    ? { connectionString, ssl: { rejectUnauthorized: false } }
+    : {
+        // Fallback a variables individuales
+        host: process.env.PGHOST || 'localhost',
+        user: process.env.PGUSER || 'postgres',
+        password: process.env.PGPASSWORD || 'postgres',
+        database: process.env.PGDATABASE || 'cultura_digital',
+        port: process.env.PGPORT || 5432,
+        connectionTimeoutMillis: 10000,
+        ssl: process.env.NODE_ENV === 'production' ? 
+          { rejectUnauthorized: false } : false
+      }
+);
 
 // Función para verificar conexión a la base de datos
 const initializeDatabase = async () => {
   try {
     console.log('Inicializando PostgreSQL...');
-    console.log('Usando host:', process.env.PGHOST || 'localhost');
-    console.log('Puerto:', process.env.PGPORT || 5432);
-    console.log('Usuario:', process.env.PGUSER || 'postgres');
-    console.log('Base de datos:', process.env.PGDATABASE || 'cultura_digital');
+    console.log('URL de conexión:', process.env.DATABASE_URL ? 'Configurada (valor ocultado)' : 'No configurada');
+    console.log('Variables individuales:');
+    console.log('- Host:', process.env.PGHOST || '(no configurado)');
+    console.log('- Puerto:', process.env.PGPORT || '(no configurado)');
+    console.log('- Usuario:', process.env.PGUSER || '(no configurado)');
+    console.log('- Base de datos:', process.env.PGDATABASE || '(no configurado)');
     
     // Probar la conexión
     const client = await pool.connect();
