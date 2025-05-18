@@ -81,7 +81,7 @@ const Login = () => {
   return (
     <div className="min-h-screen w-full flex flex-col md:flex-row">
       {/* Left section with image and gradient */}
-      <div className="hidden md:block md:w-1/2 bg-gradient-to-br from-[#0052A5] to-[#0088cc] p-8 flex items-center justify-center relative overflow-hidden">
+      <div className="hidden md:block md:w-1/2 bg-gradient-to-br from-[#0052A5] to-[#0088cc] p-8 items-center justify-center relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJncmlkIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPjxwYXRoIGQ9Ik0gNDAgMCBMIDAgMCAwIDQwIiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utb3BhY2l0eT0iMC4wNSIgc3Ryb2tlLXdpZHRoPSIxIj48L3BhdGg+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIj48L3JlY3Q+PC9zdmc+')] opacity-10"></div>
         <div className="relative z-10 text-white max-w-md mx-auto text-center">
           <img 

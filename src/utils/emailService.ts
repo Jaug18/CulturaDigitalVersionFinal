@@ -16,10 +16,10 @@ import VideoTemplate  from "@/components/email-templates/VideoTemplate";
 
 // Configurar la URL base
 import api from '../services/api';
-const axios = api.axios || axios;
+const axios = api;
 
 // Configurar la URL base - Usar la API configurada desde servicios
-const axiosInstance = api.axios || axios;
+const axiosInstance = axios;
 
 export interface EmailHistory {
   id: number;
@@ -47,7 +47,7 @@ export interface EmailPagination {
   pages: number;
 }
 
-export interface EmailResponse {
+export interface EmailHistoryResponse {
   success: boolean;
   data: EmailHistory[];
   pagination: EmailPagination;
@@ -79,7 +79,7 @@ export interface ScheduledEmailsResponse {
 }
 
 // Obtener historial de emails enviados
-export const getEmailHistory = async (page = 1, limit = 20): Promise<EmailResponse> => {
+export const getEmailHistory = async (page = 1, limit = 20): Promise<EmailHistoryResponse> => {
   try {
     const response = await axios.get('/api/emails', { 
       params: { page, limit }
@@ -94,7 +94,7 @@ export const getEmailHistory = async (page = 1, limit = 20): Promise<EmailRespon
 // Obtener historial de correos programados
 export const getScheduledEmails = async (status?: string, page = 1, limit = 20): Promise<ScheduledEmailsResponse> => {
   try {
-    const params: Record<string, any> = { page, limit };
+    const params: Record<string, string | number> = { page, limit };
     if (status) params.status = status;
     
     const response = await axios.get('/api/scheduled-emails', { params });
@@ -139,7 +139,7 @@ interface EmailSendOptions {
   scheduledFor?: string;
 }
 
-interface EmailResponse {
+interface EmailSendResponse {
   success: boolean;
   message: string;
   previewUrl?: string;
@@ -280,7 +280,18 @@ export const handleLocalImage = async (file: File): Promise<string> => {
   }
 };
 
-const processTemplateProps = async (props: any): Promise<any> => {
+interface TemplateProps {
+  subject?: string;
+  heading?: string;
+  subheading?: string;
+  content?: string;
+  buttonText?: string;
+  buttonUrl?: string;
+  imageUrl?: string | File;
+  logoUrl?: string;
+}
+
+const processTemplateProps = async (props: TemplateProps): Promise<TemplateProps> => {
   const processedProps = { ...props };
 
   // Para la imagen principal
@@ -438,7 +449,7 @@ const extractContentPreview = (html: string): string => {
   }
 };
 
-export const sendEmail = async (options: EmailSendOptions): Promise<EmailResponse> => {
+export const sendEmail = async (options: EmailSendOptions): Promise<EmailSendResponse> => {
   try {
     const fromEmail = "jaug171@gmail.com";
 

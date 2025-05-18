@@ -36,12 +36,12 @@ const ForgotPassword = () => {
       });
       
       setIsSuccess(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error al solicitar restablecimiento:', error);
       
       // Para mayor seguridad, no revelar si el email existe o no
       // Solo mostrar errores de servidor
-      if (error.response && error.response.status >= 500) {
+      if (axios.isAxiosError(error) && error.response && error.response.status >= 500) {
         setError("Hubo un problema al procesar tu solicitud. Por favor intenta de nuevo más tarde.");
       } else {
         // Si todo salió bien del lado del servidor (incluso si el email no existe)

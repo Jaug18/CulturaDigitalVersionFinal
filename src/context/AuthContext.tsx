@@ -27,7 +27,7 @@ interface AuthContextType {
     role?: string,
     isActive?: boolean,
     avatarUrl?: string
-  ) => Promise<any>;
+  ) => Promise<{ success: boolean; message: string; user?: User }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -158,7 +158,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, [token]);
 
-const login = async (username: string, password: string) => {
+const login = async (username: string, password: string, rememberMe?: boolean) => {
   try {
     console.log("Intentando iniciar sesión con:", username);
     
@@ -183,15 +183,20 @@ const login = async (username: string, password: string) => {
       const { token, refreshToken, user } = response.data;
       
       // Guardar tokens y datos de usuario
-      localStorage.setItem("token", token);
-      localStorage.setItem("refreshToken", refreshToken);
-      localStorage.setItem("user", JSON.stringify(user));
+      if (rememberMe) {
+        localStorage.setItem("token", token);
+        localStorage.setItem("refreshToken", refreshToken);
+        localStorage.setItem("user", JSON.stringify(user));
+      } else {
+        sessionStorage.setItem("token", token);
+        sessionStorage.setItem("refreshToken", refreshToken);
+        sessionStorage.setItem("user", JSON.stringify(user));
+      }
       
       setUser(user);
       setToken(token);
       
       console.log("Login exitoso:", user);
-      return true;
     } else {
       console.error("Error de login:", response.data.message);
       throw new Error(response.data.message || 'Error de autenticación');
