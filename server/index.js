@@ -359,6 +359,21 @@ const info = await transporter.sendMail({
   }
 };
 
+// Middleware de autenticación mejorado para logging
+function logAuth(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader) {
+    console.warn(`[AUTH] No se encontró header Authorization en ${req.method} ${req.originalUrl}`);
+  } else {
+    console.log(`[AUTH] Header Authorization recibido en ${req.method} ${req.originalUrl}`);
+  }
+  next();
+}
+
+// Aplica el logger antes de los endpoints protegidos
+app.use('/api/contacts', logAuth);
+app.use('/api/lists', logAuth);
+
 // Endpoint para solicitar restablecimiento de contraseña
 app.post('/api/auth/forgot-password', async (req, res) => {
   try {
@@ -1262,6 +1277,7 @@ app.get('/api/emails', authenticateToken, async (req, res) => {
 
 // Endpoints para contactos
 app.get('/api/contacts', authenticateToken, async (req, res) => {
+  console.log(`[CONTACTS] Usuario autenticado:`, req.user);
   try {
     const { search } = req.query;
     const userId = req.user.id; // Obtener ID del usuario autenticado
@@ -1572,6 +1588,7 @@ app.post('/api/contacts/import', require('./config/auth').authenticateToken, asy
 
 // Endpoints para listas
 app.get('/api/lists', authenticateToken, async (req, res) => {
+  console.log(`[LISTS] Usuario autenticado:`, req.user);
   try {
     const userId = req.user.id; // Obtener ID del usuario autenticado
     
