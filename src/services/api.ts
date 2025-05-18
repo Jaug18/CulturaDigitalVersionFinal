@@ -1,38 +1,34 @@
 import axios from 'axios';
 
-// Versión ultra simplificada y segura
+// Crear instancia de axios con configuración básica fija
+// Sin variables intermedias ni funciones que puedan causar inicializaciones prematuras
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: '/api', // URL base por defecto
   headers: {
     'Content-Type': 'application/json',
-  },
-  timeout: 15000
+  }
 });
 
-// Añadir intercepción básica
-api.interceptors.request.use(
-  config => {
-    // Determinar la URL base correcta según el entorno
-    const hostname = window?.location?.hostname || '';
-    
-    // Ajustar baseURL según el entorno
-    if (!hostname.includes('railway.app')) {
-      // Si no estamos en Railway, usar la URL absoluta
+// No usar interceptores complejos - solo lo mínimo necesario
+api.interceptors.request.use(function(config) {
+  // Configuración dinámica muy simplificada
+  try {
+    // Usar URL absoluta solo si no estamos en Railway
+    if (window.location.hostname && !window.location.hostname.includes('railway.app')) {
       config.baseURL = 'https://culturadigitalversionfinal-production.up.railway.app/api';
     }
     
-    // Agregar el token si existe
+    // Agregar token si existe
     const token = localStorage.getItem('token');
     if (token) {
+      config.headers = config.headers || {};
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
-    // Log simplificado
-    console.log('Request:', config.method, config.baseURL + config.url);
-    
-    return config;
-  },
-  error => Promise.reject(error)
-);
+  } catch (e) {
+    console.error('Error en interceptor:', e);
+  }
+  
+  return config;
+});
 
 export default api;
