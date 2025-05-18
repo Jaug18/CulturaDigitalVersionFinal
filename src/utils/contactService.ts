@@ -4,17 +4,24 @@ import api from '../services/api';
 // Usar axios configurado desde el servicio centralizado
 const axiosInstance = api.axios || axios;
 
-// Configurar interceptor para incluir el token de autenticación en todas las solicitudes
-axiosInstance.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+// --- NUEVO: Evitar múltiples registros del interceptor ---
+let interceptorRegistered = false;
+
+if (!interceptorRegistered) {
+  axiosInstance.interceptors.request.use(
+    (config) => {
+      // Siempre obtener el token más reciente
+      const token = localStorage.getItem('token');
+      if (token) {
+        config.headers = config.headers || {};
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
+  interceptorRegistered = true;
+}
 
 export interface Contact {
   id: number;
