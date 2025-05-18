@@ -38,8 +38,6 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 // CORS configuration
 const allowedOrigins = [
   // URLs de producción
-  'https://culturadigital.vercel.app',
-  'https://www.culturadigital.vercel.app',
   'https://culturadigitalversionfinal-production.up.railway.app',
   // URLs de desarrollo - comentadas en producción
   // 'http://localhost:8080',
