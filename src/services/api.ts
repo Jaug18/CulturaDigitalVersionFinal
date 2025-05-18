@@ -9,9 +9,13 @@ const api = axios.create({
   timeout: 15000
 });
 
-// Interceptor mínimo para agregar el token si existe
+// Interceptor para agregar el token y forzar el prefijo /api/
 api.interceptors.request.use(
   config => {
+    // Forzar el prefijo /api/ si la ruta no lo tiene
+    if (config.url && !config.url.startsWith('/api/')) {
+      config.url = '/api' + (config.url.startsWith('/') ? config.url : '/' + config.url);
+    }
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
