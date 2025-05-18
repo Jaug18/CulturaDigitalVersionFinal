@@ -37,17 +37,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Verificar autenticación con manejo de errores mejorado
+  // Agregar función para verificar y limpiar tokens corruptos
   const checkAuth = async () => {
     try {
       setIsLoading(true);
       console.log("AuthContext: Checking auth...");
       
-      const token = localStorage.getItem('token');
-      const storedUser = localStorage.getItem('user');
+      // Comprobar si hay tokens almacenados
+      const localToken = localStorage.getItem('token');
+      const sessionToken = sessionStorage.getItem('token');
+      const storedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
+      const token = localToken || sessionToken;
       
       if (!token) {
         console.log("AuthContext: No token found");
+        setUser(null);
+        setToken(null);
+        return;
+      }
+      
+      // Verificar que el token tenga formato válido antes de usarlo
+      const isValidJwt = (token: string) => {
+        return /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/.test(token);
+      };
+      
+      if (!isValidJwt(token)) {
+        console.error("AuthContext: Malformed JWT detected, forcing logout");
+        if (localToken) localStorage.removeItem('token');
+        if (sessionToken) sessionStorage.removeItem('token');
         setUser(null);
         setToken(null);
         return;
@@ -118,18 +135,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Forzar verificación de token al montar el componente 
+  useEffect(() => {
+    // Verificar formato del token inmediatamente
+    const localToken = localStorage.getItem('token');
+    const sessionToken = sessionStorage.getItem('token');
+    
+    if (localToken && !/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/.test(localToken)) {
+      console.error("Token malformado en localStorage, eliminando");
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
+    
+    if (sessionToken && !/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/.test(sessionToken)) {
+      console.error("Token malformado en sessionStorage, eliminando");
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('user');
+    }
+    
+    checkAuth();
+  }, []);
+
   // Restaurar inmediatamente los datos de localStorage al montar
- useEffect(() => {
-  const restoreAuthState = () => {
-    const storedToken = localStorage.getItem('token') || sessionStorage.getItem('token');
-    const storedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
-    if (storedToken && storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setToken(storedToken);
-        setUser(parsedUser);
-        api.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
-        return true;
+  useEffect(() => {
+    const restoreAuthState = () => {
+      const storedToken = localStorage.getItem('token') || sessionStorage.getItem('token');
+      const storedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
+      if (storedToken && storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          setToken(storedToken);
+          setUser(parsedUser);
+          api.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
+          return true;
         } catch (error) {
           console.error('AuthContext: Error restoring auth data', error);
         }
@@ -167,54 +205,54 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, [token]);
 
-const login = async (username: string, password: string, rememberMe?: boolean) => {
-  try {
-    console.log("Intentando iniciar sesión con:", username);
-    
-    // CRÍTICO: Crear petición con URL absolutamente correcta como fallback
-    let response;
+  const login = async (username: string, password: string, rememberMe?: boolean) => {
     try {
-      // Intentar primero con el cliente api configurado
-      response = await api.post("/auth/login", { username, password });
-    } catch (error) {
-      console.error("Error en primera petición, intentando con URL absoluta:", error);
+      console.log("Intentando iniciar sesión con:", username);
       
-      // Si falla, intentar directamente con axios y URL absoluta
-      const backupUrl = 'https://culturadigitalversionfinal-production.up.railway.app/api/auth/login';
-      console.log("Intentando con URL de respaldo:", backupUrl);
-      
-      response = await axios.post(backupUrl, { username, password }, {
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
-    
-    if (response.data.success) {
-      const { token, refreshToken, user } = response.data;
-      
-      // Guardar tokens y datos de usuario
-      if (rememberMe) {
-        localStorage.setItem("token", token);
-        localStorage.setItem("refreshToken", refreshToken);
-        localStorage.setItem("user", JSON.stringify(user));
-      } else {
-        sessionStorage.setItem("token", token);
-        sessionStorage.setItem("refreshToken", refreshToken);
-        sessionStorage.setItem("user", JSON.stringify(user));
+      // CRÍTICO: Crear petición con URL absolutamente correcta como fallback
+      let response;
+      try {
+        // Intentar primero con el cliente api configurado
+        response = await api.post("/auth/login", { username, password });
+      } catch (error) {
+        console.error("Error en primera petición, intentando con URL absoluta:", error);
+        
+        // Si falla, intentar directamente con axios y URL absoluta
+        const backupUrl = 'https://culturadigitalversionfinal-production.up.railway.app/api/auth/login';
+        console.log("Intentando con URL de respaldo:", backupUrl);
+        
+        response = await axios.post(backupUrl, { username, password }, {
+          headers: { 'Content-Type': 'application/json' }
+        });
       }
       
-      setUser(user);
-      setToken(token);
-      
-      console.log("Login exitoso:", user);
-    } else {
-      console.error("Error de login:", response.data.message);
-      throw new Error(response.data.message || 'Error de autenticación');
+      if (response.data.success) {
+        const { token, refreshToken, user } = response.data;
+        
+        // Guardar tokens y datos de usuario
+        if (rememberMe) {
+          localStorage.setItem("token", token);
+          localStorage.setItem("refreshToken", refreshToken);
+          localStorage.setItem("user", JSON.stringify(user));
+        } else {
+          sessionStorage.setItem("token", token);
+          sessionStorage.setItem("refreshToken", refreshToken);
+          sessionStorage.setItem("user", JSON.stringify(user));
+        }
+        
+        setUser(user);
+        setToken(token);
+        
+        console.log("Login exitoso:", user);
+      } else {
+        console.error("Error de login:", response.data.message);
+        throw new Error(response.data.message || 'Error de autenticación');
+      }
+    } catch (error) {
+      console.error("Error de conexión con el servidor:", error);
+      throw error;
     }
-  } catch (error) {
-    console.error("Error de conexión con el servidor:", error);
-    throw error;
-  }
-};
+  };
 
   const register = async (
     username: string, 

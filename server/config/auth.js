@@ -79,31 +79,96 @@ const verifyRefreshToken = async (token) => {
 
 // Middleware para verificar autenticación
 const authenticateToken = (req, res, next) => {
-  // Extraer el token del encabezado de autorización
+  // Obtener token del encabezado Authorization
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+  console.log(`[AUTH] Verificando token para ${req.method} ${req.path}`);
+  
+  if (!authHeader) {
+    console.log('[AUTH] No se encontró token');
+    return res.status(401).json({
+      success: false,
+      error: 'Token requerido',
+      message: 'No se proporcionó token de autenticación'
+    });
+  }
+  
+  const token = authHeader.split(' ')[1];
   
   if (!token) {
-    return res.status(401).json({ 
+    console.log('[AUTH] Token mal formateado (sin "Bearer")');
+    return res.status(401).json({
       success: false,
-      error: 'No autorizado',
-      message: 'Token de acceso no proporcionado' 
+      error: 'Token inválido',
+      message: 'Formato de token inválido'
     });
   }
   
-  // Verificar el token
-  const user = verifyToken(token);
-  if (!user) {
-    return res.status(403).json({ 
+  try {
+    // Verificar y decodificar el token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
+    // Adjuntar información del usuario a la solicitud para uso posterior
+    req.user = decoded;
+    
+    // Verificar que el usuario exista en la BD y esté activo
+    pool.query('SELECT is_active FROM users WHERE id = $1', [decoded.id])
+      .then(result => {
+        if (result.rows.length === 0) {
+          console.log(`[AUTH] Usuario no encontrado: ${decoded.id}`);
+          return res.status(401).json({
+            success: false,
+            error: 'Usuario inválido',
+            message: 'El usuario asociado al token no existe'
+          });
+        }
+        
+        if (!result.rows[0].is_active) {
+          console.log(`[AUTH] Usuario inactivo: ${decoded.id}`);
+          return res.status(403).json({
+            success: false,
+            error: 'Usuario inactivo',
+            message: 'Tu cuenta está desactivada. Contacta al administrador.'
+          });
+        }
+        
+        // Usuario encontrado y activo, proceder
+        console.log(`[AUTH] Usuario ${decoded.id} autenticado correctamente`);
+        next();
+      })
+      .catch(err => {
+        console.error('Error al verificar usuario en BD:', err);
+        return res.status(500).json({
+          success: false,
+          error: 'Error de servidor',
+          message: 'Error al verificar usuario en la base de datos'
+        });
+      });
+  } catch (error) {
+    console.error('Error verificando token:', error.message);
+    
+    // Mensajes específicos según el tipo de error
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({
+        success: false,
+        error: 'Token expirado',
+        message: 'Tu sesión ha expirado. Por favor inicia sesión nuevamente.',
+        code: 'TOKEN_EXPIRED'
+      });
+    } else if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({
+        success: false,
+        error: 'Token inválido',
+        message: 'Token de autenticación inválido.',
+        code: 'INVALID_TOKEN'
+      });
+    }
+    
+    return res.status(403).json({
       success: false,
-      error: 'Token inválido o expirado',
-      message: 'Su sesión ha expirado. Por favor inicie sesión de nuevo.' 
+      error: 'Error de autenticación',
+      message: 'No autorizado: ' + error.message
     });
   }
-  
-  // Adjuntar el usuario a la solicitud
-  req.user = user;
-  next();
 };
 
 // Middleware para verificar roles
