@@ -9,14 +9,18 @@ const api = axios.create({
   timeout: 15000
 });
 
-// Interceptor para agregar el token y forzar el prefijo /api/
+// Interceptor para agregar el token y forzar el prefijo /api/ solo si corresponde
 api.interceptors.request.use(
   config => {
-    // Forzar el prefijo /api/ si la ruta no lo tiene
-    if (config.url && !config.url.startsWith('/api/')) {
+    // Solo agregar /api si la url es relativa y no empieza por /api ni es absoluta
+    if (
+      config.url &&
+      !config.url.startsWith('/api/') &&
+      !config.url.startsWith('http')
+    ) {
       config.url = '/api' + (config.url.startsWith('/') ? config.url : '/' + config.url);
     }
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

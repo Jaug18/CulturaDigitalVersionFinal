@@ -88,8 +88,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.removeItem('user');
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('AuthContext: Error checking authentication', error);
+
+      // Si el error es por JWT inválido, forzar logout
+      if (
+        error?.response?.data?.message?.toLowerCase?.().includes('jwt') ||
+        error?.response?.data?.error?.toLowerCase?.().includes('jwt')
+      ) {
+        logout();
+        return;
+      }
       
       // CRÍTICO: No limpiar datos si hay un error de red
       const storedUser = localStorage.getItem('user');
