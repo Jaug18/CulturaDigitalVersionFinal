@@ -229,15 +229,26 @@ export const exportContacts = (listId?: number, status?: string): string => {
   if (params.length > 0) {
     url += '?' + params.join('&');
   }
-  
-  // Retornar la URL completa para descargar el archivo
-  return axiosInstance.defaults.baseURL + url;
+
+  // Corregir: evitar doble /api en la URL
+  let base = axiosInstance.defaults.baseURL || '';
+  if (base.endsWith('/')) base = base.slice(0, -1);
+  // Si base ya termina en /api, quitar el prefijo /api de url
+  if (base.endsWith('/api') && url.startsWith('/api')) {
+    url = url.replace(/^\/api/, '');
+  }
+  return base ? base + url : url;
 };
 
 // Exportar listas a CSV
 export const exportLists = (): string => {
-  const url = '/api/lists/export';
-  return axiosInstance.defaults.baseURL + url;
+  let url = '/api/lists/export';
+  let base = axiosInstance.defaults.baseURL || '';
+  if (base.endsWith('/')) base = base.slice(0, -1);
+  if (base.endsWith('/api') && url.startsWith('/api')) {
+    url = url.replace(/^\/api/, '');
+  }
+  return base ? base + url : url;
 };
 
 // Importar listas desde archivo

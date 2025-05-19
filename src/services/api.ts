@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Crear instancia de axios con baseURL fija
 const api = axios.create({
-  baseURL: 'https://culturadigitalversionfinal-production.up.railway.app/api',
+  baseURL: 'https://culturadigitalversionfinal-production.up.railway.app',
   headers: {
     'Content-Type': 'application/json',
   },
