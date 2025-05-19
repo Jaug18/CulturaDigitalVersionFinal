@@ -9,7 +9,6 @@ import { toast } from "@/hooks/use-toast";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
-import { useNavigate } from "react-router-dom";
 
 import {
   Table,
@@ -167,8 +166,6 @@ const Contacts = () => {
   const [mergeTargetListId, setMergeTargetListId] = useState<number | null>(null);
   const [showInactiveContacts, setShowInactiveContacts] = useState(false);
 
-  const navigate = useNavigate();
-
   // Agregar una función para generar páginas fijas similar a la de Notifications
   const getFixedPageNumbers = (current: number, total: number) => {
     const fixedVisiblePages = 5;
@@ -269,41 +266,19 @@ const Contacts = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // --- NUEVO: Verificar token antes de cargar datos ---
-        const token = localStorage.getItem('token');
-        if (!token) {
-          toast({
-            title: "Sesión expirada",
-            description: "Por favor inicia sesión nuevamente.",
-            variant: "destructive",
-          });
-          navigate("/login");
-          return;
-        }
         setIsLoadingContacts(true);
         setIsLoadingLists(true);
-
+        
         const contactsPromise = getContacts();
         const listsPromise = getLists();
-
+        
         const [contactsData, listsData] = await Promise.all([contactsPromise, listsPromise]);
-
+        
         setContacts(contactsData);
         setAllContacts(contactsData);
         setFilteredContacts(contactsData);
         setLists(listsData);
-      } catch (error: any) {
-        // --- NUEVO: Manejo específico de error 401 ---
-        if (error?.response?.status === 401) {
-          toast({
-            title: "Sesión expirada",
-            description: "Por seguridad, inicia sesión nuevamente.",
-            variant: "destructive",
-          });
-          localStorage.removeItem('token');
-          navigate("/login");
-          return;
-        }
+      } catch (error) {
         console.error('Error al cargar datos iniciales:', error);
         toast({
           title: "Error de conexión",
@@ -315,9 +290,9 @@ const Contacts = () => {
         setIsLoadingLists(false);
       }
     };
-
+    
     fetchData();
-  }, [navigate, toast]);
+  }, []);
   
   // Actualizar contactos filtrados y ordenados
   useEffect(() => {
