@@ -516,7 +516,9 @@ export const sendEmail = async (options: EmailSendOptions): Promise<EmailSendRes
         }
 
         // Guardar versión sin wrapper para previsualización
-        cleanPreviewContent = finalHtmlContent.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '');
+        cleanPreviewContent = finalHtmlContent.replace(/<!DOCTYPE[^>]*>/, '')
+          .replace(/<html[^>]*>[\s\S]*?<body[^>]*>/i, '')
+          .replace(/<\/body>[\s\S]*?<\/html>/i, '');
         
         // Añadir el wrapper para el email real
         finalHtmlContent = `
@@ -564,8 +566,8 @@ export const sendEmail = async (options: EmailSendOptions): Promise<EmailSendRes
         totalKb = window.__emailImageStats.totalKb || 0;
       }
       
-      // Guardar una versión limpia del HTML (solo elimina scripts y estilos)
-      cleanPreviewContent = finalHtmlContent.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '');
+      // Guardar una versión limpia del HTML
+      cleanPreviewContent = extractContentPreview(finalHtmlContent);
     }
 
     // Registrar estadísticas de imágenes
