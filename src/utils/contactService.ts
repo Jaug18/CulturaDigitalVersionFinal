@@ -217,27 +217,31 @@ export const importContacts = async (contacts: any[]): Promise<{ success: number
 export const exportContacts = (listId?: number, status?: string): string => {
   let url = '/api/contacts/export';
   const params = [];
-  
+
   if (listId) {
     params.push(`listId=${listId}`);
   }
-  
+
   if (status) {
     params.push(`status=${status}`);
   }
-  
+
   if (params.length > 0) {
     url += '?' + params.join('&');
   }
-  
-  // Retornar la URL completa para descargar el archivo
-  return axiosInstance.defaults.baseURL + url;
+
+  // --- NUEVO: Asegurar URL absoluta ---
+  let base = axiosInstance.defaults.baseURL || '';
+  if (base && base.endsWith('/')) base = base.slice(0, -1);
+  return base ? base + url : url;
 };
 
 // Exportar listas a CSV
 export const exportLists = (): string => {
   const url = '/api/lists/export';
-  return axiosInstance.defaults.baseURL + url;
+  let base = axiosInstance.defaults.baseURL || '';
+  if (base && base.endsWith('/')) base = base.slice(0, -1);
+  return base ? base + url : url;
 };
 
 // Importar listas desde archivo
