@@ -48,9 +48,8 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      // CAMBIO CRÍTICO: Usar el método de login del contexto directamente
-      // sin intentar hacer la petición desde este componente
-      await login(username, password);
+      // CAMBIO: pasar rememberMe al método login
+      await login(username, password, rememberMe);
       // La redirección se maneja en el useEffect
     } catch (error: any) {
       console.error('Error al iniciar sesión:', error);
