@@ -784,7 +784,9 @@ app.post('/api/schedule-email', authenticateToken, async (req, res) => {
     }
     
     // Validar la fecha de programación
+    console.log('Valor recibido de scheduled_for:', scheduled_for);
     const scheduledDate = new Date(scheduled_for);
+    console.log('Interpretado como fecha:', scheduledDate, 'Timestamp:', scheduledDate.getTime());
     const now = new Date();
     
     if (isNaN(scheduledDate.getTime())) {

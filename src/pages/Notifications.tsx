@@ -286,7 +286,7 @@ const Notifications = () => {
 
     const halfVisible = Math.floor(fixedVisiblePages / 2);
     let startPage = Math.max(1, currentPage - halfVisible);
-    let endPage = Math.min(totalPages, startPage + fixedVisiblePages - 1);
+    const endPage = Math.min(totalPages, startPage + fixedVisiblePages - 1);
 
     if (endPage === totalPages) {
       startPage = Math.max(1, endPage - fixedVisiblePages + 1);
@@ -535,7 +535,7 @@ const Notifications = () => {
     setEditTitulo(email.titulo_principal || "");
     setEditSubtitulo(email.subtitulo || "");
     setEditContenido(email.contenido || "");
-    setEditHtml(email.content_preview || email.html_content || "");
+    setEditHtml(email.content_preview || "");
     setEditDialogOpen(true);
   };
 
