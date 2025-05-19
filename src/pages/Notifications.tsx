@@ -511,10 +511,16 @@ const Notifications = () => {
     let cleanHtml = '';
 
     if (email.content_preview) {
-      // Solo eliminar scripts y estilos por seguridad, pero NO la estructura HTML
       cleanHtml = email.content_preview
-        .replace(/<script[\s\S]*?<\/script>/gi, '')
-        .replace(/<style[\s\S]*?<\/style>/gi, '');
+        .replace(/<!DOCTYPE[^>]*>/gi, '')
+        .replace(/<html[^>]*>[\s\S]*?<body[^>]*>/gi, '')
+        .replace(/<\/body>[\s\S]*?<\/html>/gi, '');
+
+      cleanHtml = cleanHtml.replace(/<table[^>]*>\s*<tr>\s*<td[^>]*>\s*<table/gi, '<div');
+      cleanHtml = cleanHtml.replace(/<\/table>\s*<\/td>\s*<\/tr>\s*<\/table>/gi, '</div>');
+
+      cleanHtml = cleanHtml.replace(/<style[\s\S]*?<\/style>/gi, '');
+      cleanHtml = cleanHtml.replace(/<script[\s\S]*?<\/script>/gi, '');
     }
 
     setPreviewContent(cleanHtml);

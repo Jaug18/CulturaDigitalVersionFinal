@@ -79,16 +79,13 @@ export interface ScheduledEmailsResponse {
 }
 
 // Obtener historial de emails enviados
-export const getEmailHistory = async (page = 1, limit = 20): Promise<EmailHistoryResponse> => {
-  try {
-    const response = await axios.get('/api/emails', { 
-      params: { page, limit }
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error al obtener historial de emails:', error);
-    throw error;
-  }
+export const getEmailHistory = async (page = 1, limit = 100): Promise<EmailHistoryResponse> => {
+  const token = localStorage.getItem('token');
+  const response = await axios.get('/api/emails', {
+    headers: { Authorization: `Bearer ${token}` },
+    params: { page, limit }
+  });
+  return response.data;
 };
 
 // Obtener historial de correos programados
