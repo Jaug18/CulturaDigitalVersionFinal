@@ -444,19 +444,6 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
   };
 
   const getScheduledSendTime = (): Date => {
-      // Si se ha seleccionado una fecha y hora específica, usarla
-  if (scheduledDate && scheduledTime) {
-    const [hours, minutes] = scheduledTime.split(':').map(Number);
-    const scheduledDateTime = new Date(scheduledDate);
-    scheduledDateTime.setHours(hours, minutes, 0);
-    
-    // Si la fecha es en el pasado, usar la configuración alternativa
-    if (scheduledDateTime <= new Date()) {
-      console.log('Fecha seleccionada en el pasado, usando configuración alternativa');
-    } else {
-      return scheduledDateTime;
-    }
-  }
     const now = new Date();
     
     if (scheduleType === "minutes") {
