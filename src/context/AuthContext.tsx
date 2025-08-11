@@ -37,19 +37,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Función para limpiar tokens corruptos
+  const cleanCorruptedTokens = () => {
+    const localToken = localStorage.getItem('token');
+    
+    // Verificar localStorage
+    if (localToken && (localToken === 'null' || localToken === 'undefined' || localToken === null || !localToken.includes('.'))) {
+      console.warn('Token corrupto detectado en localStorage, limpiando...');
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('refreshToken');
+    }
+    
+    // Limpiar cualquier resto de sessionStorage
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
+    sessionStorage.removeItem('refreshToken');
+  };
+
   // Agregar función para verificar y limpiar tokens corruptos
   const checkAuth = async () => {
     try {
       setIsLoading(true);
       console.log("AuthContext: Checking auth...");
       
-      // Comprobar si hay tokens almacenados
-      const localToken = localStorage.getItem('token');
-      const sessionToken = sessionStorage.getItem('token');
-      const storedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
-      const token = localToken || sessionToken;
+      // Primero limpiar cualquier token corrupto
+      cleanCorruptedTokens();
       
-      if (!token) {
+      // Comprobar si hay tokens almacenados después de la limpieza
+      const localToken = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
+      const finalToken = localToken;
+      
+      if (!finalToken) {
         console.log("AuthContext: No token found");
         setUser(null);
         setToken(null);
@@ -61,10 +81,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/.test(token);
       };
       
-      if (!isValidJwt(token)) {
+      if (!isValidJwt(finalToken)) {
         console.error("AuthContext: Malformed JWT detected, forcing logout");
-        if (localToken) localStorage.removeItem('token');
-        if (sessionToken) sessionStorage.removeItem('token');
+        cleanCorruptedTokens();
         setUser(null);
         setToken(null);
         return;
@@ -75,7 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Restaurar usuario de localStorage mientras verificamos
           const parsedUser = JSON.parse(storedUser);
           setUser(parsedUser);
-          setToken(token);
+          setToken(finalToken);
           console.log("AuthContext: User restored from localStorage", parsedUser);
         } catch (e) {
           console.error("AuthContext: Error parsing stored user", e);
@@ -86,14 +105,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log("AuthContext: Verifying with server...");
       const response = await api.get('/auth/me', {
         headers: {
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${finalToken}`
         }
       });
       
       if (response.data && response.data.user) {
         console.log("AuthContext: Server verification successful", response.data.user);
         setUser(response.data.user);
-        setToken(token);
+        setToken(finalToken);
         localStorage.setItem('user', JSON.stringify(response.data.user));
       } else {
         console.log("AuthContext: Server response missing user data");
@@ -137,20 +156,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Forzar verificación de token al montar el componente 
   useEffect(() => {
-    // Verificar formato del token inmediatamente
+    // Limpiar tokens corruptos inmediatamente
+    cleanCorruptedTokens();
+    
+    // Verificar formato del token después de la limpieza
     const localToken = localStorage.getItem('token');
-    const sessionToken = sessionStorage.getItem('token');
     
     if (localToken && !/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/.test(localToken)) {
-      console.error("Token malformado en localStorage, eliminando");
+      console.error("Token malformado en localStorage después de limpieza, eliminando");
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-    }
-    
-    if (sessionToken && !/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/.test(sessionToken)) {
-      console.error("Token malformado en sessionStorage, eliminando");
-      sessionStorage.removeItem('token');
-      sessionStorage.removeItem('user');
     }
     
     checkAuth();
@@ -159,8 +174,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Restaurar inmediatamente los datos de localStorage al montar
   useEffect(() => {
     const restoreAuthState = () => {
-      const storedToken = localStorage.getItem('token') || sessionStorage.getItem('token');
-      const storedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
+      const storedToken = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
       if (storedToken && storedUser) {
         try {
           const parsedUser = JSON.parse(storedUser);
@@ -191,9 +206,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const interceptor = api.interceptors.request.use(
       config => {
+        // Obtener token de localStorage únicamente
         const currentToken = localStorage.getItem('token') || token;
-        if (currentToken) {
+        
+        if (currentToken && !config.url?.includes('/auth/login') && !config.url?.includes('/auth/register')) {
           config.headers.Authorization = `Bearer ${currentToken}`;
+          console.log(`[AuthContext] Token agregado a solicitud ${config.url}:`, currentToken.substring(0, 20) + '...');
         }
         return config;
       },
@@ -209,41 +227,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log("Intentando iniciar sesión con:", username);
       
-      // CRÍTICO: Crear petición con URL absolutamente correcta como fallback
-      let response;
-      try {
-        // Intentar primero con el cliente api configurado
-        response = await api.post("/auth/login", { username, password });
-      } catch (error) {
-        console.error("Error en primera petición, intentando con URL absoluta:", error);
-        
-        // Si falla, intentar directamente con axios y URL absoluta
-        const backupUrl = 'https://culturadigitalversionfinal-production.up.railway.app/api/auth/login';
-        console.log("Intentando con URL de respaldo:", backupUrl);
-        
-        response = await axios.post(backupUrl, { username, password }, {
-          headers: { 'Content-Type': 'application/json' }
-        });
-      }
+      const response = await api.post("/auth/login", { username, password });
       
       if (response.data.success) {
         const { token, refreshToken, user } = response.data;
         
-        // Guardar tokens y datos de usuario
-        if (rememberMe) {
-          localStorage.setItem("token", token);
-          localStorage.setItem("refreshToken", refreshToken);
-          localStorage.setItem("user", JSON.stringify(user));
-        } else {
-          sessionStorage.setItem("token", token);
-          sessionStorage.setItem("refreshToken", refreshToken);
-          sessionStorage.setItem("user", JSON.stringify(user));
-        }
+        console.log("Login exitoso, configurando estado...");
         
+        // SIEMPRE usar localStorage (sin importar rememberMe)
+        localStorage.setItem("token", token);
+        localStorage.setItem("refreshToken", refreshToken);
+        localStorage.setItem("user", JSON.stringify(user));
+        console.log("Token guardado en localStorage");
+        
+        // Configurar token en axios inmediatamente
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        
+        // Luego establecer estado local
         setUser(user);
         setToken(token);
         
-        console.log("Login exitoso:", user);
+        // Pequeña pausa para asegurar que todo se establezca correctamente
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        console.log("Login completamente configurado:", user);
       } else {
         console.error("Error de login:", response.data.message);
         throw new Error(response.data.message || 'Error de autenticación');
@@ -283,30 +290,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const logout = () => {
-    // Limpiar estado
-    setUser(null);
-    setToken(null);
-    
-    // Limpiar localStorage
-    localStorage.removeItem('token');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
-    
-    // Limpiar token en api
-    delete api.defaults.headers.common['Authorization'];
-    
-    // Limpiar cualquier caché de datos
-    // Esto es crucial para evitar que datos de un usuario aparezcan para otro
-    sessionStorage.clear();
-    
-    // Purgar caché de API
-    if ('caches' in window) {
-      caches.keys().then(names => {
-        names.forEach(name => {
-          caches.delete(name);
+  const logout = async () => {
+    try {
+      // Intentar revocar el token en el servidor
+      const token = localStorage.getItem('token');
+      if (token) {
+        await api.post('/auth/logout', {}, {
+          headers: { Authorization: `Bearer ${token}` }
+        }).catch(err => {
+          // Si falla, continuar con logout local
+          console.warn('Error al notificar logout al servidor:', err);
         });
-      });
+      }
+    } catch (error) {
+      console.warn('Error durante logout en servidor:', error);
+    } finally {
+      // Limpiar estado local siempre
+      setUser(null);
+      setToken(null);
+      
+      // Limpiar localStorage
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+      
+      // Limpiar sessionStorage (por si acaso)
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('refreshToken');
+      sessionStorage.removeItem('user');
+      
+      // Limpiar headers de axios
+      delete api.defaults.headers.common['Authorization'];
+      
+      // Limpiar caché del navegador
+      if ('caches' in window) {
+        caches.keys().then(names => {
+          names.forEach(name => {
+            caches.delete(name);
+          });
+        });
+      }
+      
+      console.log('Logout completado');
     }
   };
 

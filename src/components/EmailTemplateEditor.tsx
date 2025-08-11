@@ -35,122 +35,36 @@ import axios from "axios";
 
 const ContactsSelectorContent = ({
   contacts,
-  lists,
   selectedContacts,
   setSelectedContacts,
-  selectedLists,
-  setSelectedLists,
-  contactsTab,
-  setContactsTab,
   contactSearchTerm,
   setContactSearchTerm,
   filteredContacts,
+  lists,
+  selectedLists,
+  toggleList,
+  listSearchTerm,
+  setListSearchTerm,
+  filteredLists,
 }) => {
-  const token = localStorage.getItem('token');
-  const [internalSelectedContacts, setInternalSelectedContacts] = useState(selectedContacts);
-  const [internalSelectedLists, setInternalSelectedLists] = useState(selectedLists);
-  const [isLoadingLists, setIsLoadingLists] = useState(false);
-  const [localContactsTab, setLocalContactsTab] = useState(contactsTab);
-
-  useEffect(() => {
-    setInternalSelectedContacts(selectedContacts);
-  }, [selectedContacts]);
-
-  useEffect(() => {
-    setInternalSelectedLists(selectedLists);
-  }, [selectedLists]);
-
-  useEffect(() => {
-    if (contactsTab !== localContactsTab) {
-      setLocalContactsTab(contactsTab);
-    }
-  }, [contactsTab]);
-
-  const handleTabChange = useCallback((value) => {
-    setLocalContactsTab(value);
-    setContactsTab(value);
-  }, [setContactsTab]);
-
-  const handleSelectList = useCallback(async (listId) => {
-    setIsLoadingLists(true);
-
-    try {
-      if (internalSelectedLists.includes(listId)) {
-        const newSelectedLists = internalSelectedLists.filter(id => id !== listId);
-        setInternalSelectedLists(newSelectedLists);
-
-        if (newSelectedLists.length === 0) {
-          setInternalSelectedContacts([]);
-            setSelectedLists(newSelectedLists);
-            setSelectedContacts([]);
-        } else {
-          let allContactEmails = [];
-          for (const listToLoad of newSelectedLists) {
-            const response = await axios.get(`/api/lists/${listToLoad}/contacts`, {
-              headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const contactEmails = response.data.map(c => c.email);
-            allContactEmails = [...allContactEmails, ...contactEmails];
-          }
-
-          const uniqueEmails = [...new Set(allContactEmails)];
-          setInternalSelectedContacts(uniqueEmails);
-
-            setSelectedLists(newSelectedLists);
-            setSelectedContacts(uniqueEmails);
-        }
-      } else {
-        const response = await axios.get(`/api/lists/${listId}/contacts`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const contactEmails = response.data.map(c => c.email);
-
-        const newSelectedLists = [...internalSelectedLists, listId];
-        setInternalSelectedLists(newSelectedLists);
-
-        const allEmails = [...internalSelectedContacts, ...contactEmails];
-        const uniqueEmails = [...new Set(allEmails)];
-        setInternalSelectedContacts(uniqueEmails);
-
-          setSelectedLists(newSelectedLists);
-          setSelectedContacts(uniqueEmails);
-      }
-    } catch (err) {
-      console.error("Error gestionando lista:", err);
-    } finally {
-      setIsLoadingLists(false);
-    }
-  }, [internalSelectedLists, internalSelectedContacts, token, setSelectedLists, setSelectedContacts]);
-
   const toggleContact = useCallback((email) => {
-    setInternalSelectedContacts(prev => {
+    setSelectedContacts(prev => {
       const included = prev.includes(email);
-      const newContacts = included
+      return included
         ? prev.filter(e => e !== email)
         : [...prev, email];
-
-        setSelectedContacts(newContacts);
-
-
-      return newContacts;
     });
   }, [setSelectedContacts]);
 
   return (
-    <div className="space-y-4">
-      <Tabs
-        defaultValue={localContactsTab}
-        value={localContactsTab}
-        onValueChange={handleTabChange}
-        className="selection-tabs"
-      >
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="contacts">Contactos</TabsTrigger>
-          <TabsTrigger value="lists">Listas</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="contacts" className="space-y-4">
-          <div className="relative">
+    <Tabs defaultValue="contacts" className="flex flex-col h-full space-y-4">
+      <TabsList className="grid w-full grid-cols-2">
+        <TabsTrigger value="contacts">Contactos</TabsTrigger>
+        <TabsTrigger value="lists">Listas</TabsTrigger>
+      </TabsList>
+      <TabsContent value="contacts" className="flex-1 overflow-y-auto min-h-0">
+        <div className="flex flex-col h-full space-y-4">
+          <div className="relative flex-shrink-0">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               placeholder="Buscar contactos..."
@@ -160,32 +74,35 @@ const ContactsSelectorContent = ({
             />
           </div>
 
-          <div className="border rounded-md h-[400px] overflow-y-auto p-2">
+          <div className="border rounded-md flex-1 overflow-y-auto p-3 min-h-0">
             {filteredContacts.length === 0 ? (
               <div className="flex items-center justify-center h-full text-gray-500">
-                No se encontraron contactos
+                <div className="text-center">
+                  <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p>{contactSearchTerm?.trim() ? "No se encontraron contactos que coincidan con la búsqueda" : "No se encontraron contactos"}</p>
+                </div>
               </div>
             ) : (
               <div className="space-y-2">
                 {filteredContacts.map((contact) => (
                   <div
                     key={contact.id}
-                    className={`p-2 rounded-md flex items-center justify-between hover:bg-gray-100 cursor-pointer ${
-                      internalSelectedContacts.includes(contact.email) ? "bg-blue-50 border border-blue-200" : ""
+                    className={`p-3 rounded-lg flex items-center justify-between hover:bg-gray-50 cursor-pointer transition-colors border ${
+                      selectedContacts.includes(contact.email) ? "bg-blue-50 border-blue-200" : "border-transparent hover:border-gray-200"
                     }`}
                     onClick={() => toggleContact(contact.email)}
                   >
-                    <div>
-                      <div className="font-medium">{contact.name || "Sin nombre"}</div>
-                      <div className="text-xs text-gray-500">{contact.email}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-sm truncate">{contact.name || "Sin nombre"}</div>
+                      <div className="text-xs text-gray-500 truncate">{contact.email}</div>
                     </div>
-                    <div className={`w-5 h-5 rounded-full border ${
-                      internalSelectedContacts.includes(contact.email)
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ml-3 transition-colors ${
+                      selectedContacts.includes(contact.email)
                         ? "bg-blue-500 border-blue-500"
-                        : "border-gray-300"
+                        : "border-gray-300 hover:border-gray-400"
                     }`}>
-                      {internalSelectedContacts.includes(contact.email) && (
-                        <Check className="w-4 h-4 text-white mx-auto" />
+                      {selectedContacts.includes(contact.email) && (
+                        <Check className="w-3 h-3 text-white" />
                       )}
                     </div>
                   </div>
@@ -193,70 +110,60 @@ const ContactsSelectorContent = ({
               </div>
             )}
           </div>
-
-          {internalSelectedContacts.length > 0 && (
-            <div className="text-sm text-gray-600 font-medium">
-              {internalSelectedContacts.length} contacto(s) seleccionado(s)
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="lists" className="space-y-4">
-          <div className="border rounded-md h-[400px] overflow-y-auto p-2 relative">
-            {isLoadingLists && (
-              <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
-                <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
-              </div>
-            )}
-
-            {lists.length === 0 ? (
+        </div>
+      </TabsContent>
+      <TabsContent value="lists" className="flex-1 overflow-y-auto min-h-0">
+        <div className="flex flex-col h-full space-y-4">
+          <div className="relative flex-shrink-0">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Buscar listas..."
+              className="pl-9"
+              value={listSearchTerm}
+              onChange={(e) => setListSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className="border rounded-md flex-1 overflow-y-auto p-3 min-h-0 h-full">
+            {filteredLists.length === 0 ? (
               <div className="flex items-center justify-center h-full text-gray-500">
-                No se encontraron listas
+                <div className="text-center">
+                  <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p>{listSearchTerm?.trim() ? "No se encontraron listas que coincidan con la búsqueda" : "No se encontraron listas"}</p>
+                </div>
               </div>
             ) : (
               <div className="space-y-2">
-                {lists.map((list) => (
+                {filteredLists.map((list) => (
                   <div
                     key={list.id}
-                    className={`p-2 rounded-md hover:bg-gray-100 cursor-pointer ${
-                      internalSelectedLists.includes(list.id.toString()) ? "bg-blue-50 border border-blue-200" : ""
+                    className={`p-3 rounded-lg flex items-center justify-between hover:bg-gray-50 cursor-pointer transition-colors border ${
+                      selectedLists.includes(list.id) ? "bg-blue-50 border-blue-200" : "border-transparent hover:border-gray-200"
                     }`}
-                    onClick={() => handleSelectList(list.id.toString())}
+                    onClick={() => toggleList(list)}
                   >
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <div className="font-medium">{list.name}</div>
-                        <div className="text-xs text-gray-500">
-                          {list.contact_count || 0} contacto(s)
-                        </div>
-                        {list.description && (
-                          <div className="text-xs text-gray-600 mt-1">{list.description}</div>
-                        )}
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-sm truncate">{list.name}</div>
+                      <div className="text-xs text-gray-500 truncate">
+                        {list.contact_count || list.contactCount || 0} contactos
                       </div>
-                      <div className={`w-5 h-5 rounded-full border ${
-                        internalSelectedLists.includes(list.id.toString())
-                          ? "bg-blue-500 border-blue-500"
-                          : "border-gray-300"
-                      }`}>
-                        {internalSelectedLists.includes(list.id.toString()) && (
-                          <Check className="w-4 h-4 text-white mx-auto" />
-                        )}
-                      </div>
+                    </div>
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ml-3 transition-colors ${
+                      selectedLists.includes(list.id)
+                        ? "bg-blue-500 border-blue-500"
+                        : "border-gray-300 hover:border-gray-400"
+                    }`}>
+                      {selectedLists.includes(list.id) && (
+                        <Check className="w-3 h-3 text-white" />
+                      )}
                     </div>
                   </div>
                 ))}
               </div>
             )}
           </div>
-
-          {internalSelectedLists.length > 0 && (
-            <div className="text-sm text-blue-600 font-medium">
-              {internalSelectedLists.length} lista(s) seleccionada(s) con {internalSelectedContacts.length} contacto(s) únicos
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
-    </div>
+        </div>
+      </TabsContent>
+    </Tabs>
   );
 };
 
@@ -266,8 +173,8 @@ const EmailTemplateEditor = () => {
   const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
   const [selectedLists, setSelectedLists] = useState<string[]>([]);
   const [contactsDialogOpen, setContactsDialogOpen] = useState<boolean>(false);
-  const [contactsTab, setContactsTab] = useState<"contacts" | "lists">("contacts");
   const [contactSearchTerm, setContactSearchTerm] = useState<string>("");
+  const [listSearchTerm, setListSearchTerm] = useState<string>("");
 
   const { toast } = useToast();
   const [selectedTemplate, setSelectedTemplate] = useState<string>("template1");
@@ -333,7 +240,6 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
       toast({
         title: "Advertencia",
         description: "La imagen es demasiado grande (>5MB). Podría causar problemas en algunos clientes de correo.",
-        variant: "warning",
       });
     }
 
@@ -363,10 +269,51 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     axios.get('/api/contacts', {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
     }).then(res => setContacts(res.data)).catch(() => setContacts([]));
-    // Cargar listas
-    axios.get('/api/lists', {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    }).then(res => setLists(res.data)).catch(() => setLists([]));
+    
+    // Cargar listas con contactos incluidos
+    const loadListsWithContacts = async () => {
+      try {
+        const response = await axios.get('/api/lists', {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        
+        console.log('Respuesta completa de listas:', response.data);
+        
+        // Si cada lista tiene un ID, cargar los contactos para cada una
+        const listsWithContacts = await Promise.all(
+          response.data.map(async (list) => {
+            try {
+              console.log('Cargando contactos para lista:', list.id, list.name);
+              const contactsResponse = await axios.get(`/api/lists/${list.id}/contacts`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+              });
+              console.log(`Contactos para ${list.name}:`, contactsResponse.data);
+              return {
+                ...list,
+                contacts: contactsResponse.data,
+                contactCount: contactsResponse.data.length
+              };
+            } catch (error) {
+              console.log(`Error cargando contactos para lista ${list.name}:`, error);
+              // Si no existe el endpoint específico, intentar con la información que ya tenemos
+              return {
+                ...list,
+                contacts: list.contacts || [],
+                contactCount: list.contacts?.length || list._count?.contacts || list.contactCount || 0
+              };
+            }
+          })
+        );
+        
+        console.log('Listas con contactos procesadas:', listsWithContacts);
+        setLists(listsWithContacts);
+      } catch (err) {
+        console.error('Error cargando listas:', err);
+        setLists([]);
+      }
+    };
+    
+    loadListsWithContacts();
   }, []);
 
   const handleImportContacts = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -388,29 +335,10 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     }
   };
 
-  const handleImportLists = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const res = await axios.post('/api/lists/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      console.log('Listas importadas:', res.data.lists);
-    } catch (err) {
-      console.error('Error importando listas:', err);
-    }
-  };
-
   const getCurrentImage = () => {
     if (uploadedImage) return uploadedImage;
     if (templateContent.imageUrl) return templateContent.imageUrl;
-    return "https://via.placeholder.com/600x300";
+    return "https://placehold.co/600x400";
   };
 
   const getTemplateComponent = () => {
@@ -514,9 +442,9 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
           heading: templateContent.heading,
           subheading: templateContent.subheading,
           content: templateContent.content,
-          videoUrl: templateContent.videoUrl,
           buttonText: templateContent.buttonText,
           buttonUrl: templateContent.buttonUrl,
+          ...(selectedTemplate === "videoTemplate" && { videoUrl: templateContent.videoUrl }),
           ...(selectedTemplate !== "videoTemplate" && { imageUrl: getCurrentImage() })
         }
       });
@@ -599,9 +527,9 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
           heading: templateContent.heading,
           subheading: templateContent.subheading,
           content: templateContent.content,
-          videoUrl: templateContent.videoUrl,
           buttonText: templateContent.buttonText,
           buttonUrl: templateContent.buttonUrl,
+          ...(selectedTemplate === "videoTemplate" && { videoUrl: templateContent.videoUrl }),
           ...(selectedTemplate !== "videoTemplate" && { imageUrl: getCurrentImage() })
         },
         scheduledFor: scheduledTime.toISOString()
@@ -646,6 +574,13 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     );
   }, [contacts, contactSearchTerm]);
 
+  const filteredLists = useMemo(() => {
+    if (!listSearchTerm.trim()) return lists;
+    return lists.filter(
+      list => list.name?.toLowerCase().includes(listSearchTerm.toLowerCase())
+    );
+  }, [lists, listSearchTerm]);
+
   const applyContactSelection = useCallback(() => {
     if (selectedContacts.length > 0) {
       setEmailTo(selectedContacts.join(", "));
@@ -666,8 +601,8 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const ContactsDialogContent = () => {
       const [localSelectedContacts, setLocalSelectedContacts] = useState([...selectedContacts]);
       const [localSelectedLists, setLocalSelectedLists] = useState([...selectedLists]);
-      const [localContactsTab, setLocalContactsTab] = useState(contactsTab);
       const [localSearchTerm, setLocalSearchTerm] = useState(contactSearchTerm);
+      const [localListSearchTerm, setLocalListSearchTerm] = useState("");
 
       // Filtrar contactos basados en el término de búsqueda local
       const localFilteredContacts = useMemo(() => {
@@ -679,11 +614,80 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         );
       }, [contacts, localSearchTerm]);
 
+      const localFilteredLists = useMemo(() => {
+        if (!localListSearchTerm.trim()) return lists;
+        return lists.filter(
+          list => list.name?.toLowerCase().includes(localListSearchTerm.toLowerCase())
+        );
+      }, [lists, localListSearchTerm]);
+
+      const toggleList = async (list) => {
+        const isSelected = localSelectedLists.includes(list.id);
+
+        console.log('Toggle list:', list.name, 'IsSelected:', isSelected);
+
+        if (isSelected) {
+            // Deselect list - necesitamos cargar los contactos para poder deseleccionarlos
+            try {
+              const response = await axios.get(`/api/lists/${list.id}/contacts`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+              });
+              
+              const data = response.data;
+              
+              if (data.success && data.data) {
+                const listContacts = data.data;
+                const listContactEmails = listContacts.map(c => c.email).filter(Boolean);
+                
+                setLocalSelectedLists(prev => prev.filter(id => id !== list.id));
+                setLocalSelectedContacts(prev => prev.filter(email => !listContactEmails.includes(email)));
+                
+                console.log('Lista deseleccionada:', list.name, 'Emails removidos:', listContactEmails);
+              }
+            } catch (error) {
+              console.error('Error al cargar contactos para deseleccionar lista:', error);
+              // Fallback: solo remover la lista de las seleccionadas
+              setLocalSelectedLists(prev => prev.filter(id => id !== list.id));
+            }
+        } else {
+            // Select list - cargar contactos desde la API
+            try {
+              const response = await axios.get(`/api/lists/${list.id}/contacts`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+              });
+              
+              const data = response.data;
+              
+              console.log('Respuesta de contactos de lista:', data);
+              
+              if (data.success && data.data) {
+                const listContacts = data.data;
+                const listContactEmails = listContacts.map(c => c.email).filter(Boolean);
+                
+                setLocalSelectedLists(prev => [...prev, list.id]);
+                setLocalSelectedContacts(prev => {
+                    const newContacts = listContactEmails.filter(email => !prev.includes(email));
+                    return [...prev, ...newContacts];
+                });
+                
+                console.log('Lista seleccionada:', list.name, 'Nuevos contactos agregados:', listContactEmails);
+              } else {
+                console.warn('No se pudieron cargar contactos de la lista:', list.name);
+                // Aún así seleccionar la lista aunque no tengamos contactos
+                setLocalSelectedLists(prev => [...prev, list.id]);
+              }
+            } catch (error) {
+              console.error('Error al cargar contactos de la lista:', error);
+              // Aún así seleccionar la lista aunque haya un error
+              setLocalSelectedLists(prev => [...prev, list.id]);
+            }
+        }
+      };
+
       // Función para aplicar selección
       const applySelection = () => {
         setSelectedContacts(localSelectedContacts);
         setSelectedLists(localSelectedLists);
-        setContactsTab(localContactsTab);
         setContactSearchTerm(localSearchTerm);
         
         if (localSelectedContacts.length > 0) {
@@ -697,26 +701,29 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
       };
 
       return (
-        <>
-          <ContactsSelectorContent
-            contacts={contacts}
-            lists={lists}
-            selectedContacts={localSelectedContacts}
-            setSelectedContacts={setLocalSelectedContacts}
-            selectedLists={localSelectedLists}
-            setSelectedLists={setLocalSelectedLists}
-            contactsTab={localContactsTab}
-            setContactsTab={setLocalContactsTab}
-            contactSearchTerm={localSearchTerm}
-            setContactSearchTerm={setLocalSearchTerm}
-            filteredContacts={localFilteredContacts}
-          />
-          <div className="pt-4">
+        <div className="flex flex-col h-full">
+          <div className="flex-1 overflow-hidden">
+            <ContactsSelectorContent
+              contacts={contacts}
+              selectedContacts={localSelectedContacts}
+              setSelectedContacts={setLocalSelectedContacts}
+              contactSearchTerm={localSearchTerm}
+              setContactSearchTerm={setLocalSearchTerm}
+              filteredContacts={localFilteredContacts}
+              lists={lists}
+              selectedLists={localSelectedLists}
+              toggleList={toggleList}
+              listSearchTerm={localListSearchTerm}
+              setListSearchTerm={setLocalListSearchTerm}
+              filteredLists={localFilteredLists}
+            />
+          </div>
+          <div className="border-t pt-4 bg-white flex-shrink-0">
             <Button onClick={applySelection} className="w-full">
               Aplicar selección ({localSelectedContacts.length} contactos)
             </Button>
           </div>
-        </>
+        </div>
       );
     };
 
@@ -740,14 +747,9 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
                 Elige contactos individuales o listas completas como destinatarios
               </DrawerDescription>
             </DrawerHeader>
-            <div className="px-4 py-2">
+            <div className="flex-1 overflow-hidden px-4 pb-4">
               <ContactsDialogContent />
             </div>
-            <DrawerFooter>
-              <DrawerClose asChild>
-                <Button variant="outline">Cancelar</Button>
-              </DrawerClose>
-            </DrawerFooter>
           </DrawerContent>
         </Drawer>
       );
@@ -765,14 +767,14 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
             Seleccionar destinatarios
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[650px] max-h-[85vh] overflow-hidden">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-[650px] h-[600px] flex flex-col p-0">
+          <DialogHeader className="p-6 pb-4 border-b">
             <DialogTitle>Seleccionar destinatarios</DialogTitle>
             <DialogDescription>
               Elige contactos individuales o listas completas como destinatarios
             </DialogDescription>
           </DialogHeader>
-          <div className="overflow-y-auto pr-2" style={{maxHeight: "calc(85vh - 200px)"}}>
+          <div className="flex-1 overflow-hidden p-6 pt-0">
             <ContactsDialogContent />
           </div>
         </DialogContent>
@@ -1142,7 +1144,7 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
                               alt="Vista previa"
                               className="max-w-full h-auto rounded-md"
                               onError={(e) => {
-                                e.currentTarget.src = "https://via.placeholder.com/600x300?text=Error+cargando+imagen";
+                                e.currentTarget.src = "https://placehold.co/600x400";
                               }}
                             />
                             <div className="absolute top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">

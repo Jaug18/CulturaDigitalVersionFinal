@@ -1,29 +1,12 @@
-import axios from 'axios';
 import api from '../services/api';
 
-// Usar axios configurado desde el servicio centralizado
-const axiosInstance = api.axios || axios;
-
-// --- NUEVO: Evitar múltiples registros del interceptor ---
-let interceptorRegistered = false;
-
-if (!interceptorRegistered) {
-  axiosInstance.interceptors.request.use(
-    (config) => {
-      // Siempre obtener el token más reciente
-      const token = localStorage.getItem('token');
-      // NUEVO: Log para depuración
-      console.log('[JWT] Token enviado en Authorization:', token);
-      if (token) {
-        config.headers = config.headers || {};
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      return config;
-    },
-    (error) => Promise.reject(error)
-  );
-  interceptorRegistered = true;
-}
+// Helper para obtener la URL base
+const getApiBaseUrl = () => {
+  if (import.meta.env.PROD) {
+    return `${window.location.protocol}//${window.location.host}`;
+  }
+  return ''; // En desarrollo, usar proxy
+};
 
 export interface Contact {
   id: number;
@@ -43,7 +26,7 @@ export interface List {
 export const getContacts = async (search?: string): Promise<Contact[]> => {
   try {
     const params = search ? { search } : {};
-    const response = await axiosInstance.get('/api/contacts', { params });
+    const response = await api.get('/contacts', { params });
     return response.data;
   } catch (error) {
     console.error('Error al obtener contactos:', error);
@@ -54,7 +37,7 @@ export const getContacts = async (search?: string): Promise<Contact[]> => {
 // Obtener todas las listas
 export const getLists = async (): Promise<List[]> => {
   try {
-    const response = await axiosInstance.get('/api/lists');
+    const response = await api.get('/lists');
     return response.data;
   } catch (error) {
     console.error('Error al obtener listas:', error);
@@ -65,8 +48,9 @@ export const getLists = async (): Promise<List[]> => {
 // Obtener contactos de una lista específica
 export const getListContacts = async (listId: number): Promise<Contact[]> => {
   try {
-    const response = await axiosInstance.get(`/api/lists/${listId}/contacts`);
-    return response.data;
+    const response = await api.get(`/lists/${listId}/contacts`);
+    // El backend devuelve { success: true, data: contacts }
+    return response.data.data || [];
   } catch (error) {
     console.error('Error al obtener contactos de la lista:', error);
     throw error;
@@ -76,7 +60,7 @@ export const getListContacts = async (listId: number): Promise<Contact[]> => {
 // Crear un nuevo contacto
 export const createContact = async (contact: { name: string; email: string }): Promise<Contact> => {
   try {
-    const response = await axiosInstance.post('/api/contacts', contact);
+    const response = await api.post('/contacts', contact);
     // El backend responde con { success, contact }
     return response.data.contact;
   } catch (error) {
@@ -88,7 +72,7 @@ export const createContact = async (contact: { name: string; email: string }): P
 // Actualizar un contacto
 export const updateContact = async (id: number, contact: { name: string; email: string }): Promise<Contact> => {
   try {
-    const response = await axiosInstance.put(`/api/contacts/${id}`, contact);
+    const response = await api.put(`/contacts/${id}`, contact);
     return response.data;
   } catch (error) {
     console.error('Error al actualizar contacto:', error);
@@ -99,7 +83,7 @@ export const updateContact = async (id: number, contact: { name: string; email: 
 // Eliminar un contacto
 export const deleteContact = async (id: number): Promise<void> => {
   try {
-    await axiosInstance.delete(`/api/contacts/${id}`);
+    await api.delete(`/contacts/${id}`);
   } catch (error) {
     console.error('Error al eliminar contacto:', error);
     throw error;
@@ -112,7 +96,7 @@ export const updateContactStatus = async (contactId: number | undefined, status:
   }
   
   try {
-    const response = await axiosInstance.patch(`/api/contacts/${contactId}/status`, { status });
+    const response = await api.patch(`/contacts/${contactId}/status`, { status });
     return response.data;
   } catch (error) {
     console.error('Error al actualizar estado del contacto:', error);
@@ -123,7 +107,7 @@ export const updateContactStatus = async (contactId: number | undefined, status:
 // Crear una nueva lista
 export const createList = async (name: string, description?: string): Promise<List> => {
   try {
-    const response = await axiosInstance.post('/api/lists', { name, description });
+    const response = await api.post('/lists', { name, description });
     // El backend responde con { success, list }
     return response.data.list;
   } catch (error) {
@@ -135,7 +119,7 @@ export const createList = async (name: string, description?: string): Promise<Li
 // Actualizar nombre de una lista
 export const updateList = async (id: number, name: string, description?: string): Promise<List> => {
   try {
-    const response = await axiosInstance.put(`/api/lists/${id}`, { name, description });
+    const response = await api.put(`/lists/${id}`, { name, description });
     return response.data;
   } catch (error) {
     console.error('Error al actualizar lista:', error);
@@ -146,7 +130,7 @@ export const updateList = async (id: number, name: string, description?: string)
 // Eliminar una lista
 export const deleteList = async (id: number): Promise<void> => {
   try {
-    await axiosInstance.delete(`/api/lists/${id}`);
+    await api.delete(`/lists/${id}`);
   } catch (error) {
     console.error('Error al eliminar lista:', error);
     throw error;
@@ -160,7 +144,7 @@ export const addContactsToList = async (listId: number, contactIds: number[]): P
     
     console.log(`Agregando ${contactIds.length} contactos a la lista ${listId}:`, contactIds);
     
-    const response = await axiosInstance.post(`/api/lists/${listId}/contacts`, { contactIds });
+    const response = await api.post(`/lists/${listId}/contacts`, { contactIds });
     
     // Verificar si la respuesta es exitosa
     if (response.status !== 200) {
@@ -175,7 +159,7 @@ export const addContactsToList = async (listId: number, contactIds: number[]): P
 // Eliminar un contacto de una lista
 export const removeContactFromList = async (listId: number, contactId: number): Promise<void> => {
   try {
-    await axiosInstance.delete(`/api/lists/${listId}/contacts/${contactId}`);
+    await api.delete(`/lists/${listId}/contacts/${contactId}`);
   } catch (error) {
     console.error(`Error al eliminar contacto ${contactId} de la lista ${listId}:`, error);
     throw error;
@@ -188,7 +172,7 @@ export const uploadContactsFile = async (file: File): Promise<{ contacts: any[];
     const formData = new FormData();
     formData.append('file', file);
     
-    const response = await axiosInstance.post('/api/contacts/upload', formData, {
+    const response = await api.post('/contacts/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
@@ -204,7 +188,7 @@ export const uploadContactsFile = async (file: File): Promise<{ contacts: any[];
 // Importar contactos procesados
 export const importContacts = async (contacts: any[]): Promise<{ success: number; errors: number }> => {
   try {
-    const response = await axiosInstance.post('/api/contacts/import', { contacts });
+    const response = await api.post('/contacts/import', { contacts });
     return {
       success: response.data.success,
       errors: response.data.errors
@@ -217,7 +201,7 @@ export const importContacts = async (contacts: any[]): Promise<{ success: number
 
 // Exportar contactos a CSV
 export const exportContacts = (listId?: number, status?: string): string => {
-  let url = '/api/contacts/export';
+  let url = '/contacts/export';
   const params = [];
   
   if (listId) {
@@ -233,13 +217,13 @@ export const exportContacts = (listId?: number, status?: string): string => {
   }
   
   // Retornar la URL completa para descargar el archivo
-  return axiosInstance.defaults.baseURL + url;
+  return getApiBaseUrl() + '/api' + url;
 };
 
 // Exportar listas a CSV
 export const exportLists = (): string => {
-  const url = '/api/lists/export';
-  return axiosInstance.defaults.baseURL + url;
+  const url = '/lists/export';
+  return getApiBaseUrl() + '/api' + url;
 };
 
 // Importar listas desde archivo
@@ -248,7 +232,7 @@ export const uploadListsFile = async (file: File): Promise<{ lists: any[]; total
     const formData = new FormData();
     formData.append('file', file);
     
-    const response = await axiosInstance.post('/api/lists/upload', formData, {
+    const response = await api.post('/lists/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
@@ -264,7 +248,7 @@ export const uploadListsFile = async (file: File): Promise<{ lists: any[]; total
 // Importar listas procesadas
 export const importLists = async (lists: any[]): Promise<{ success: number; errors: number }> => {
   try {
-    const response = await axiosInstance.post('/api/lists/import', { lists });
+    const response = await api.post('/lists/import', { lists });
     return {
       success: response.data.success,
       errors: response.data.errors

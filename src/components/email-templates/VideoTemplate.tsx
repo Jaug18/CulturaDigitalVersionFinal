@@ -23,13 +23,15 @@ const VideoTemplate: React.FC<VideoTemplateProps> = ({
   videoUrl,
   logoBase64,
 }) => {
-  // Función para extraer ID de YouTube de la URL
-  const getYouTubeEmbedUrl = (url: string) => {
+  // Determine si es un enlace de video de YouTube o Vimeo
+  const isYouTube = videoUrl?.includes('youtube') || videoUrl?.includes('youtu.be');
+  const isVimeo = videoUrl?.includes('vimeo');
+  
+  // Función para obtener thumbnail de YouTube
+  const getYouTubeThumbnail = (url: string) => {
     if (!url) return '';
     
     let videoId = '';
-    
-    // Patrones comunes de URL de YouTube
     const patterns = [
       /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/i,
       /(?:https?:\/\/)?(?:www\.)?youtu\.be\/([^?]+)/i,
@@ -44,59 +46,100 @@ const VideoTemplate: React.FC<VideoTemplateProps> = ({
       }
     }
     
-    return videoId ? `https://www.youtube.com/embed/${videoId}` : '';
+    return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : '';
   };
-  
-  // Determine si es un enlace de video de YouTube o Vimeo
-  const isYouTube = videoUrl?.includes('youtube') || videoUrl?.includes('youtu.be');
-  const isVimeo = videoUrl?.includes('vimeo');
-  
-  // Genera el iframe adecuado según el tipo de video
+
+  // Genera una imagen clickeable para el video (compatible con email)
   const renderVideoEmbed = () => {
     if (!videoUrl) return null;
     
+    // Para YouTube, usar thumbnail
     if (isYouTube) {
-      const embedUrl = getYouTubeEmbedUrl(videoUrl);
-      if (!embedUrl) return null;
-      
-      return (
-        <iframe 
-          width="100%" 
-          height="315" 
-          src={embedUrl}
-          title="YouTube video player" 
-          frameBorder="0" 
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-          allowFullScreen
-        ></iframe>
-      );
-    } else if (isVimeo) {
-      const vimeoId = videoUrl.match(/(?:vimeo\.com\/)(\d+)/i)?.[1];
-      if (!vimeoId) return null;
-      
-      return (
-        <iframe 
-          src={`https://player.vimeo.com/video/${vimeoId}`} 
-          width="100%" 
-          height="315" 
-          frameBorder="0" 
-          allow="autoplay; fullscreen; picture-in-picture" 
-          allowFullScreen
-        ></iframe>
-      );
+      const thumbnail = getYouTubeThumbnail(videoUrl);
+      if (thumbnail) {
+        return (
+          <div style={{ 
+            position: 'relative', 
+            textAlign: 'center',
+            backgroundColor: '#000',
+            borderRadius: '8px',
+            overflow: 'hidden'
+          }}>
+            <a href={videoUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'block', position: 'relative' }}>
+              <img 
+                src={thumbnail} 
+                alt="Video de YouTube" 
+                style={{ 
+                  width: '100%', 
+                  height: 'auto',
+                  display: 'block'
+                }} 
+              />
+              {/* Botón de play superpuesto */}
+              <div style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '80px',
+                height: '80px',
+                backgroundColor: 'rgba(255, 0, 0, 0.8)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <div style={{
+                  width: '0',
+                  height: '0',
+                  borderLeft: '20px solid white',
+                  borderTop: '12px solid transparent',
+                  borderBottom: '12px solid transparent',
+                  marginLeft: '4px'
+                }}></div>
+              </div>
+            </a>
+            <div style={{ 
+              padding: '10px',
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              color: 'white',
+              fontSize: '14px'
+            }}>
+              Haz clic para ver el video en YouTube
+            </div>
+          </div>
+        );
+      }
     }
     
-    // Si no es YouTube ni Vimeo, mostrar un enlace al video
+    // Para otros videos o si no hay thumbnail, mostrar un botón
     return (
-      <div style={{ textAlign: 'center', margin: '20px 0' }}>
+      <div style={{ 
+        textAlign: 'center', 
+        margin: '20px 0',
+        padding: '40px 20px',
+        backgroundColor: '#f8f9fa',
+        borderRadius: '8px',
+        border: '2px dashed #dee2e6'
+      }}>
+        <div style={{
+          fontSize: '48px',
+          marginBottom: '15px'
+        }}>🎥</div>
+        <h3 style={{
+          margin: '0 0 15px 0',
+          color: '#495057',
+          fontSize: '18px'
+        }}>Video disponible</h3>
         <a href={videoUrl} target="_blank" rel="noopener noreferrer" style={{ 
           display: 'inline-block',
-          padding: '12px 20px',
+          padding: '12px 25px',
           backgroundColor: '#4A56E2',
           color: 'white',
           textDecoration: 'none',
-          borderRadius: '4px',
-          fontWeight: 500
+          borderRadius: '6px',
+          fontWeight: '600',
+          fontSize: '16px'
         }}>
           Ver Video
         </a>

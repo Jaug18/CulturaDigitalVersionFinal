@@ -2,10 +2,14 @@
   "name": "email-service-backend",
   "version": "1.0.0",
   "description": "Servicio de backend para el envío seguro de correos",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "start:old": "node index.js",
+    "dev": "ts-node -r tsconfig-paths/register index.ts",
+    "dev:watch": "nodemon --exec ts-node -r tsconfig-paths/register index.ts",
+    "dev:old": "nodemon index.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
@@ -30,8 +34,17 @@
     "rimraf": "^6.0.1"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1",
+    "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^24.2.1",
+    "@types/nodemailer": "^6.4.17",
+    "@types/pg": "^8.15.5",
+    "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.3"
   },
   "prisma": {

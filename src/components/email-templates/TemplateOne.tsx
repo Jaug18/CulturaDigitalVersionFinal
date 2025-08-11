@@ -26,6 +26,7 @@ const TemplateOne: React.FC<TemplateOneProps> = ({
   //0052A5
   return (
     <table cellPadding={0} cellSpacing={0} border={0} width="100%" style={{ maxWidth: "600px", margin: "0 auto", fontFamily: "'Poppins', 'Segoe UI', Arial, sans-serif" }}>
+     <tbody>
       <tr>
         <td align="center" style={{ backgroundColor: "#0052A5", padding: "20px 0" }}>
         <img 
@@ -71,16 +72,10 @@ const TemplateOne: React.FC<TemplateOneProps> = ({
             />
           </div>
           
-          <div style={{ color: "#333333", fontSize: "16px", lineHeight: "1.6", marginBottom: "25px" }}>
-            {content || `Estimado equipo:
-
-Compartimos con ustedes los tips tecnológicos de esta semana que ayudarán a mejorar la seguridad y eficiencia en nuestras operaciones diarias.
-
-• Mantenga sus aplicaciones siempre actualizadas
-• Utilice contraseñas fuertes y diferentes para cada servicio
-• Active la autenticación de dos factores cuando sea posible
-• Realice copias de seguridad periódicamente`}
-          </div>
+          <div 
+            style={{ color: "#333333", fontSize: "16px", lineHeight: "1.6", marginBottom: "25px" }}
+            dangerouslySetInnerHTML={{ __html: content || `Estimado equipo:<br><br>Compartimos con ustedes los tips tecnológicos de esta semana que ayudarán a mejorar la seguridad y eficiencia en nuestras operaciones diarias.<br><br>• Mantenga sus aplicaciones siempre actualizadas<br>• Utilice contraseñas fuertes y diferentes para cada servicio<br>• Active la autenticación de dos factores cuando sea posible<br>• Realice copias de seguridad periódicamente` }}
+          />
           
           <div style={{ textAlign: "center", marginTop: "30px" }}>
             <a 
@@ -155,6 +150,7 @@ Compartimos con ustedes los tips tecnológicos de esta semana que ayudarán a me
           </p>
         </td>
       </tr>
+      </tbody>
     </table>
   );
 };

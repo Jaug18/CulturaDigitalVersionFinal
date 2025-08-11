@@ -87,19 +87,16 @@ const Navbar = ({ className }: NavbarProps) => {
   }, [isAuthenticated, user, localUser, showUserUI]);
   
   const handleLogout = () => {
-    const confirmed = window.confirm('¿Estás seguro que deseas cerrar sesión?');
-    if (confirmed) {
-      // Limpiar todos los datos locales
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      localStorage.removeItem('refreshToken');
-      
-      // Limpiar datos en memoria
-      sessionStorage.clear();
-      
-      // Redirigir a login
-      window.location.href = '/login';
-    }
+    // Limpiar todos los datos locales
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('refreshToken');
+    
+    // Limpiar datos en memoria
+    sessionStorage.clear();
+    
+    // Redirigir a login
+    window.location.href = '/login';
   };
   
   // Función para obtener las iniciales del usuario para el Avatar

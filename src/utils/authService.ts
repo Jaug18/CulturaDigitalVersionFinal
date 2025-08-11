@@ -1,8 +1,5 @@
-import axios from 'axios';
 import api from '../services/api';
-
-// Usar axios configurado desde el servicio centralizado
-const axiosInstance = api.axios || axios;
+import axios from 'axios'; // Solo para isAxiosError
 
 // Definición de interfaces
 export interface User {
@@ -40,14 +37,13 @@ export const registerUser = async (userData: {
   fullName?: string;
 }): Promise<AuthResponse> => {
   try {
-    const response = await axiosInstance.post('/api/auth/register', userData);
+    const response = await api.post('/auth/register', userData);
     
     // Guardar tokens en localStorage
     localStorage.setItem('authToken', response.data.token);
     localStorage.setItem('refreshToken', response.data.refreshToken);
     
     // Establecer token en el encabezado de autorización para futuras solicitudes
-    setAuthToken(response.data.token);
     
     return response.data;
   } catch (error) {
@@ -62,14 +58,13 @@ export const loginUser = async (credentials: {
   password: string;
 }): Promise<AuthResponse> => {
   try {
-    const response = await axiosInstance.post('/api/auth/login', credentials);
+    const response = await api.post('/auth/login', credentials);
     
     // Guardar tokens en localStorage
     localStorage.setItem('authToken', response.data.token);
     localStorage.setItem('refreshToken', response.data.refreshToken);
     
     // Establecer token en el encabezado de autorización para futuras solicitudes
-    setAuthToken(response.data.token);
     
     return response.data;
   } catch (error) {
@@ -81,7 +76,7 @@ export const loginUser = async (credentials: {
 // Función para obtener perfil del usuario
 export const getUserProfile = async (): Promise<User> => {
   try {
-    const response = await axiosInstance.get('/api/auth/me');
+    const response = await api.get('/auth/me');
     return response.data.user;
   } catch (error) {
     // Si es error de autorización, intentar renovar el token
@@ -89,7 +84,7 @@ export const getUserProfile = async (): Promise<User> => {
       try {
         await refreshAuthToken();
         // Reintentar la solicitud
-        const response = await axiosInstance.get('/api/auth/me');
+        const response = await api.get('/auth/me');
         return response.data.user;
       } catch (refreshError) {
         // Si falla la renovación, cerrar sesión
@@ -107,7 +102,7 @@ export const logoutUser = async (): Promise<void> => {
   try {
     const refreshToken = localStorage.getItem('refreshToken');
     if (refreshToken) {
-      await axiosInstance.post('/api/auth/logout', { refreshToken });
+      await api.post('/auth/logout', { refreshToken });
     }
   } catch (error) {
     console.error('Error al cerrar sesión en el servidor:', error);
@@ -117,7 +112,7 @@ export const logoutUser = async (): Promise<void> => {
     localStorage.removeItem('refreshToken');
     
     // Eliminar token de los encabezados de solicitud
-    delete axiosInstance.defaults.headers.common['Authorization'];
+    delete api.defaults.headers.common['Authorization'];
   }
 };
 
@@ -130,19 +125,18 @@ export const refreshAuthToken = async (): Promise<void> => {
   }
   
   try {
-    const response = await axiosInstance.post('/api/auth/refresh-token', { refreshToken });
+    const response = await api.post('/auth/refresh-token', { refreshToken });
     
     // Actualizar tokens en localStorage
     localStorage.setItem('authToken', response.data.token);
     localStorage.setItem('refreshToken', response.data.refreshToken);
     
     // Actualizar token en los encabezados
-    setAuthToken(response.data.token);
   } catch (error) {
     // Si falla la renovación, eliminar tokens
     localStorage.removeItem('authToken');
     localStorage.removeItem('refreshToken');
-    delete axiosInstance.defaults.headers.common['Authorization'];
+    delete api.defaults.headers.common['Authorization'];
     
     handleAuthError(error);
     throw error;
@@ -155,7 +149,7 @@ export const updateProfile = async (profileData: {
   avatarUrl?: string;
 }): Promise<User> => {
   try {
-    const response = await axiosInstance.put('/api/auth/profile', profileData);
+    const response = await api.put('/auth/profile', profileData);
     return response.data.user;
   } catch (error) {
     handleAuthError(error);
@@ -169,7 +163,7 @@ export const changePassword = async (passwordData: {
   newPassword: string;
 }): Promise<{ requireRelogin: boolean }> => {
   try {
-    const response = await axiosInstance.post('/api/auth/change-password', passwordData);
+    const response = await api.post('/auth/change-password', passwordData);
     return { requireRelogin: response.data.requireRelogin };
   } catch (error) {
     handleAuthError(error);
@@ -180,7 +174,7 @@ export const changePassword = async (passwordData: {
 // Función para solicitar restablecimiento de contraseña
 export const forgotPassword = async (email: string): Promise<{ success: boolean; message: string }> => {
   try {
-    const response = await axiosInstance.post('/api/auth/forgot-password', { email });
+    const response = await api.post('/auth/forgot-password', { email });
     return response.data;
   } catch (error) {
     handleAuthError(error);
@@ -194,7 +188,7 @@ export const resetPassword = async (resetData: {
   newPassword: string;
 }): Promise<{ success: boolean; message: string }> => {
   try {
-    const response = await axiosInstance.post('/api/auth/reset-password', resetData);
+    const response = await api.post('/auth/reset-password', resetData);
     return response.data;
   } catch (error) {
     handleAuthError(error);
@@ -208,25 +202,8 @@ export const isAuthenticated = (): boolean => {
   return !!token;
 };
 
-// Función para configurar el token de autenticación en los encabezados
-export const setAuthToken = (token: string | null): void => {
-  if (token) {
-    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  } else {
-    delete axiosInstance.defaults.headers.common['Authorization'];
-  }
-};
-
-// Inicializar token de localStorage al cargar la aplicación
-export const initializeAuth = (): void => {
-  const token = localStorage.getItem('authToken');
-  if (token) {
-    setAuthToken(token);
-  }
-};
-
 // Interceptor para manejar errores de token expirado
-axiosInstance.interceptors.response.use(
+api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
@@ -234,7 +211,7 @@ axiosInstance.interceptors.response.use(
     // Si el error es 401 (No autorizado) y no es una solicitud de renovación de token
     if (error.response?.status === 401 && 
         !originalRequest._retry && 
-        !originalRequest.url?.includes('/api/auth/refresh-token')) {
+        !originalRequest.url?.includes('/auth/refresh-token')) {
       originalRequest._retry = true;
       
       try {
@@ -245,7 +222,7 @@ axiosInstance.interceptors.response.use(
         originalRequest.headers['Authorization'] = `Bearer ${localStorage.getItem('authToken')}`;
         
         // Reintentar la solicitud original
-        return axiosInstance(originalRequest);
+        return api(originalRequest);
       } catch (refreshError) {
         // Si falla la renovación, cerrar sesión
         logoutUser();
@@ -270,7 +247,7 @@ const handleAuthError = (error: any): void => {
     
     // Para errores 401/403, cerrar sesión si no es en endpoints de autenticación
     if ((error.response.status === 401 || error.response.status === 403) && 
-        !error.config.url?.includes('/api/auth/')) {
+        !error.config.url?.includes('/auth/')) {
       logoutUser();
     }
   } else {

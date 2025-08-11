@@ -146,7 +146,7 @@ const Notifications = () => {
       }
 
       console.log("Enviando solicitud de correos programados...");
-      const response = await axios.get('/api/scheduled-emails', {
+      const response = await axios.get('/api/email/scheduled', {
         headers: { Authorization: `Bearer ${token}` },
         params: { page: 1, limit: 100 }
       });
@@ -187,8 +187,16 @@ const Notifications = () => {
 
   const allEmails = useMemo(() => {
     console.log(`Combinando correos: ${scheduledEmails.length} programados y ${emails.length} enviados`);
+    
+    // Filtrar emails programados que ya han sido enviados para evitar duplicados
+    const pendingScheduledEmails = scheduledEmails.filter(email => 
+      email.status === 'scheduled' || email.status === 'pending'
+    );
+    
+    console.log(`Emails programados pendientes después de filtrar: ${pendingScheduledEmails.length}`);
+    
     return [
-      ...scheduledEmails,
+      ...pendingScheduledEmails,
       ...emails
     ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
   }, [scheduledEmails, emails]);
@@ -380,15 +388,15 @@ const Notifications = () => {
     const headers = ["ID", "Destinatario", "Asunto", "Estado", "Fecha"];
 
     const csvContent = [
-      headers.join(','),
-      ...emails.map(email => [
-        email.id,
-        email.to_email.join(';'),
-        `"${email.subject.replace(/"/g, '""')}"`,
-        getStatusText(email.status),
-        new Date(email.timestamp).toISOString()
-      ].join(','))
-    ].join('\n');
+        headers.join(','),
+        ...emails.map(email => [
+          String(email.id),
+          email.to_email.join(';'),
+          `"${email.subject.replace(/"/g, '""')}"`,
+          getStatusText(email.status),
+          new Date(email.timestamp).toISOString()
+        ].join(','))
+      ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -412,7 +420,7 @@ const Notifications = () => {
 
     filteredEmails.forEach(email => {
       data.push([
-        email.id,
+        String(email.id),
         Array.isArray(email.to_email) ? email.to_email.join('; ') : email.to_email,
         email.subject,
         getStatusText(email.status),
@@ -550,7 +558,7 @@ const Notifications = () => {
         throw new Error("No hay token de autenticación disponible");
       }
 
-      const response = await axios.put(`/api/scheduled-emails/${editingEmail.id}`, {
+      const response = await axios.put(`/api/email/scheduled/${editingEmail.id}`, {
         subject: editSubject,
         to_email: editTo.split(',').map(e => e.trim()),
         html_content: editHtml,
@@ -904,8 +912,8 @@ const Notifications = () => {
                 </div>
               ) : (
                 <div className="grid gap-3">
-                  {paginatedEmails.map((email) => (
-                    <Card key={email.id} className="overflow-hidden">
+                  {paginatedEmails.map((email, index) => (
+                    <Card key={`${email.status}-${email.id}-${index}`} className="overflow-hidden">
                       <div className={`h-2 ${getStatusColor(email.status).split(' ')[0]}`}></div>
                       <CardHeader className="pb-2">
                         <div className="flex justify-between items-start">
@@ -968,36 +976,36 @@ const Notifications = () => {
                   <PaginationContent className="pagination-fixed-content">
                     <PaginationItem>
                       <PaginationPrevious
-                        onClick={handlePreviousPage}
-                        disabled={currentPage === 1}
+                        onClick={currentPage === 1 ? undefined : handlePreviousPage}
+                        className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
                       />
                     </PaginationItem>
 
                     {getPageNumbers().map((pageNum, index) => {
-                      if (pageNum === -1 || pageNum === -2) {
-                        return (
-                          <PaginationItem key={`ellipsis-${index}`} className="pagination-fixed-item">
-                            <PaginationEllipsis />
-                          </PaginationItem>
-                        );
-                      }
-
+                    if (pageNum === -1 || pageNum === -2) {
                       return (
-                        <PaginationItem key={pageNum} className="pagination-fixed-item">
-                          <PaginationLink
-                            isActive={currentPage === pageNum}
-                            onClick={() => handlePageClick(pageNum)}
-                          >
-                            {pageNum}
-                          </PaginationLink>
+                        <PaginationItem key={`ellipsis-${pageNum}-${index}`} className="pagination-fixed-item">
+                          <PaginationEllipsis />
                         </PaginationItem>
                       );
-                    })}
+                    }
+
+                    return (
+                      <PaginationItem key={`page-${pageNum}-${index}`} className="pagination-fixed-item">
+                        <PaginationLink
+                          isActive={currentPage === pageNum}
+                          onClick={() => handlePageClick(pageNum)}
+                        >
+                          {pageNum}
+                        </PaginationLink>
+                      </PaginationItem>
+                    );
+                  })}
 
                     <PaginationItem>
                       <PaginationNext
-                        onClick={handleNextPage}
-                        disabled={currentPage === totalPages}
+                        onClick={currentPage === totalPages ? undefined : handleNextPage}
+                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
                       />
                     </PaginationItem>
                   </PaginationContent>
@@ -1084,71 +1092,72 @@ const Notifications = () => {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={showPreviewDialog} onOpenChange={setShowPreviewDialog}>
-        <DialogContent className="max-w-5xl max-h-[90vh] overflow-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold">
-              {previewEmail?.subject}
-            </DialogTitle>
-            <DialogDescription>
-              <div className="flex flex-col text-sm mt-2">
-                <div className="grid grid-cols-2 gap-2">
-                  <span><strong>De:</strong> {previewEmail?.from_email} </span>
-                  <span><strong>Enviado:</strong> {previewEmail && formatDate(previewEmail.timestamp)}</span>
-                  <span><strong>Para:</strong> {previewEmail?.to_email?.join(', ')}</span>
-                  <span><strong>Estado:</strong> {previewEmail && getStatusText(previewEmail.status)}</span>
-                  <span><strong>Organización:</strong> {previewEmail?.from_name || 'No disponible'}</span>
+<Dialog open={showPreviewDialog} onOpenChange={setShowPreviewDialog}>
+  <DialogContent className="max-w-5xl max-h-[90vh] overflow-auto">
+    <DialogHeader>
+      <DialogTitle className="text-xl font-bold">
+        {previewEmail?.subject}
+      </DialogTitle>
+      <DialogDescription>
+        Vista previa del correo electrónico seleccionado
+      </DialogDescription>
+    </DialogHeader>
 
-                </div>
-              </div>
-            </DialogDescription>
-          </DialogHeader>
+    {/* Mover los detalles fuera del DialogDescription */}
+    <div className="flex flex-col text-sm mt-2 bg-gray-50 p-3 rounded-md">
+      <div className="grid grid-cols-2 gap-2">
+        <span><strong>De:</strong> {previewEmail?.from_email} </span>
+        <span><strong>Enviado:</strong> {previewEmail && formatDate(previewEmail.timestamp)}</span>
+        <span><strong>Para:</strong> {previewEmail?.to_email?.join(', ')}</span>
+        <span><strong>Estado:</strong> {previewEmail && getStatusText(previewEmail.status)}</span>
+        <span><strong>Organización:</strong> {previewEmail?.from_name || 'No disponible'}</span>
+      </div>
+    </div>
 
-          <div className="mt-4 bg-gray-50 p-4 rounded-md border border-gray-200 mb-4">
-            <h3 className="font-semibold text-lg mb-2">Detalles del contenido</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p><strong>Título principal:</strong> {previewEmail?.titulo_principal || 'No disponible'}</p>
-                <p><strong>Subtítulo:</strong> {previewEmail?.subtitulo || 'No disponible'}</p>
-              </div>
-
-            </div>
-            {previewEmail?.contenido && (
-              <div className="mt-2">
-                <p><strong>Contenido:</strong></p>
-                <div className="mt-1 p-3 bg-white border rounded-md">
-                  {previewEmail.contenido}
-                </div>
-              </div>
-            )}
+    <div className="mt-4 bg-gray-50 p-4 rounded-md border border-gray-200 mb-4">
+      <h3 className="font-semibold text-lg mb-2">Detalles del contenido</h3>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <p><strong>Título principal:</strong> {previewEmail?.titulo_principal || 'No disponible'}</p>
+          <p><strong>Subtítulo:</strong> {previewEmail?.subtitulo || 'No disponible'}</p>
+        </div>
+      </div>
+      {previewEmail?.contenido && (
+        <div className="mt-2">
+          <p><strong>Contenido:</strong></p>
+          <div className="mt-1 p-3 bg-white border rounded-md">
+            {previewEmail.contenido}
           </div>
+        </div>
+      )}
+    </div>
 
-          <div className="border rounded-md overflow-hidden">
-            <div className="bg-blue-50 border-b border-blue-200 px-4 py-2 flex justify-between items-center">
-              <h3 className="font-medium text-blue-700">Vista previa del correo</h3>
-            </div>
-            <div className="p-4 bg-white">
-              {previewContent ? (
-                <iframe
-                  title="Vista previa HTML"
-                  srcDoc={previewContent}
-                  style={{ width: "100%", minHeight: "400px", border: "none" }}
-                />
-              ) : (
-                <div className="flex items-center justify-center h-40 text-gray-400">
-                  No hay contenido HTML disponible para previsualizar
-                </div>
-              )}
-            </div>
+    <div className="border rounded-md overflow-hidden">
+      <div className="bg-blue-50 border-b border-blue-200 px-4 py-2 flex justify-between items-center">
+        <h3 className="font-medium text-blue-700">Vista previa del correo</h3>
+      </div>
+      <div className="p-4 bg-white">
+        {previewContent ? (
+          <iframe
+            title="Vista previa HTML"
+            srcDoc={previewContent}
+            style={{ width: "100%", minHeight: "400px", border: "none" }}
+          />
+        ) : (
+          <div className="flex items-center justify-center h-40 text-gray-400">
+            No hay contenido HTML disponible para previsualizar
           </div>
+        )}
+      </div>
+    </div>
 
-          <div className="flex justify-end mt-4">
-            <Button onClick={() => setShowPreviewDialog(false)}>
-              Cerrar
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+    <div className="flex justify-end mt-4">
+      <Button onClick={() => setShowPreviewDialog(false)}>
+        Cerrar
+      </Button>
+    </div>
+  </DialogContent>
+</Dialog>
 
       <footer className="bg-gray-100 py-4 border-t">
         <div className="container mx-auto px-4 text-center text-gray-600 text-sm">

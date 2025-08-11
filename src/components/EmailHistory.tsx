@@ -33,7 +33,7 @@ const EmailHistory: React.FC<EmailHistoryProps> = ({ limit = 10 }) => {
   const fetchEmails = async (page = 1) => {
     try {
       setLoading(true);
-      const response = await api.get(`/emails?page=${page}&limit=${limit}`);
+      const response = await api.get(`/email/history?page=${page}&limit=${limit}`);
       
       if (response.data.success) {
         setEmails(response.data.data);

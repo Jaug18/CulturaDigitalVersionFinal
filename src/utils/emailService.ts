@@ -16,10 +16,6 @@ import VideoTemplate  from "@/components/email-templates/VideoTemplate";
 
 // Configurar la URL base
 import api from '../services/api';
-const axios = api;
-
-// Configurar la URL base - Usar la API configurada desde servicios
-const axiosInstance = axios;
 
 export interface EmailHistory {
   id: number;
@@ -81,7 +77,7 @@ export interface ScheduledEmailsResponse {
 // Obtener historial de emails enviados
 export const getEmailHistory = async (page = 1, limit = 20): Promise<EmailHistoryResponse> => {
   try {
-    const response = await axios.get('/api/emails', { 
+    const response = await api.get('/email/history', { 
       params: { page, limit }
     });
     return response.data;
@@ -97,7 +93,7 @@ export const getScheduledEmails = async (status?: string, page = 1, limit = 20):
     const params: Record<string, string | number> = { page, limit };
     if (status) params.status = status;
     
-    const response = await axios.get('/api/scheduled-emails', { params });
+    const response = await api.get('/email/scheduled', { params });
     return response.data;
   } catch (error) {
     console.error('Error al obtener correos programados:', error);
@@ -108,7 +104,7 @@ export const getScheduledEmails = async (status?: string, page = 1, limit = 20):
 // Cancelar un correo programado
 export const cancelScheduledEmail = async (id: number): Promise<{ success: boolean; message: string }> => {
   try {
-    const response = await axios.patch(`/api/scheduled-emails/${id}/cancel`);
+    const response = await api.patch(`/email/scheduled/${id}/cancel`);
     return response.data;
   } catch (error) {
     console.error('Error al cancelar correo programado:', error);
@@ -231,7 +227,7 @@ const convertImageToBase64 = async (imageUrl: string): Promise<string> => {
     return dataUrl;
   } catch (error) {
     debug(`Error procesando imagen: ${error.message}`);
-    return 'https://via.placeholder.com/600x300?text=Imagen+no+disponible';
+    return 'https://placehold.co/600x400';
   }
 };
 
@@ -276,7 +272,7 @@ export const handleLocalImage = async (file: File): Promise<string> => {
     return base64Data;
   } catch (error) {
     console.error('Error al procesar imagen local:', error);
-    return 'https://via.placeholder.com/600x300?text=Error+al+procesar+imagen';
+    return 'https://placehold.co/600x400';
   }
 };
 
@@ -375,7 +371,7 @@ const fixImageUrls = async (html: string): Promise<string> => {
         else if (imgSrc.startsWith('file://') || imgSrc.startsWith('C:') || imgSrc.startsWith('/')) {
           debug(`Detectada ruta de archivo local: ${imgSrc}`);
           // Reemplazar con un placeholder
-          optimizedSrc = 'https://via.placeholder.com/600x300?text=Imagen+Local+No+Disponible';
+          optimizedSrc = 'https://placehold.co/600x400';
           newImgTag = imgTag
             .replace(/src=["'][^"']+["']/, `src="${optimizedSrc}"`)
             .replace(/<img/, '<img alt="Imagen no disponible" border="0" style="max-width:100%;height:auto;display:block;margin:0 auto;border:0;"');
@@ -457,7 +453,7 @@ export const sendEmail = async (options: EmailSendOptions): Promise<EmailSendRes
 
     // Si hay programación, usar el endpoint de programación
     const isScheduled = !!options.scheduledFor;
-    const endpoint = isScheduled ? '/api/schedule-email' : '/api/send-email';
+    const endpoint = isScheduled ? '/email/schedule' : '/email/send';
 
     let finalHtmlContent = options.htmlContent;
     let cleanPreviewContent = '';
@@ -596,7 +592,7 @@ export const sendEmail = async (options: EmailSendOptions): Promise<EmailSendRes
 
     console.log(`Enviando solicitud al backend (${isScheduled ? 'programado' : 'inmediato'})...`);
 
-    const response = await axios.post(endpoint, emailData);
+    const response = await api.post(endpoint, emailData);
 
     console.log(`Email ${isScheduled ? 'programado' : 'enviado'} exitosamente:`, response.data);
     return {

@@ -15,7 +15,16 @@ import {
   UserCog,
   AlertTriangle,
   RefreshCw,
-  Filter
+  Filter,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  Users,
+  UserCheck,
+  UserX,
+  Calendar,
+  Mail
 } from "lucide-react";
 import { 
   Dialog, 
@@ -57,6 +66,15 @@ const AdminUsers = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [emailVerifiedFilter, setEmailVerifiedFilter] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<string>("created_at");
+  const [sortOrder, setSortOrder] = useState<string>("desc");
+  
+  // Paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   
@@ -125,7 +143,6 @@ const AdminUsers = () => {
         fullName: user.fullName || user.full_name || "",
         role: user.role || "user",
         created_at: user.created_at || new Date().toISOString(),
-        last_login: user.last_login || null,
         is_active: user.is_active !== undefined ? user.is_active : true,
         avatar_url: user.avatar_url || "",
         email_verified: user.email_verified || false
@@ -305,9 +322,73 @@ const AdminUsers = () => {
       (user.fullName || user.full_name || "").toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesRole = roleFilter === "all" || user.role === roleFilter;
+    const matchesStatus = statusFilter === "all" || 
+      (statusFilter === "active" && user.is_active) ||
+      (statusFilter === "inactive" && !user.is_active);
+    const matchesEmailVerified = emailVerifiedFilter === "all" ||
+      (emailVerifiedFilter === "verified" && user.email_verified) ||
+      (emailVerifiedFilter === "unverified" && !user.email_verified);
     
-    return matchesSearch && matchesRole;
+    return matchesSearch && matchesRole && matchesStatus && matchesEmailVerified;
   });
+
+  // Ordenar usuarios
+  const sortedUsers = [...filteredUsers].sort((a, b) => {
+    let aValue, bValue;
+    
+    switch (sortBy) {
+      case "username":
+        aValue = a.username.toLowerCase();
+        bValue = b.username.toLowerCase();
+        break;
+      case "email":
+        aValue = a.email.toLowerCase();
+        bValue = b.email.toLowerCase();
+        break;
+      case "role":
+        aValue = a.role;
+        bValue = b.role;
+        break;
+      case "created_at":
+        aValue = new Date(a.created_at || 0);
+        bValue = new Date(b.created_at || 0);
+        break;
+      default:
+        aValue = a.username.toLowerCase();
+        bValue = b.username.toLowerCase();
+    }
+    
+    if (aValue < bValue) return sortOrder === "asc" ? -1 : 1;
+    if (aValue > bValue) return sortOrder === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  // Calcular paginación
+  const totalPages = Math.ceil(sortedUsers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedUsers = sortedUsers.slice(startIndex, endIndex);
+  
+  // Funciones de paginación
+  const goToFirstPage = () => setCurrentPage(1);
+  const goToLastPage = () => setCurrentPage(totalPages);
+  const goToPreviousPage = () => setCurrentPage(Math.max(1, currentPage - 1));
+  const goToNextPage = () => setCurrentPage(Math.min(totalPages, currentPage + 1));
+  
+  // Reset página cuando cambian los filtros
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, roleFilter, statusFilter, emailVerifiedFilter, sortBy, sortOrder]);
+
+  const clearFilters = () => {
+    setSearchTerm("");
+    setRoleFilter("all");
+    setStatusFilter("all");
+    setEmailVerifiedFilter("all");
+    setSortBy("created_at");
+    setSortOrder("desc");
+    setCurrentPage(1);
+  };
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return "No disponible";
@@ -336,191 +417,459 @@ const AdminUsers = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
-      <div className="container mx-auto py-8 px-4">
-        <Card className="mb-6">
-          <CardHeader className="bg-gray-100">
-            <div className="flex justify-between items-center">
-              <div>
-                <CardTitle className="text-2xl">Administración de Usuarios</CardTitle>
-                <CardDescription>Gestiona los usuarios del sistema</CardDescription>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={fetchUsers} title="Recargar usuarios">
-                  <RefreshCw className="h-4 w-4" />
-                </Button>
-                <Link to="/register">
-                  <Button>
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Crear Usuario
+      <div className="w-full max-w-none px-6 py-8">
+        <div className="mx-auto">
+          <Card className="w-full shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
+              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <Users className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-2xl font-bold text-gray-800">Administración de Usuarios</CardTitle>
+                    <CardDescription className="text-gray-600 mt-1">
+                      Gestiona y supervisa todos los usuarios del sistema
+                    </CardDescription>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Button 
+                    variant="outline" 
+                    onClick={fetchUsers} 
+                    disabled={isLoading}
+                    className="flex items-center gap-2 hover:bg-blue-50"
+                  >
+                    <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                    Actualizar
                   </Button>
-                </Link>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
-              <div className="relative w-full md:w-auto flex-grow">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input 
-                  placeholder="Buscar por nombre, usuario o email..." 
-                  className="pl-9"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-              
-              <div className="flex w-full md:w-auto gap-2">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="flex items-center gap-2">
-                      <Filter className="h-4 w-4" />
-                      <span>Filtrar por rol</span>
+                  <Link to="/register">
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2">
+                      <PlusCircle className="h-4 w-4" />
+                      Crear Usuario
                     </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem 
-                      onClick={() => setRoleFilter("all")}
-                      className={roleFilter === "all" ? "bg-blue-50" : ""}
-                    >
-                      Todos los roles
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={() => setRoleFilter("admin")}
-                      className={roleFilter === "admin" ? "bg-blue-50" : ""}
-                    >
-                      Administradores
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={() => setRoleFilter("user")}
-                      className={roleFilter === "user" ? "bg-blue-50" : ""}
-                    >
-                      Usuarios normales
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                  </Link>
+                </div>
               </div>
-            </div>
-
-            {isLoading ? (
-              <div className="flex justify-center items-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : (
-              <div className="border rounded-md overflow-x-auto">
-                <Table>
-                  <TableHeader className="bg-gray-100">
-                    <TableRow>
-                      <TableHead className="w-[50px]">#</TableHead>
-                      <TableHead>Nombre</TableHead>
-                      <TableHead>Usuario</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Rol</TableHead>
-                      <TableHead>Estado</TableHead>
-                      <TableHead>Creado</TableHead>
-                      <TableHead className="text-right">Acciones</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredUsers.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={8} className="text-center py-8 text-gray-500">
-                          No se encontraron usuarios
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      filteredUsers.map((user, index) => (
-                        <TableRow key={user.id || index} className="group">
-                          <TableCell className="font-medium">{index + 1}</TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Avatar className="h-8 w-8">
-                                <AvatarImage src={user.avatar_url} />
-                                <AvatarFallback>
-                                  {(user.fullName || user.full_name || user.username || "")
-                                    .split(' ')
-                                    .slice(0, 2)
-                                    .map(name => name[0])
-                                    .join('')
-                                    .toUpperCase()}
-                                </AvatarFallback>
-                              </Avatar>
-                              <span>{user.fullName || user.full_name || "Sin nombre"}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>{user.username}</TableCell>
-                          <TableCell>{user.email}</TableCell>
-                          <TableCell>
-                            <Select
-                              value={user.role}
-                              onValueChange={(value) => changeUserRole(user.id, value)}
-                            >
-                              <SelectTrigger className="w-[120px]">
-                                <SelectValue placeholder={user.role} />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="user">Usuario</SelectItem>
-                                <SelectItem value="admin">Administrador</SelectItem>
-                                <SelectItem value="editor">Editor</SelectItem>
-                                <SelectItem value="viewer">Visualizador</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </TableCell>
-                          <TableCell>
-                            <Select
-                              value={user.is_active ? "active" : "inactive"}
-                              onValueChange={(value) => changeUserStatus(user.id, value === "active")}
-                            >
-                              <SelectTrigger className="w-[100px]">
-                                <SelectValue>
-                                  <div className="flex items-center">
-                                    <Badge variant={user.is_active ? "default" : "secondary"} className="mr-2">
-                                      {user.is_active ? "Activo" : "Inactivo"}
-                                    </Badge>
-                                  </div>
-                                </SelectValue>
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="active">Activo</SelectItem>
-                                <SelectItem value="inactive">Inactivo</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </TableCell>
-                          <TableCell>{formatDate(user.created_at)}</TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex justify-end items-center gap-2">
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                onClick={() => prepareEdit(user)}
-                                className="h-8 w-8 p-0"
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                onClick={() => confirmDelete(user)}
-                                className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
+            </CardHeader>
             
-            <p className="text-sm text-gray-500 mt-4">
-              Mostrando {filteredUsers.length} de {users.length} usuarios
-              {roleFilter !== "all" && ` (Filtrando por: ${roleFilter})`}
-              {searchTerm && ` (Buscando: "${searchTerm}")`}
-            </p>
-          </CardContent>
-        </Card>
+            <CardContent className="p-0">
+              {/* Filtros y búsqueda */}
+              <div className="p-6 bg-white border-b border-gray-100">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+                  {/* Búsqueda */}
+                  <div className="lg:col-span-2">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input 
+                        placeholder="Buscar usuarios..." 
+                        className="pl-10 focus:ring-2 focus:ring-blue-500"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* Filtro por rol */}
+                  <div>
+                    <Select value={roleFilter} onValueChange={setRoleFilter}>
+                      <SelectTrigger className="focus:ring-2 focus:ring-blue-500">
+                        <SelectValue placeholder="Rol" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todos los roles</SelectItem>
+                        <SelectItem value="admin">Administrador</SelectItem>
+                        <SelectItem value="user">Usuario</SelectItem>
+                        <SelectItem value="editor">Editor</SelectItem>
+                        <SelectItem value="viewer">Visualizador</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {/* Filtro por estado */}
+                  <div>
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                      <SelectTrigger className="focus:ring-2 focus:ring-blue-500">
+                        <SelectValue placeholder="Estado" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todos los estados</SelectItem>
+                        <SelectItem value="active">Activos</SelectItem>
+                        <SelectItem value="inactive">Inactivos</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {/* Filtro por email verificado */}
+                  <div>
+                    <Select value={emailVerifiedFilter} onValueChange={setEmailVerifiedFilter}>
+                      <SelectTrigger className="focus:ring-2 focus:ring-blue-500">
+                        <SelectValue placeholder="Email" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todos</SelectItem>
+                        <SelectItem value="verified">Verificados</SelectItem>
+                        <SelectItem value="unverified">Sin verificar</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {/* Limpiar filtros */}
+                  <div>
+                    <Button 
+                      variant="outline" 
+                      onClick={clearFilters}
+                      className="w-full hover:bg-gray-50"
+                    >
+                      Limpiar filtros
+                    </Button>
+                  </div>
+                </div>
+                
+                {/* Estadísticas rápidas */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <div className="flex items-center gap-2">
+                      <Users className="h-5 w-5 text-blue-600" />
+                      <span className="text-sm font-medium text-blue-700">Total</span>
+                    </div>
+                    <p className="text-2xl font-bold text-blue-800 mt-1">{users.length}</p>
+                  </div>
+                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                    <div className="flex items-center gap-2">
+                      <UserCheck className="h-5 w-5 text-green-600" />
+                      <span className="text-sm font-medium text-green-700">Activos</span>
+                    </div>
+                    <p className="text-2xl font-bold text-green-800 mt-1">
+                      {users.filter(u => u.is_active).length}
+                    </p>
+                  </div>
+                  <div className="bg-red-50 p-4 rounded-lg border border-red-200">
+                    <div className="flex items-center gap-2">
+                      <UserX className="h-5 w-5 text-red-600" />
+                      <span className="text-sm font-medium text-red-700">Inactivos</span>
+                    </div>
+                    <p className="text-2xl font-bold text-red-800 mt-1">
+                      {users.filter(u => !u.is_active).length}
+                    </p>
+                  </div>
+                  <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-5 w-5 text-purple-600" />
+                      <span className="text-sm font-medium text-purple-700">Verificados</span>
+                    </div>
+                    <p className="text-2xl font-bold text-purple-800 mt-1">
+                      {users.filter(u => u.email_verified).length}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tabla de usuarios */}
+              <div className="overflow-hidden">
+                {isLoading ? (
+                  <div className="flex justify-center items-center py-20">
+                    <div className="text-center">
+                      <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
+                      <p className="text-gray-500">Cargando usuarios...</p>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader className="bg-gray-50">
+                          <TableRow>
+                            <TableHead className="w-16 text-center">#</TableHead>
+                            <TableHead className="min-w-[200px]">
+                              <Button 
+                                variant="ghost" 
+                                className="h-auto p-0 font-semibold hover:bg-transparent"
+                                onClick={() => {
+                                  if (sortBy === "username") {
+                                    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                                  } else {
+                                    setSortBy("username");
+                                    setSortOrder("asc");
+                                  }
+                                }}
+                              >
+                                Usuario {sortBy === "username" && (sortOrder === "asc" ? "↑" : "↓")}
+                              </Button>
+                            </TableHead>
+                            <TableHead className="min-w-[250px]">
+                              <Button 
+                                variant="ghost" 
+                                className="h-auto p-0 font-semibold hover:bg-transparent"
+                                onClick={() => {
+                                  if (sortBy === "email") {
+                                    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                                  } else {
+                                    setSortBy("email");
+                                    setSortOrder("asc");
+                                  }
+                                }}
+                              >
+                                Email {sortBy === "email" && (sortOrder === "asc" ? "↑" : "↓")}
+                              </Button>
+                            </TableHead>
+                            <TableHead className="min-w-[120px]">
+                              <Button 
+                                variant="ghost" 
+                                className="h-auto p-0 font-semibold hover:bg-transparent"
+                                onClick={() => {
+                                  if (sortBy === "role") {
+                                    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                                  } else {
+                                    setSortBy("role");
+                                    setSortOrder("asc");
+                                  }
+                                }}
+                              >
+                                Rol {sortBy === "role" && (sortOrder === "asc" ? "↑" : "↓")}
+                              </Button>
+                            </TableHead>
+                            <TableHead className="min-w-[100px] text-center">Estado</TableHead>
+                            <TableHead className="min-w-[100px] text-center">Email</TableHead>
+                            <TableHead className="min-w-[150px]">
+                              <Button 
+                                variant="ghost" 
+                                className="h-auto p-0 font-semibold hover:bg-transparent"
+                                onClick={() => {
+                                  if (sortBy === "created_at") {
+                                    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                                  } else {
+                                    setSortBy("created_at");
+                                    setSortOrder("desc");
+                                  }
+                                }}
+                              >
+                                Creado {sortBy === "created_at" && (sortOrder === "asc" ? "↑" : "↓")}
+                              </Button>
+                            </TableHead>
+                            <TableHead className="w-[120px] text-center">Acciones</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {paginatedUsers.length === 0 ? (
+                            <TableRow>
+                              <TableCell colSpan={8} className="text-center py-12">
+                                <div className="text-gray-500">
+                                  <Users className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                                  <p className="text-lg font-medium">No se encontraron usuarios</p>
+                                  <p className="text-sm">Intenta ajustar los filtros de búsqueda</p>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ) : (
+                            paginatedUsers.map((user, index) => (
+                              <TableRow key={user.id || index} className="hover:bg-gray-50 transition-colors">
+                                <TableCell className="text-center font-medium text-gray-500">
+                                  {startIndex + index + 1}
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex items-center gap-3">
+                                    <Avatar className="h-10 w-10 border-2 border-gray-200">
+                                      <AvatarImage src={user.avatar_url} />
+                                      <AvatarFallback className="bg-gradient-to-br from-blue-400 to-purple-500 text-white font-semibold">
+                                        {(user.fullName || user.full_name || user.username || "")
+                                          .split(' ')
+                                          .slice(0, 2)
+                                          .map(name => name[0])
+                                          .join('')
+                                          .toUpperCase()}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                      <p className="font-semibold text-gray-900">{user.username}</p>
+                                      <p className="text-sm text-gray-500">
+                                        {user.fullName || user.full_name || "Sin nombre completo"}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-gray-900">{user.email}</span>
+                                    {user.email_verified && (
+                                      <div className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                                        Verificado
+                                      </div>
+                                    )}
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <Select
+                                    value={user.role}
+                                    onValueChange={(value) => changeUserRole(user.id, value)}
+                                  >
+                                    <SelectTrigger className="w-[130px]">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="user">Usuario</SelectItem>
+                                      <SelectItem value="admin">Administrador</SelectItem>
+                                      <SelectItem value="editor">Editor</SelectItem>
+                                      <SelectItem value="viewer">Visualizador</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </TableCell>
+                                <TableCell className="text-center">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => changeUserStatus(user.id, !user.is_active)}
+                                    className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                      user.is_active 
+                                        ? 'bg-green-100 text-green-800 hover:bg-green-200' 
+                                        : 'bg-red-100 text-red-800 hover:bg-red-200'
+                                    }`}
+                                  >
+                                    {user.is_active ? 'Activo' : 'Inactivo'}
+                                  </Button>
+                                </TableCell>
+                                <TableCell className="text-center">
+                                  {user.email_verified ? (
+                                    <Mail className="h-4 w-4 text-green-600 mx-auto" />
+                                  ) : (
+                                    <Mail className="h-4 w-4 text-gray-400 mx-auto" />
+                                  )}
+                                </TableCell>
+                                <TableCell className="text-sm text-gray-600">
+                                  {formatDate(user.created_at)}
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex items-center justify-center gap-1">
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      onClick={() => prepareEdit(user)}
+                                      className="h-9 w-9 p-0 hover:bg-blue-50 hover:text-blue-600"
+                                      title="Editar usuario"
+                                    >
+                                      <Edit className="h-4 w-4" />
+                                    </Button>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      onClick={() => confirmDelete(user)}
+                                      className="h-9 w-9 p-0 hover:bg-red-50 hover:text-red-600"
+                                      title="Eliminar usuario"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            ))
+                          )}
+                        </TableBody>
+                      </Table>
+                    </div>
+                    
+                    {/* Paginación */}
+                    {totalPages > 1 && (
+                      <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                          <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm text-gray-700">Mostrar:</span>
+                              <Select 
+                                value={itemsPerPage.toString()} 
+                                onValueChange={(value) => setItemsPerPage(Number(value))}
+                              >
+                                <SelectTrigger className="w-20">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="5">5</SelectItem>
+                                  <SelectItem value="10">10</SelectItem>
+                                  <SelectItem value="25">25</SelectItem>
+                                  <SelectItem value="50">50</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <span className="text-sm text-gray-700">por página</span>
+                            </div>
+                            <div className="text-sm text-gray-700">
+                              Mostrando {startIndex + 1} a {Math.min(endIndex, sortedUsers.length)} de {sortedUsers.length} usuarios
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={goToFirstPage}
+                              disabled={currentPage === 1}
+                              className="h-9 w-9 p-0"
+                            >
+                              <ChevronsLeft className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={goToPreviousPage}
+                              disabled={currentPage === 1}
+                              className="h-9 w-9 p-0"
+                            >
+                              <ChevronLeft className="h-4 w-4" />
+                            </Button>
+                            
+                            <div className="flex items-center gap-1">
+                              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                let pageNumber;
+                                if (totalPages <= 5) {
+                                  pageNumber = i + 1;
+                                } else if (currentPage <= 3) {
+                                  pageNumber = i + 1;
+                                } else if (currentPage >= totalPages - 2) {
+                                  pageNumber = totalPages - 4 + i;
+                                } else {
+                                  pageNumber = currentPage - 2 + i;
+                                }
+                                
+                                return (
+                                  <Button
+                                    key={pageNumber}
+                                    variant={currentPage === pageNumber ? "default" : "outline"}
+                                    size="sm"
+                                    onClick={() => setCurrentPage(pageNumber)}
+                                    className="h-9 w-9 p-0"
+                                  >
+                                    {pageNumber}
+                                  </Button>
+                                );
+                              })}
+                            </div>
+                            
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={goToNextPage}
+                              disabled={currentPage === totalPages}
+                              className="h-9 w-9 p-0"
+                            >
+                              <ChevronRight className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={goToLastPage}
+                              disabled={currentPage === totalPages}
+                              className="h-9 w-9 p-0"
+                            >
+                              <ChevronsRight className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

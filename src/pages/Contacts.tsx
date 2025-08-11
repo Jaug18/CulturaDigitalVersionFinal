@@ -3,7 +3,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Check, X, Upload, Search, UserPlus, PenLine, Loader2, ChevronDown, Download, FileDown } from 'lucide-react';
+import { Plus, Check, X, Upload, Search, UserPlus, PenLine, Loader2, ChevronDown, Download, FileDown, Filter, Trash2 } from 'lucide-react';
 import Navbar from "@/components/Navbar";
 import { toast } from "@/hooks/use-toast";
 import jsPDF from "jspdf";
@@ -1237,7 +1237,7 @@ const Contacts = () => {
         margin: { left: 40, right: 40 },
       });
 
-      startY = doc.lastAutoTable.finalY + 30;
+      startY = (doc as any).lastAutoTable.finalY + 30;
       if (startY > 500) {
         doc.addPage();
         startY = 40;
@@ -1317,15 +1317,28 @@ const Contacts = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 font-poppins">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 font-poppins">
       <Navbar />
       
-      <main className="py-8 container mx-auto px-4">
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="bg-gray-50 p-4 border-b border-gray-200">
-            <h1 className="text-2xl font-bold text-gray-800">Contactos</h1>
-            <p className="text-gray-600">Gestiona tus contactos y listas</p>
-          </div>
+      <main className="py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          {/* Contenedor principal con ancho fijo */}
+          <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden min-h-[700px]">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
+                  <h2 className="text-xl font-semibold text-gray-800">Panel de Control</h2>
+                </div>
+                <div className="text-sm text-gray-600">
+                  {activeTab === 'contacts' ? (
+                    <span>Total de contactos: <span className="font-semibold text-blue-600">{allContacts.length}</span></span>
+                  ) : (
+                    <span>Total de listas: <span className="font-semibold text-emerald-600">{lists.length}</span></span>
+                  )}
+                </div>
+              </div>
+            </div>
           
           <Tabs 
             defaultValue="contacts" 
@@ -1347,450 +1360,1200 @@ const Contacts = () => {
             }}
             className="w-full"
           >
-            <div className="px-4 pt-4">
-              <TabsList className="w-full grid grid-cols-2 mb-4">
-                <TabsTrigger value="contacts">Contactos</TabsTrigger>
-                <TabsTrigger value="lists">Listas</TabsTrigger>
+            <div className="px-6 pt-6">
+              <TabsList className="w-full grid grid-cols-2 mb-6 bg-gray-100 p-1 rounded-lg">
+                <TabsTrigger 
+                  value="contacts"
+                  className="rounded-md py-2.5 px-6 data-[state=active]:bg-white data-[state=active]:shadow-sm font-medium"
+                >
+                  👥 Contactos
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="lists"
+                  className="rounded-md py-2.5 px-6 data-[state=active]:bg-white data-[state=active]:shadow-sm font-medium"
+                >
+                  📋 Listas
+                </TabsTrigger>
               </TabsList>
             </div>
             
-            <TabsContent value="contacts" className="p-4">
-              {/* Indicador de lista activa */}
-              {activeTab === "contacts" && viewMode === 'list' && currentViewListId && (
-                <div className="mb-4 flex items-center justify-between bg-blue-50 p-2 rounded-md border border-blue-200">
-                  <div className="flex items-center">
-                    <span className="text-blue-700 text-sm font-medium">
-                      Mostrando contactos de la lista: {lists.find(l => l.id === currentViewListId)?.name || 'Lista'}
+            <TabsContent value="contacts" className="px-6 pb-6">
+              {/* Contenedor de ancho fijo */}
+              <div className="max-w-7xl mx-auto">
+                {/* Header simplificado */}
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">Gestión de Contactos</h2>
+                  <p className="text-gray-600">Administra tu base de datos de contactos, importa nuevos registros y organiza tu audiencia para campañas efectivas</p>
+                </div>
+
+                {/* Indicador de lista activa mejorado */}
+                {activeTab === "contacts" && viewMode === 'list' && currentViewListId && (
+                <div className="mb-6 flex items-center justify-between bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200 shadow-sm">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                    <span className="text-blue-800 font-medium">
+                      📋 Vista filtrada: {lists.find(l => l.id === currentViewListId)?.name || 'Lista'}
                     </span>
                   </div>
                   <Button 
                     variant="outline"
                     size="sm"
+                    className="bg-white hover:bg-blue-50 border-blue-300"
                     onClick={() => {
                       setViewMode('all');
                       setCurrentViewListId(null);
                       setFilteredContacts(allContacts);
                     }}
                   >
-                    Ver todos los contactos
+                    ← Ver todos los contactos
                   </Button>
                 </div>
               )}
 
-              {/* Barra de búsqueda y acciones */}
-              <div className="flex flex-col md:flex-row gap-2 mb-4">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input 
-                    placeholder="Buscar contacto..." 
-                    className="pl-9"
-                    value={searchTerm}
-                    onChange={(e) => {
-                      handleSearch(e.target.value);
-                      setShowSuggestions(true);
-                    }}
-                    onFocus={() => searchTerm && setShowSuggestions(true)}
-                    onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-                  />
-                  {/* Sugerencias de búsqueda */}
-                  {showSuggestions && searchSuggestions.length > 0 && (
-                    <div className="absolute z-10 bg-white border rounded shadow w-full mt-1">
-                      {searchSuggestions.map((contact) => (
-                        <div
-                          key={contact.id}
-                          className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
-                          onMouseDown={() => {
-                            setSearchTerm(contact.name);
-                            setShowSuggestions(false);
-                          }}
-                        >
-                          <span className="font-medium">{contact.name}</span>
-                          <span className="ml-2 text-gray-500">{contact.email}</span>
-                        </div>
+              {/* Barra de control mejorada */}
+              <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg p-4 mb-6 border border-gray-200">
+                {/* Primera fila: Búsqueda y filtros principales */}
+                <div className="flex flex-col lg:flex-row gap-4 mb-4">
+                  <div className="relative flex-1 min-w-0">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input 
+                      placeholder="🔍 Buscar por nombre o email..." 
+                      className="pl-9 h-11 bg-white border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      value={searchTerm}
+                      onChange={(e) => {
+                        handleSearch(e.target.value);
+                        setShowSuggestions(true);
+                      }}
+                      onFocus={() => searchTerm && setShowSuggestions(true)}
+                      onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                    />
+                    {/* Sugerencias de búsqueda mejoradas */}
+                    {showSuggestions && searchSuggestions.length > 0 && (
+                      <div className="absolute z-10 bg-white border border-gray-200 rounded-lg shadow-lg w-full mt-1 max-h-60 overflow-auto">
+                        {searchSuggestions.map((contact) => (
+                          <div
+                            key={contact.id}
+                            className="px-4 py-3 hover:bg-blue-50 cursor-pointer text-sm border-b border-gray-100 last:border-b-0"
+                            onMouseDown={() => {
+                              setSearchTerm(contact.name);
+                              setShowSuggestions(false);
+                            }}
+                          >
+                            <div className="flex items-center space-x-3">
+                              <Avatar className="h-8 w-8">
+                                <AvatarFallback className="text-xs">{(contact.name || '').substring(0, 2).toUpperCase()}</AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <span className="font-medium text-gray-900">{contact.name}</span>
+                                <div className="text-gray-500">{contact.email}</div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Filtros organizados */}
+                  <div className="flex flex-wrap gap-2 lg:gap-3">
+                    <select 
+                      className="px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-medium shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-w-[140px]"
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}
+                    >
+                      <option value="all">🔘 Todos los estados</option>
+                      <option value="active">✅ Solo activos</option>
+                      <option value="inactive">❌ Solo inactivos</option>
+                    </select>
+
+                    <select
+                      className="px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-medium shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-w-[150px]"
+                      value={emailDomainFilter}
+                      onChange={e => setEmailDomainFilter(e.target.value)}
+                    >
+                      <option value="">🌐 Todos los dominios</option>
+                      {emailDomains.map(domain => (
+                        <option key={domain} value={domain}>@{domain}</option>
                       ))}
-                    </div>
-                  )}
+                    </select>
+                  </div>
                 </div>
-                <div className="flex gap-2 flex-wrap md:flex-nowrap">
-                  <select 
-                    className="px-3 py-2 border border-gray-300 rounded-md text-sm min-w-[120px]"
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}
-                  >
-                    <option value="all">Todos los estados</option>
-                    <option value="active">Activos</option>
-                    <option value="inactive">Inactivos</option>
-                  </select>
-                  {/* Filtro avanzado por dominio */}
-                  <select
-                    className="px-3 py-2 border border-gray-300 rounded-md text-sm min-w-[130px]"
-                    value={emailDomainFilter}
-                    onChange={e => setEmailDomainFilter(e.target.value)}
-                  >
-                    <option value="">Todos los dominios</option>
-                    {emailDomains.map(domain => (
-                      <option key={domain} value={domain}>{domain}</option>
-                    ))}
-                  </select>
-                  {/* Dropdown de exportación */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="flex items-center">
-                        <Download className="h-4 w-4 mr-2" />
-                        Exportar
-                        <ChevronDown className="h-4 w-4 ml-2" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
-                      <DropdownMenuLabel>Formato de exportación</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => handleExportContacts()}>
-                        <FileDown className="h-4 w-4 mr-2" /> CSV
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleExportContactsPDF}>
-                        <FileDown className="h-4 w-4 mr-2" /> PDF
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleExportContactsExcel}>
-                        <FileDown className="h-4 w-4 mr-2" /> Excel
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  <Dialog open={showImportDialog} onOpenChange={setShowImportDialog}>
-                    <DialogTrigger asChild>
-                      <Button variant="outline">
-                        <Upload className="h-4 w-4 mr-2" />
-                        Importar
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Importar contactos</DialogTitle>
-                        <DialogDescription>
-                          Sube un archivo CSV o Excel con tus contactos.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="space-y-4 py-4">
-                        {!parsedContacts.length ? (
-                          <>
-                            <div className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center">
-                              <Input 
-                                type="file" 
-                                accept=".csv,.xlsx,.xls" 
-                                className="mx-auto"
-                                onChange={(e) => setImportFile(e.target.files ? e.target.files[0] : null)}
-                                disabled={isImporting}
-                              />
-                              <p className="text-sm text-gray-500 mt-2">
-                                Formatos soportados: CSV, Excel
-                              </p>
+
+                {/* Segunda fila: Botones de acción */}
+                <div className="flex flex-wrap gap-3 items-center justify-between">
+                  <div className="flex flex-wrap gap-2">
+                    <Button 
+                      className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm h-10 px-4"
+                      onClick={() => setShowNewContactForm(true)}
+                    >
+                      <Plus className="h-4 w-4 mr-2" /> Nuevo Contacto
+                    </Button>
+                    
+                    <Dialog open={showAddToListDialog} onOpenChange={setShowAddToListDialog}>
+                      <DialogTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          className="border-green-300 text-green-700 hover:bg-green-50 shadow-sm h-10 px-4"
+                          disabled={selectedContacts.length === 0}
+                        >
+                          <UserPlus className="h-4 w-4 mr-2" />
+                          Agregar a Lista ({selectedContacts.length})
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Agregar a lista</DialogTitle>
+                          <DialogDescription>
+                            Selecciona la lista a la que quieres agregar {selectedContacts.length} contacto(s).
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                          {isLoadingLists ? (
+                            <div className="text-center py-4">
+                              <Loader2 className="h-8 w-8 mx-auto animate-spin text-gray-400" />
+                              <p className="mt-2 text-gray-500">Cargando listas...</p>
                             </div>
-                            <Button 
-                              className="w-full" 
-                              onClick={handleUploadContactFile}
-                              disabled={!importFile || isImporting}
-                            >
-                              {isImporting ? (
-                                <>
-                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                  Procesando...
-                                </>
-                              ) : (
-                                <>
-                                  <Upload className="h-4 w-4 mr-2" />
-                                  Procesar archivo
-                                </>
-                              )}
-                            </Button>
-                          </>
-                        ) : (
-                          <>
-                            <div className="rounded-md border p-4">
-                              <p className="font-medium">Contactos encontrados: {parsedContacts.length}</p>
-                              <div className="mt-2 max-h-40 overflow-auto">
-                                <ul className="text-sm space-y-1">
-                                  {parsedContacts.slice(0, 5).map((contact, idx) => (
-                                    <li key={idx} className="flex justify-between">
-                                      <span>{contact.name}</span>
-                                      <span className="text-gray-500">{contact.email}</span>
-                                    </li>
-                                  ))}
-                                  {parsedContacts.length > 5 && (
-                                    <li className="text-center text-gray-500">
-                                      Y {parsedContacts.length - 5} más...
-                                    </li>
-                                  )}
-                                </ul>
-                              </div>
-                            </div>
-                            <Button 
-                              className="w-full" 
-                              onClick={handleImportContacts}
-                              disabled={isImporting}
-                            >
-                              {isImporting ? (
-                                <>
-                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                  Importando...
-                                </>
-                              ) : (
-                                <>
-                                  <Upload className="h-4 w-4 mr-2" />
-                                  Importar {parsedContacts.length} contactos
-                                </>
-                              )}
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                  
-                  <Dialog open={showAddToListDialog} onOpenChange={setShowAddToListDialog}>
-                    <DialogTrigger asChild>
-                      <Button 
-                        variant="outline" 
-                        disabled={selectedContacts.length === 0}
-                      >
-                        <UserPlus className="h-4 w-4 mr-2" />
-                        Agregar a lista
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Agregar a lista</DialogTitle>
-                        <DialogDescription>
-                          Selecciona la lista a la que quieres agregar {selectedContacts.length} contacto(s).
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="space-y-4 py-4">
-                        {isLoadingLists ? (
-                          <div className="text-center py-4">
-                            <Loader2 className="h-8 w-8 mx-auto animate-spin text-gray-400" />
-                            <p className="mt-2 text-gray-500">Cargando listas...</p>
-                          </div>
-                        ) : lists.length === 0 ? (
-                          <div className="text-center py-4">
-                            <p className="text-gray-500">No tienes listas creadas.</p>
-                            <Button 
-                              variant="link" 
-                              onClick={() => {
-                                setShowAddToListDialog(false);
-                                setShowNewListForm(true);
-                                (document.querySelector('[data-value="lists"]') as HTMLElement)?.click();
-                              }}
-                            >
-                              Crear una lista
-                            </Button>
-                          </div>
-                        ) : (
-                          <>
-                            {lists.map(list => (
-                              <div 
-                                key={list.id} 
-                                className={`p-3 border rounded-md cursor-pointer ${selectedList === list.id ? 'bg-blue-50 border-blue-500' : ''}`}
-                                onClick={() => setSelectedList(list.id)}
+                          ) : lists.length === 0 ? (
+                            <div className="text-center py-4">
+                              <p className="text-gray-500">No tienes listas creadas.</p>
+                              <Button 
+                                variant="link" 
+                                onClick={() => {
+                                  setShowAddToListDialog(false);
+                                  setShowNewListForm(true);
+                                  (document.querySelector('[data-value="lists"]') as HTMLElement)?.click();
+                                }}
                               >
-                                <div className="font-medium">{list.name}</div>
-                                <div className="text-sm text-gray-500">{list.contact_count || 0} contactos</div>
+                                Crear una lista
+                              </Button>
+                            </div>
+                          ) : (
+                            <>
+                              {lists.map(list => (
+                                <div 
+                                  key={list.id} 
+                                  className={`p-3 border rounded-md cursor-pointer transition-colors ${selectedList === list.id ? 'bg-blue-50 border-blue-500' : 'hover:bg-gray-50'}`}
+                                  onClick={() => setSelectedList(list.id)}
+                                >
+                                  <div className="font-medium">{list.name}</div>
+                                  <div className="text-sm text-gray-500">{list.contact_count || 0} contactos</div>
+                                </div>
+                              ))}
+                              <Button 
+                                className="w-full" 
+                                onClick={handleAddToList}
+                                disabled={!selectedList || isSubmitting}
+                              >
+                                {isSubmitting ? (
+                                  <>
+                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                    Agregando...
+                                  </>
+                                ) : (
+                                  "Agregar a lista seleccionada"
+                                )}
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Dialog open={showImportDialog} onOpenChange={setShowImportDialog}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" className="shadow-sm h-10 px-4">
+                          <Upload className="h-4 w-4 mr-2" />
+                          Importar
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Importar contactos</DialogTitle>
+                          <DialogDescription>
+                            Sube un archivo CSV o Excel con tus contactos.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                          {!parsedContacts.length ? (
+                            <>
+                              <div className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center">
+                                <Input 
+                                  type="file" 
+                                  accept=".csv,.xlsx,.xls" 
+                                  className="mx-auto"
+                                  onChange={(e) => setImportFile(e.target.files ? e.target.files[0] : null)}
+                                  disabled={isImporting}
+                                />
+                                <p className="text-sm text-gray-500 mt-2">
+                                  Formatos soportados: CSV, Excel
+                                </p>
                               </div>
-                            ))}
-                            <Button 
-                              className="w-full" 
-                              onClick={handleAddToList}
-                              disabled={!selectedList || isSubmitting}
-                            >
-                              {isSubmitting ? (
-                                <>
-                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                  Agregando...
-                                </>
-                              ) : (
-                                "Agregar a lista seleccionada"
-                              )}
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                  
-                  <Button 
-                    className="flex justify-center items-center"
-                    onClick={() => setShowNewContactForm(true)}
-                  >
-                    <Plus className="h-4 w-4 mr-2" /> Agregar
-                  </Button>
+                              <Button 
+                                className="w-full" 
+                                onClick={handleUploadContactFile}
+                                disabled={!importFile || isImporting}
+                              >
+                                {isImporting ? (
+                                  <>
+                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                    Procesando...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Upload className="h-4 w-4 mr-2" />
+                                    Procesar archivo
+                                  </>
+                                )}
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <div className="rounded-md border p-4">
+                                <p className="font-medium">Contactos encontrados: {parsedContacts.length}</p>
+                                <div className="mt-2 max-h-40 overflow-auto">
+                                  <ul className="text-sm space-y-1">
+                                    {parsedContacts.slice(0, 5).map((contact, idx) => (
+                                      <li key={idx} className="flex justify-between">
+                                        <span>{contact.name}</span>
+                                        <span className="text-gray-500">{contact.email}</span>
+                                      </li>
+                                    ))}
+                                    {parsedContacts.length > 5 && (
+                                      <li className="text-center text-gray-500">
+                                        Y {parsedContacts.length - 5} más...
+                                      </li>
+                                    )}
+                                  </ul>
+                                </div>
+                              </div>
+                              <Button 
+                                className="w-full" 
+                                onClick={handleImportContacts}
+                                disabled={isImporting}
+                              >
+                                {isImporting ? (
+                                  <>
+                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                    Importando...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Upload className="h-4 w-4 mr-2" />
+                                    Importar {parsedContacts.length} contactos
+                                  </>
+                                )}
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" className="shadow-sm h-10 px-4">
+                          <Download className="h-4 w-4 mr-2" />
+                          Exportar
+                          <ChevronDown className="h-4 w-4 ml-2" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuLabel>Formato de exportación</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => handleExportContacts()}>
+                          <FileDown className="h-4 w-4 mr-2" /> CSV
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleExportContactsPDF}>
+                          <FileDown className="h-4 w-4 mr-2" /> PDF
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleExportContactsExcel}>
+                          <FileDown className="h-4 w-4 mr-2" /> Excel
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
               </div>
               
+              {/* Formulario mejorado para nuevo contacto */}
               {showNewContactForm && (
-                <div className="border border-gray-200 rounded-md p-4 mb-4 bg-gray-50">
-                  <h4 className="font-medium mb-3">Nuevo contacto</h4>
-                  <div className="space-y-3">
-                    <Input
-                      type="text"
-                      placeholder="Nombre"
-                      value={newContactName}
-                      onChange={(e) => setNewContactName(e.target.value)}
-                      className="w-full"
-                    />
-                    <Input
-                      type="email"
-                      placeholder="Correo electrónico"
-                      value={newContactEmail}
-                      onChange={(e) => setNewContactEmail(e.target.value)}
-                      className="w-full"
-                    />
-                    <div className="flex justify-end space-x-2">
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6 mb-6 shadow-sm">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                      <Plus className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <h4 className="text-lg font-semibold text-gray-900">Agregar Nuevo Contacto</h4>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Nombre completo <span className="text-red-500">*</span>
+                      </label>
+                      <Input
+                        type="text"
+                        placeholder="Ej: Juan Pérez"
+                        value={newContactName}
+                        onChange={(e) => setNewContactName(e.target.value)}
+                        className="w-full h-11 bg-white border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Correo electrónico <span className="text-red-500">*</span>
+                      </label>
+                      <Input
+                        type="email"
+                        placeholder="juan.perez@ejemplo.com"
+                        value={newContactEmail}
+                        onChange={(e) => setNewContactEmail(e.target.value)}
+                        className="w-full h-11 bg-white border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex justify-end space-x-3 mt-6">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowNewContactForm(false)}
+                      className="px-6"
+                    >
+                      Cancelar
+                    </Button>
+                    <Button 
+                      onClick={handleCreateContact}
+                      disabled={!newContactName || !newContactEmail || isSubmitting}
+                      className="bg-blue-600 hover:bg-blue-700 px-6"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Guardando...
+                        </>
+                      ) : (
+                        <>
+                          <Check className="h-4 w-4 mr-2" />
+                          Guardar Contacto
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              )}
+              
+              {/* Contenedor de tabla mejorado */}
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                <ScrollArea className="h-[500px]">
+                  {isLoadingContacts ? (
+                    <div className="h-full flex flex-col items-center justify-center py-20">
+                      <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                      </div>
+                      <p className="text-lg font-medium text-gray-700">Cargando contactos...</p>
+                      <p className="text-sm text-gray-500 mt-1">Por favor espera un momento</p>
+                    </div>
+                  ) : (
+                    <>
+                      <Table>
+                        <TableHeader className="bg-gray-50 sticky top-0 z-10">
+                          <TableRow className="border-b border-gray-200">
+                            <TableHead className="w-12 py-4">
+                              <Input 
+                                type="checkbox" 
+                                className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" 
+                                checked={selectedContacts.length > 0 && selectedContacts.length === filteredContacts.length}
+                                onChange={() => {
+                                  if (selectedContacts.length === filteredContacts.length) {
+                                    setSelectedContacts([]);
+                                  } else {
+                                    setSelectedContacts(filteredContacts.map(c => c.id));
+                                  }
+                                }} 
+                              />
+                            </TableHead>
+                            <TableHead 
+                              className="cursor-pointer select-none py-4 font-semibold text-gray-700 hover:text-gray-900 transition-colors" 
+                              onClick={() => handleSort('name')}
+                            >
+                              <div className="flex items-center space-x-2">
+                                <span>👤 Contacto</span>
+                                {sortBy === 'name' && (
+                                  <span className="text-blue-600">
+                                    {sortOrder === 'asc' ? '↑' : '↓'}
+                                  </span>
+                                )}
+                              </div>
+                            </TableHead>
+                            <TableHead 
+                              className="cursor-pointer select-none py-4 font-semibold text-gray-700 hover:text-gray-900 transition-colors" 
+                              onClick={() => handleSort('email')}
+                            >
+                              <div className="flex items-center space-x-2">
+                                <span>📧 Email</span>
+                                {sortBy === 'email' && (
+                                  <span className="text-blue-600">
+                                    {sortOrder === 'asc' ? '↑' : '↓'}
+                                  </span>
+                                )}
+                              </div>
+                            </TableHead>
+                            <TableHead 
+                              className="cursor-pointer select-none py-4 font-semibold text-gray-700 hover:text-gray-900 transition-colors" 
+                              onClick={() => handleSort('status')}
+                            >
+                              <div className="flex items-center space-x-2">
+                                <span>🔘 Estado</span>
+                                {sortBy === 'status' && (
+                                  <span className="text-blue-600">
+                                    {sortOrder === 'asc' ? '↑' : '↓'}
+                                  </span>
+                                )}
+                              </div>
+                            </TableHead>
+                            <TableHead className="text-right py-4 font-semibold text-gray-700">
+                              ⚙️ Acciones
+                            </TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {currentContacts.map((contact, index) => (
+                            <TableRow 
+                              key={contact.id} 
+                              className={`transition-colors hover:bg-gray-50 ${
+                                index % 2 === 0 ? 'bg-white' : 'bg-gray-25'
+                              }`}
+                            >
+                              <TableCell className="py-4">
+                                <Input 
+                                  type="checkbox" 
+                                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" 
+                                  checked={selectedContacts.includes(contact.id)}
+                                  onChange={() => handleContactSelection(contact.id)}
+                                />
+                              </TableCell>
+                              <TableCell className="py-4">
+                                <div className="flex items-center space-x-3">
+                                  <Avatar className="h-10 w-10 shadow-sm">
+                                    <AvatarFallback className="bg-gradient-to-br from-blue-400 to-blue-600 text-white font-medium">
+                                      {(contact.name || '').substring(0, 2).toUpperCase()}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div>
+                                    <div className="font-medium text-gray-900">{contact.name}</div>
+                                    <div className="text-sm text-gray-500">ID: {contact.id}</div>
+                                  </div>
+                                </div>
+                              </TableCell>
+                              <TableCell className="py-4">
+                                <div className="text-gray-900">{contact.email}</div>
+                                <div className="text-sm text-gray-500">
+                                  @{contact.email.split('@')[1]}
+                                </div>
+                              </TableCell>
+                              <TableCell className="py-4">
+                                <div className="flex items-center space-x-3">
+                                  <Badge 
+                                    variant={contact.status === 'active' ? 'default' : 'secondary'}
+                                    className={`px-3 py-1 text-xs font-medium ${
+                                      contact.status === 'active' 
+                                        ? 'bg-green-100 text-green-800 border-green-200' 
+                                        : 'bg-gray-100 text-gray-600 border-gray-200'
+                                    }`}
+                                  >
+                                    {contact.status === 'active' ? '✅ Activo' : '❌ Inactivo'}
+                                  </Badge>
+                                  <Switch 
+                                    checked={contact.status === 'active'} 
+                                    onCheckedChange={() => toggleContactStatus(contact.id, contact.status)}
+                                    className="data-[state=checked]:bg-green-500"
+                                  />
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-right py-4">
+                                <div className="flex items-center justify-end space-x-2">
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    onClick={() => startEditingContact(contact)}
+                                    className="hover:bg-blue-50 hover:border-blue-300 text-blue-700"
+                                  >
+                                    <PenLine className="h-3.5 w-3.5 mr-1" />
+                                    Editar
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    onClick={() => confirmDeleteContact(contact)}
+                                    className="hover:bg-red-50 hover:border-red-300 text-red-700"
+                                  >
+                                    <X className="h-3.5 w-3.5 mr-1" />
+                                    Eliminar
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                          {currentContacts.length === 0 && (
+                            <TableRow>
+                              <TableCell colSpan={5} className="text-center py-16">
+                                <div className="flex flex-col items-center space-y-4">
+                                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                                    <Search className="h-8 w-8 text-gray-400" />
+                                  </div>
+                                  <div>
+                                    <p className="text-lg font-medium text-gray-700">No se encontraron contactos</p>
+                                    <p className="text-sm text-gray-500 mt-1">
+                                      Intenta ajustar tus filtros de búsqueda o agregar nuevos contactos
+                                    </p>
+                                  </div>
+                                  <Button 
+                                    onClick={() => {
+                                      setSearchTerm('');
+                                      setStatusFilter('all');
+                                      setEmailDomainFilter('');
+                                    }}
+                                    variant="outline"
+                                    className="mt-2"
+                                  >
+                                    Limpiar filtros
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </TableBody>
+                      </Table>
+                    </>
+                  )}
+                </ScrollArea>
+              </div>
+
+              {/* Paginación mejorada */}
+              {totalPages > 1 && (
+                <div className="mt-6 bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+                  <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
+                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <span>Mostrando</span>
+                      <span className="font-medium text-gray-900">
+                        {indexOfFirstContact + 1} - {Math.min(indexOfLastContact, filteredContacts.length)}
+                      </span>
+                      <span>de</span>
+                      <span className="font-medium text-gray-900">{filteredContacts.length}</span>
+                      <span>contactos</span>
+                    </div>
+                    
+                    <Pagination>
+                      <PaginationContent className="flex items-center space-x-1">
+                        <PaginationItem>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handlePreviousPage}
+                            disabled={currentPage === 1}
+                            className="h-9 px-3 bg-white border-gray-300 hover:bg-gray-50"
+                          >
+                            ← Anterior
+                          </Button>
+                        </PaginationItem>
+
+                        {getFixedPageNumbers(currentPage, totalPages).map((pageNum, index) => {
+                          if (pageNum === -1 || pageNum === -2) {
+                            return (
+                              <PaginationItem key={`ellipsis-${index}`}>
+                                <PaginationEllipsis className="h-9 w-9" />
+                              </PaginationItem>
+                            );
+                          }
+                          
+                          return (
+                            <PaginationItem key={pageNum}>
+                              <PaginationLink
+                                isActive={currentPage === pageNum}
+                                onClick={() => handlePageClick(pageNum)}
+                                className={`h-9 w-9 ${currentPage === pageNum ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white border-gray-300 hover:bg-gray-50'}`}
+                              >
+                                {pageNum}
+                              </PaginationLink>
+                            </PaginationItem>
+                          );
+                        })}
+
+                        <PaginationItem>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleNextPage}
+                            disabled={currentPage === totalPages}
+                            className="h-9 px-3 bg-white border-gray-300 hover:bg-gray-50"
+                          >
+                            Siguiente →
+                          </Button>
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
+                  </div>
+                </div>
+              )}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="lists" className="space-y-6">
+              {/* Contenedor de ancho fijo */}
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                {/* Header simplificado */}
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">Gestión de Listas</h2>
+                  <p className="text-gray-600">Organiza tus contactos en listas personalizadas para campañas segmentadas</p>
+                </div>
+
+                {/* Filtros y controles mejorados */}
+                <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6 shadow-sm">
+                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+                    {/* Sección de búsqueda y filtros */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Input
+                          placeholder="Buscar listas por nombre..."
+                          value={listSearch}
+                          onChange={e => setListSearch(e.target.value)}
+                          className="pl-10 w-80 h-10 bg-white border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                        />
+                      </div>
+                      
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50 shadow-sm h-10 px-4">
+                            <Filter className="h-4 w-4 mr-2" />
+                            Ordenar: {listSortBy === 'name' ? 'Nombre' : listSortBy === 'contact_count' ? 'Contactos' : 'Fecha'}
+                            <ChevronDown className="h-4 w-4 ml-2" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-56">
+                          <DropdownMenuLabel>Ordenar por</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem 
+                            onClick={() => {
+                              setListSortBy('name');
+                              setListSortOrder('asc');
+                            }}
+                            className={`${listSortBy === 'name' && listSortOrder === 'asc' ? 'bg-accent' : ''}`}
+                          >
+                            📝 Nombre (A-Z)
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => {
+                              setListSortBy('name');
+                              setListSortOrder('desc');
+                            }}
+                            className={`${listSortBy === 'name' && listSortOrder === 'desc' ? 'bg-accent' : ''}`}
+                          >
+                            📝 Nombre (Z-A)
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => {
+                              setListSortBy('contact_count');
+                              setListSortOrder('asc');
+                            }}
+                            className={`${listSortBy === 'contact_count' && listSortOrder === 'asc' ? 'bg-accent' : ''}`}
+                          >
+                            👥 Contactos (menor a mayor)
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => {
+                              setListSortBy('contact_count');
+                              setListSortOrder('desc');
+                            }}
+                            className={`${listSortBy === 'contact_count' && listSortOrder === 'desc' ? 'bg-accent' : ''}`}
+                          >
+                            👥 Contactos (mayor a menor)
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => {
+                              setListSortBy('created_at');
+                              setListSortOrder('asc');
+                            }}
+                            className={`${listSortBy === 'created_at' && listSortOrder === 'asc' ? 'bg-accent' : ''}`}
+                          >
+                            📅 Fecha (más antigua)
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => {
+                              setListSortBy('created_at');
+                              setListSortOrder('desc');
+                            }}
+                            className={`${listSortBy === 'created_at' && listSortOrder === 'desc' ? 'bg-accent' : ''}`}
+                          >
+                            📅 Fecha (más reciente)
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+
+                    {/* Sección de acciones */}
+                    <div className="flex flex-wrap items-center gap-3">
+                      {/* Acciones para listas seleccionadas */}
+                      {selectedLists.length > 0 && (
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="destructive"
+                            className="h-10 px-4"
+                            onClick={handleDeleteSelectedLists}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Eliminar ({selectedLists.length})
+                          </Button>
+                        </div>
+                      )}
+
+                      {/* Botón agregar nueva lista */}
+                      {!showNewListForm && (
+                        <Button
+                          className="bg-emerald-600 hover:bg-emerald-700 shadow-sm h-10 px-4"
+                          onClick={() => setShowNewListForm(true)}
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Nueva Lista
+                        </Button>
+                      )}
+
+                      <div className="flex gap-2">
+                        <Dialog open={showImportListDialog} onOpenChange={setShowImportListDialog}>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" className="shadow-sm h-10 px-4">
+                              <Upload className="h-4 w-4 mr-2" />
+                              Importar
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Importar listas</DialogTitle>
+                              <DialogDescription>
+                                Sube un archivo CSV o Excel con tus listas.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4 py-4">
+                              {!parsedLists.length ? (
+                                <>
+                                  <div className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center">
+                                    <Input 
+                                      type="file" 
+                                      accept=".csv,.xlsx,.xls" 
+                                      className="mx-auto"
+                                      onChange={(e) => setImportListFile(e.target.files ? e.target.files[0] : null)}
+                                      disabled={isImportingList}
+                                    />
+                                    <p className="text-sm text-gray-500 mt-2">
+                                      Formatos soportados: CSV, Excel
+                                    </p>
+                                  </div>
+                                  <Button 
+                                    className="w-full" 
+                                    onClick={handleUploadListFile}
+                                    disabled={!importListFile || isImportingList}
+                                  >
+                                    {isImportingList ? (
+                                      <>
+                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                        Procesando...
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Upload className="h-4 w-4 mr-2" />
+                                        Procesar archivo
+                                      </>
+                                    )}
+                                  </Button>
+                                </>
+                              ) : (
+                                <>
+                                  <div className="rounded-md border p-4">
+                                    <p className="font-medium">Listas encontradas: {parsedLists.length}</p>
+                                    <div className="mt-2 max-h-40 overflow-auto">
+                                      <ul className="text-sm space-y-1">
+                                        {parsedLists.slice(0, 5).map((list, idx) => (
+                                          <li key={idx} className="flex justify-between">
+                                            <span>{list.name}</span>
+                                            <span className="text-gray-500">{list.description}</span>
+                                          </li>
+                                        ))}
+                                        {parsedLists.length > 5 && (
+                                          <li className="text-center text-gray-500">
+                                            Y {parsedLists.length - 5} más...
+                                          </li>
+                                        )}
+                                      </ul>
+                                    </div>
+                                  </div>
+                                  <Button 
+                                    className="w-full" 
+                                    onClick={handleImportLists}
+                                    disabled={isImportingList}
+                                  >
+                                    {isImportingList ? (
+                                      <>
+                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                        Importando...
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Upload className="h-4 w-4 mr-2" />
+                                        Importar {parsedLists.length} listas
+                                      </>
+                                    )}
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                        
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" className="shadow-sm h-10 px-4">
+                              <Download className="h-4 w-4 mr-2" />
+                              Exportar
+                              <ChevronDown className="h-4 w-4 ml-2" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuLabel>Formato de exportación</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={handleExportLists}>
+                              <FileDown className="h-4 w-4 mr-2" /> CSV
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={handleExportListsPDF}>
+                              <FileDown className="h-4 w-4 mr-2" /> PDF
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={handleExportListsExcel}>
+                              <FileDown className="h-4 w-4 mr-2" /> Excel
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              
+                {/* Formulario mejorado para nueva lista */}
+                {showNewListForm && (
+                  <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-lg p-6 mb-6 shadow-sm">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+                        <Plus className="h-5 w-5 text-emerald-600" />
+                      </div>
+                      <h4 className="text-lg font-semibold text-gray-900">Crear Nueva Lista</h4>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Nombre de la lista <span className="text-red-500">*</span>
+                        </label>
+                        <Input
+                          type="text"
+                          placeholder="Ej: Clientes VIP"
+                          value={newListName}
+                          onChange={(e) => setNewListName(e.target.value)}
+                          className="w-full h-11 bg-white border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Descripción (opcional)
+                        </label>
+                        <Input
+                          type="text"
+                          placeholder="Descripción de la lista"
+                          value={newListDescription}
+                          onChange={(e) => setNewListDescription(e.target.value)}
+                          className="w-full h-11 bg-white border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex justify-end space-x-3 mt-6">
                       <Button 
                         variant="outline" 
-                        onClick={() => setShowNewContactForm(false)}
+                        onClick={() => setShowNewListForm(false)}
+                        className="px-6"
                       >
                         Cancelar
                       </Button>
                       <Button 
-                        onClick={handleCreateContact}
-                        disabled={!newContactName || !newContactEmail || isSubmitting}
+                        onClick={handleCreateList}
+                        disabled={!newListName || isSubmitting}
+                        className="bg-emerald-600 hover:bg-emerald-700 px-6"
                       >
                         {isSubmitting ? (
                           <>
                             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Guardando...
+                            Creando...
                           </>
                         ) : (
-                          "Guardar"
+                          <>
+                            <Check className="h-4 w-4 mr-2" />
+                            Crear Lista
+                          </>
                         )}
                       </Button>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
               
-              <ScrollArea className="h-[500px] rounded-md border">
-                {isLoadingContacts ? (
-                  <div className="h-full flex flex-col items-center justify-center">
-                    <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-                    <p className="mt-2 text-gray-500">Cargando contactos...</p>
-                  </div>
-                ) : (
-                  <>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-[30px]">
-                            <Input 
-                              type="checkbox" 
-                              className="w-4 h-4" 
-                              checked={selectedContacts.length > 0 && selectedContacts.length === filteredContacts.length}
-                              onChange={() => {
-                                if (selectedContacts.length === filteredContacts.length) {
-                                  setSelectedContacts([]);
-                                } else {
-                                  setSelectedContacts(filteredContacts.map(c => c.id));
-                                }
-                              }} 
-                            />
-                          </TableHead>
-                          <TableHead className="w-[250px] cursor-pointer select-none" onClick={() => handleSort('name')}>
-                            Nombre
-                            {sortBy === 'name' && (sortOrder === 'asc' ? ' ▲' : ' ▼')}
-                          </TableHead>
-                          <TableHead className="cursor-pointer select-none" onClick={() => handleSort('email')}>
-                            Correo electrónico
-                            {sortBy === 'email' && (sortOrder === 'asc' ? ' ▲' : ' ▼')}
-                          </TableHead>
-                          <TableHead className="cursor-pointer select-none" onClick={() => handleSort('status')}>
-                            Estado
-                            {sortBy === 'status' && (sortOrder === 'asc' ? ' ▲' : ' ▼')}
-                          </TableHead>
-                          <TableHead className="text-right">Acciones</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {currentContacts.map((contact) => (
-                          <TableRow key={contact.id}>
-                            <TableCell>
-                              <Input 
-                                type="checkbox" 
-                                className="w-4 h-4" 
-                                checked={selectedContacts.includes(contact.id)}
-                                onChange={() => handleContactSelection(contact.id)}
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center space-x-3">
-                                <Avatar>
-                                <AvatarFallback>{(contact.name || '').substring(0, 2).toUpperCase()}</AvatarFallback>                                </Avatar>
-                                <div>{contact.name}</div>
+                {/* Contenedor de listas mejorado */}
+                <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                  {isLoadingLists ? (
+                    <div className="h-96 flex flex-col items-center justify-center py-20">
+                      <div className="w-16 h-16 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full flex items-center justify-center mb-4 shadow-sm">
+                        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+                      </div>
+                      <p className="text-lg font-medium text-gray-700">Cargando listas...</p>
+                      <p className="text-sm text-gray-500 mt-1">Por favor espera un momento</p>
+                    </div>
+                  ) : currentLists.length === 0 ? (
+                    <div className="h-96 flex flex-col items-center justify-center py-20">
+                      <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-4 shadow-sm">
+                        <PenLine className="h-8 w-8 text-gray-400" />
+                      </div>
+                      <h3 className="text-lg font-medium text-gray-700 mb-2">No tienes listas creadas</h3>
+                      <p className="text-gray-500 mb-6 text-center max-w-sm">
+                        Crea tu primera lista para organizar tus contactos y mejorar tus campañas de marketing
+                      </p>
+                      <Button 
+                        onClick={() => setShowNewListForm(true)}
+                        className="bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-all duration-200 hover:shadow-md"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Crear mi primera lista
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="p-8">
+                      <div className="grid gap-8">
+                        {currentLists.map((list) => (
+                          <div 
+                            key={list.id} 
+                            className="group bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg hover:border-emerald-300 transition-all duration-300 overflow-hidden"
+                          >
+                            {/* Header de la tarjeta */}
+                            <div className="flex items-center justify-between p-6 bg-gradient-to-r from-gray-50 via-gray-50 to-emerald-50 border-b border-gray-200 group-hover:from-emerald-50 group-hover:to-teal-50 transition-all duration-300">
+                              <div className="flex items-center space-x-4">
+                                <div className="w-12 h-12 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow duration-300">
+                                  <span className="text-xl">
+                                    {list.contact_count > 100 ? '🌟' : 
+                                     list.contact_count > 50 ? '📈' : 
+                                     list.contact_count > 10 ? '📊' : '📝'}
+                                  </span>
+                                </div>
+                                <div>
+                                  <h3 className="text-lg font-semibold text-gray-900">{list.name}</h3>
+                                  <p className="text-sm text-gray-500">ID: {list.id}</p>
+                                </div>
                               </div>
-                            </TableCell>
-                            <TableCell>{contact.email}</TableCell>
-                            <TableCell>
-                              <div className="flex items-center justify-end space-x-2">
-                                <Label htmlFor={`contact-status-${contact.id}`} className={`text-sm ${contact.status === 'active' ? 'text-green-600' : 'text-gray-400'}`}>
-                                  {contact.status === 'active' ? 'Activo' : 'Inactivo'}
-                                </Label>
-                                <Switch 
-                                  id={`contact-status-${contact.id}`}
-                                  checked={contact.status === 'active'} 
-                                  onCheckedChange={() => toggleContactStatus(contact.id, contact.status)}
+                              <div className="flex items-center space-x-3">
+                                <Badge 
+                                  variant="secondary" 
+                                  className={`${
+                                    (list.contact_count || 0) > 50 ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
+                                    (list.contact_count || 0) > 10 ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                                    'bg-gray-100 text-gray-700 border-gray-200'
+                                  } transition-colors duration-300`}
+                                >
+                                  {list.contact_count || 0} contactos
+                                </Badge>
+                                <Input
+                                  type="checkbox"
+                                  className="w-5 h-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                                  checked={selectedLists.includes(list.id)}
+                                  onChange={() => handleListSelection(list.id)}
+                                  title="Seleccionar lista"
                                 />
                               </div>
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <div className="flex items-center justify-end space-x-2">
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  onClick={() => startEditingContact(contact)}
-                                >
-                                  Editar
-                                </Button>
+                            </div>
+
+                            {/* Descripción */}
+                            {list.description && (
+                              <div className="px-6 py-3 bg-gray-50 border-b border-gray-100">
+                                <p className="text-gray-600 text-sm">{list.description}</p>
+                              </div>
+                            )}
+
+                            {/* Sección de edición */}
+                            {editingListId === list.id ? (
+                              <div className="p-6 bg-blue-50 border-b border-blue-200">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                  <div>
+                                    <Label className="block text-sm font-medium text-gray-700 mb-2">
+                                      Nombre de la lista <span className="text-red-500">*</span>
+                                    </Label>
+                                    <Input
+                                      type="text"
+                                      value={editedListName}
+                                      onChange={(e) => setEditedListName(e.target.value)}
+                                      autoFocus
+                                      className="w-full bg-white border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                      placeholder="Nombre de la lista"
+                                    />
+                                  </div>
+                                  <div>
+                                    <Label className="block text-sm font-medium text-gray-700 mb-2">
+                                      Descripción (opcional)
+                                    </Label>
+                                    <Input
+                                      type="text"
+                                      value={editedListDescription}
+                                      onChange={(e) => setEditedListDescription(e.target.value)}
+                                      className="w-full bg-white border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                      placeholder="Descripción de la lista"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="flex justify-end gap-3">
+                                  <Button 
+                                    variant="outline" 
+                                    onClick={cancelEditList}
+                                    className="px-6"
+                                  >
+                                    <X className="h-4 w-4 mr-2" /> 
+                                    Cancelar
+                                  </Button>
+                                  <Button 
+                                    onClick={saveEditedList}
+                                    disabled={isSubmitting}
+                                    className="bg-blue-600 hover:bg-blue-700 px-6"
+                                  >
+                                    {isSubmitting ? (
+                                      <>
+                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                        Guardando...
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Check className="h-4 w-4 mr-2" /> 
+                                        Guardar Cambios
+                                      </>
+                                    )}
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              /* Sección de acciones */
+                              <div className="flex flex-wrap items-center justify-between p-6 bg-gray-50 border-t border-gray-200 group-hover:bg-emerald-50/50 transition-colors duration-300">
+                                <div className="flex flex-wrap gap-2">
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    onClick={() => handleViewList(list.id)}
+                                    className="bg-white border-gray-300 hover:bg-emerald-50 hover:border-emerald-300 transition-all duration-200"
+                                  >
+                                    👁️ Ver Contactos
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    onClick={() => startEditingList(list)}
+                                    className="bg-white border-gray-300 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200"
+                                  >
+                                    <PenLine className="h-4 w-4 mr-1" /> 
+                                    Editar
+                                  </Button>
+                                  <Button 
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleDuplicateList(list)}
+                                    className="bg-white border-gray-300 hover:bg-purple-50 hover:border-purple-300 transition-all duration-200"
+                                  >
+                                    📋 Duplicar
+                                  </Button>
+                                  
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="bg-white border-gray-300 hover:bg-orange-50 hover:border-orange-300 transition-all duration-200"
+                                        title="Exportar lista"
+                                      >
+                                        <Download className="h-4 w-4 mr-1" />
+                                        Exportar
+                                        <ChevronDown className="h-3 w-3 ml-1" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" className="w-48">
+                                      <DropdownMenuLabel>Formato de exportación</DropdownMenuLabel>
+                                      <DropdownMenuSeparator />
+                                      <DropdownMenuItem onClick={() => handleExportSingleList(list.id)}>
+                                        <FileDown className="h-4 w-4 mr-2" /> CSV
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem onClick={() => handleExportSingleListExcel(list.id, list.name)}>
+                                        <FileDown className="h-4 w-4 mr-2" /> Excel
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem onClick={() => handleExportSingleListPDF(list.id, list.name)}>
+                                        <FileDown className="h-4 w-4 mr-2" /> PDF
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                </div>
+                                
                                 <Button 
                                   variant="destructive" 
                                   size="sm"
-                                  onClick={() => confirmDeleteContact(contact)}
+                                  onClick={() => handleDeleteList(list.id)}
+                                  className="hover:bg-red-600 transition-all duration-200 shadow-sm hover:shadow-md"
                                 >
+                                  <Trash2 className="h-4 w-4 mr-1" />
                                   Eliminar
                                 </Button>
                               </div>
-                            </TableCell>
-                          </TableRow>
+                            )}
+                          </div>
                         ))}
-                        {currentContacts.length === 0 && (
-                          <TableRow>
-                            <TableCell colSpan={5} className="text-center py-8 text-gray-500">
-                              No se encontraron contactos que coincidan con tu búsqueda
-                            </TableCell>
-                          </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                    {/* PAGINACIÓN */}
-                    <div className="mt-4">
-                      <Pagination className="pagination-fixed-container">
-                        <PaginationContent className="pagination-fixed-content">
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {/* Paginación mejorada para listas */}
+                {listTotalPages > 1 && (
+                  <div className="mt-6 bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+                    <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
+                      <div className="flex items-center space-x-2 text-sm text-gray-600">
+                        <span>Mostrando</span>
+                        <span className="font-medium text-gray-900">
+                          {listIndexOfFirst + 1} - {Math.min(listIndexOfLast, filteredLists.length)}
+                        </span>
+                        <span>de</span>
+                        <span className="font-medium text-gray-900">{filteredLists.length}</span>
+                        <span>listas</span>
+                      </div>
+                      
+                      <Pagination>
+                        <PaginationContent className="flex items-center space-x-1">
                           <PaginationItem>
-                            <PaginationPrevious
-                              onClick={handlePreviousPage}
-                              disabled={currentPage === 1}
-                            />
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handleListPreviousPage}
+                              disabled={listCurrentPage === 1}
+                              className="h-9 px-3 bg-white border-gray-300 hover:bg-gray-50"
+                            >
+                              ← Anterior
+                            </Button>
                           </PaginationItem>
 
-                          {getFixedPageNumbers(currentPage, totalPages).map((pageNum, index) => {
+                          {getFixedPageNumbers(listCurrentPage, listTotalPages).map((pageNum, index) => {
                             if (pageNum === -1 || pageNum === -2) {
                               return (
-                                <PaginationItem key={`ellipsis-${index}`} className="pagination-fixed-item">
-                                  <PaginationEllipsis />
+                                <PaginationItem key={`list-ellipsis-${index}`}>
+                                  <PaginationEllipsis className="h-9 w-9" />
                                 </PaginationItem>
                               );
                             }
                             
                             return (
-                              <PaginationItem key={pageNum} className="pagination-fixed-item">
+                              <PaginationItem key={`list-${pageNum}`}>
                                 <PaginationLink
-                                  isActive={currentPage === pageNum}
-                                  onClick={() => handlePageClick(pageNum)}
+                                  isActive={listCurrentPage === pageNum}
+                                  onClick={() => handleListPageClick(pageNum)}
+                                  className={`h-9 w-9 ${listCurrentPage === pageNum ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white border-gray-300 hover:bg-gray-50'}`}
                                 >
                                   {pageNum}
                                 </PaginationLink>
@@ -1799,511 +2562,26 @@ const Contacts = () => {
                           })}
 
                           <PaginationItem>
-                            <PaginationNext
-                              onClick={handleNextPage}
-                              disabled={currentPage === totalPages}
-                            />
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handleListNextPage}
+                              disabled={listCurrentPage === listTotalPages}
+                              className="h-9 px-3 bg-white border-gray-300 hover:bg-gray-50"
+                            >
+                              Siguiente →
+                            </Button>
                           </PaginationItem>
                         </PaginationContent>
                       </Pagination>
-                      <div className="text-center mt-2">
-                        <p className="text-sm text-gray-500">
-                          Mostrando página {currentPage} de {totalPages} 
-                          ({filteredContacts.length} resultados)
-                        </p>
-                      </div>
                     </div>
-                  </>
+                  </div>
                 )}
-              </ScrollArea>
-            </TabsContent>
-            
-            <TabsContent value="lists" className="p-4">
-              {/* Botones para lista - REORGANIZADOS Y REDUCIDOS */}
-              <div className="flex items-center justify-between mb-4 gap-2">
-                <div className="flex-1 flex items-center gap-2">
-                  <div className="relative w-full max-w-xs">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input
-                      placeholder="Buscar lista..."
-                      value={listSearch}
-                      onChange={e => setListSearch(e.target.value)}
-                      className="pl-9 h-9"
-                      size={30}
-                    />
-                  </div>
-                  
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="h-9 whitespace-nowrap">
-                        Ordenar
-                        <ChevronDown className="h-3 w-3 ml-1" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56">
-                      <DropdownMenuLabel>Ordenar por</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem 
-                        onClick={() => {
-                          setListSortBy('name');
-                          setListSortOrder('asc');
-                        }}
-                        className={`${listSortBy === 'name' && listSortOrder === 'asc' ? 'bg-accent' : ''}`}
-                      >
-                        Nombre (A-Z)
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => {
-                          setListSortBy('name');
-                          setListSortOrder('desc');
-                        }}
-                        className={`${listSortBy === 'name' && listSortOrder === 'desc' ? 'bg-accent' : ''}`}
-                      >
-                        Nombre (Z-A)
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => {
-                          setListSortBy('contact_count');
-                          setListSortOrder('asc');
-                        }}
-                        className={`${listSortBy === 'contact_count' && listSortOrder === 'asc' ? 'bg-accent' : ''}`}
-                      >
-                        Contactos (menor a mayor)
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => {
-                          setListSortBy('contact_count');
-                          setListSortOrder('desc');
-                        }}
-                        className={`${listSortBy === 'contact_count' && listSortOrder === 'desc' ? 'bg-accent' : ''}`}
-                      >
-                        Contactos (mayor a menor)
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => {
-                          setListSortBy('created_at');
-                          setListSortOrder('asc');
-                        }}
-                        className={`${listSortBy === 'created_at' && listSortOrder === 'asc' ? 'bg-accent' : ''}`}
-                      >
-                        Fecha (más antigua)
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => {
-                          setListSortBy('created_at');
-                          setListSortOrder('desc');
-                        }}
-                        className={`${listSortBy === 'created_at' && listSortOrder === 'desc' ? 'bg-accent' : ''}`}
-                      >
-                        Fecha (más reciente)
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-                
-                <div className="flex gap-2 items-center">
-                  {!showNewListForm && (
-                    <Button
-                      size="sm"
-                      className="h-9"
-                      onClick={() => setShowNewListForm(true)}
-                    >
-                      <Plus className="h-3.5 w-3.5 mr-1" /> Agregar
-                    </Button>
-                  )}
-                  
-                  <Dialog open={showImportListDialog} onOpenChange={setShowImportListDialog}>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" size="sm" className="h-9">
-                        <Upload className="h-3.5 w-3.5 mr-1" /> Importar
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Importar listas</DialogTitle>
-                        <DialogDescription>
-                          Sube un archivo CSV o Excel con tus listas.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="space-y-4 py-4">
-                        {!parsedLists.length ? (
-                          <>
-                            <div className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center">
-                              <Input 
-                                type="file" 
-                                accept=".csv,.xlsx,.xls" 
-                                className="mx-auto"
-                                onChange={(e) => setImportListFile(e.target.files ? e.target.files[0] : null)}
-                                disabled={isImportingList}
-                              />
-                              <p className="text-sm text-gray-500 mt-2">
-                                Formatos soportados: CSV, Excel
-                              </p>
-                            </div>
-                            <Button 
-                              className="w-full" 
-                              onClick={handleUploadListFile}
-                              disabled={!importListFile || isImportingList}
-                            >
-                              {isImportingList ? (
-                                <>
-                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                  Procesando...
-                                </>
-                              ) : (
-                                <>
-                                  <Upload className="h-4 w-4 mr-2" />
-                                  Procesar archivo
-                                </>
-                              )}
-                            </Button>
-                          </>
-                        ) : (
-                          <>
-                            <div className="rounded-md border p-4">
-                              <p className="font-medium">Listas encontradas: {parsedLists.length}</p>
-                              <div className="mt-2 max-h-40 overflow-auto">
-                                <ul className="text-sm space-y-1">
-                                  {parsedLists.slice(0, 5).map((list, idx) => (
-                                    <li key={idx} className="flex justify-between">
-                                      <span>{list.name}</span>
-                                      <span className="text-gray-500">{list.description}</span>
-                                    </li>
-                                  ))}
-                                  {parsedLists.length > 5 && (
-                                    <li className="text-center text-gray-500">
-                                      Y {parsedLists.length - 5} más...
-                                    </li>
-                                  )}
-                                </ul>
-                              </div>
-                            </div>
-                            <Button 
-                              className="w-full" 
-                              onClick={handleImportLists}
-                              disabled={isImportingList}
-                            >
-                              {isImportingList ? (
-                                <>
-                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                  Importando...
-                                </>
-                              ) : (
-                                <>
-                                  <Upload className="h-4 w-4 mr-2" />
-                                  Importar {parsedLists.length} listas
-                                </>
-                              )}
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                  
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="h-9">
-                        <Download className="h-3.5 w-3.5 mr-1" />
-                        Exportar
-                        <ChevronDown className="h-3 w-3 ml-1" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
-                      <DropdownMenuLabel>Formato de exportación</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={handleExportLists}>
-                        <FileDown className="h-4 w-4 mr-2" /> CSV
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleExportListsPDF}>
-                        <FileDown className="h-4 w-4 mr-2" /> PDF
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleExportListsExcel}>
-                        <FileDown className="h-4 w-4 mr-2" /> Excel
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    className="h-9"
-                    disabled={!selectedLists.length}
-                    onClick={handleDeleteSelectedLists}
-                  >
-                    Eliminar seleccionadas
-                  </Button>
-                </div>
-              </div>
-              
-              {/* Formulario para crear nueva lista */}
-              {showNewListForm && (
-                <div className="border border-gray-200 rounded-md p-4 mb-4 bg-gray-50">
-                  <h4 className="font-medium mb-3">Nueva lista</h4>
-                  <div className="space-y-3">
-                    <div>
-                      <Label className="block mb-1">Nombre de la lista <span className="text-red-500">*</span></Label>
-                      <Input
-                        type="text"
-                        placeholder="Nombre de la lista"
-                        value={newListName}
-                        onChange={(e) => setNewListName(e.target.value)}
-                        className="w-full"
-                      />
-                    </div>
-                    <div>
-                      <Label className="block mb-1">Descripción (opcional)</Label>
-                      <Input
-                        type="text"
-                        placeholder="Descripción de la lista"
-                        value={newListDescription}
-                        onChange={(e) => setNewListDescription(e.target.value)}
-                        className="w-full"
-                      />
-                    </div>
-                    <div className="flex justify-end space-x-2">
-                      <Button 
-                        variant="outline" 
-                        onClick={() => setShowNewListForm(false)}
-                      >
-                        Cancelar
-                      </Button>
-                      <Button 
-                        onClick={handleCreateList}
-                        disabled={!newListName || isSubmitting}
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Creando...
-                          </>
-                        ) : (
-                          "Crear"
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              {/* Visualización tipo lista con secciones */}
-              <div className="flex flex-col gap-3">
-                {currentLists.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <p>No tienes listas creadas</p>
-                    <Button 
-                      variant="link" 
-                      onClick={() => setShowNewListForm(true)}
-                    >
-                      Crear una lista
-                    </Button>
-                  </div>
-                ) : (
-                  currentLists.map((list) => (
-                    <div 
-                      key={list.id} 
-                      className="rounded-md border shadow-sm bg-white flex flex-col relative"
-                      style={{
-                        borderLeft: `8px solid hsl(${(list.id * 47) % 360}, 70%, 60%)`
-                      }}
-                    >
-                      {/* Encabezado */}
-                      <div className="flex items-center gap-2 px-4 pt-4 pb-2 border-b">
-                        <span style={{fontSize: 22}}>
-                          {String.fromCodePoint(0x1F4C1 + (list.id % 10))}
-                        </span>
-                        <span className="font-medium text-lg">{list.name}</span>
-                        <span className="ml-auto text-xs text-gray-400">
-                          ID: {list.id}
-                        </span>
-                        {/* Checkbox para selección múltiple */}
-                        <input
-                          type="checkbox"
-                          className="ml-4 w-5 h-5"
-                          checked={selectedLists.includes(list.id)}
-                          onChange={() => handleListSelection(list.id)}
-                          title="Seleccionar lista"
-                        />
-                      </div>
-                      {/* Descripción */}
-                      {list.description && (
-                        <div className="px-4 py-2 text-gray-600 text-sm border-b">
-                          {list.description}
-                        </div>
-                      )}
-                      {/* Sección de estado y correo */}
-                      <div className="flex flex-row flex-wrap items-center gap-4 px-4 py-2 border-b bg-gray-50">
-                        <div>
-                          <Badge variant="secondary">{list.contact_count || 0} contactos</Badge>
-                        </div>
-                      </div>
-                      {/* Sección de acciones y edición */}
-                      <div className="flex flex-wrap gap-2 px-4 py-3 items-center justify-between">
-                        {editingListId === list.id ? (
-                          <div className="flex flex-col w-full gap-2">
-                            <div>
-                              <Label className="block mb-1">Nombre de la lista <span className="text-red-500">*</span></Label>
-                              <Input
-                                type="text"
-                                value={editedListName}
-                                onChange={(e) => setEditedListName(e.target.value)}
-                                autoFocus
-                                className="w-full"
-                                placeholder="Nombre de la lista"
-                              />
-                            </div>
-                            <div>
-                              <Label className="block mb-1">Descripción (opcional)</Label>
-                              <Input
-                                type="text"
-                                value={editedListDescription}
-                                onChange={(e) => setEditedListDescription(e.target.value)}
-                                className="w-full"
-                                placeholder="Descripción de la lista"
-                              />
-                            </div>
-                            <div className="flex justify-end gap-2">
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={cancelEditList}
-                              >
-                                <X className="h-4 w-4 mr-1" /> Cancelar
-                              </Button>
-                              <Button 
-                                size="sm"
-                                onClick={saveEditedList}
-                                disabled={isSubmitting}
-                              >
-                                {isSubmitting ? (
-                                  <>
-                                    <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                                    Guardando...
-                                  </>
-                                ) : (
-                                  <>
-                                    <Check className="h-4 w-4 mr-1" /> Guardar
-                                  </>
-                                )}
-                              </Button>
-                            </div>
-                          </div>
-                        ) : (
-                          <>
-                            <div className="flex gap-2">
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={() => handleViewList(list.id)}
-                              >
-                                Ver
-                              </Button>
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={() => startEditingList(list)}
-                              >
-                                <PenLine className="h-4 w-4 mr-1" /> Editar
-                              </Button>
-                              <Button 
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleDuplicateList(list)}
-                              >
-                                Duplicar
-                              </Button>
-                              {/* Reemplazar el botón de exportación por un DropdownMenu */}
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    title="Exportar lista"
-                                  >
-                                    <Upload className="h-4 w-4 mr-1" />
-                                    Exportar
-                                    <ChevronDown className="h-3 w-3 ml-1" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-48">
-                                  <DropdownMenuLabel>Formato de exportación</DropdownMenuLabel>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem onClick={() => handleExportSingleList(list.id)}>
-                                    <FileDown className="h-4 w-4 mr-2" /> CSV
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => handleExportSingleListExcel(list.id, list.name)}>
-                                    <FileDown className="h-4 w-4 mr-2" /> Excel
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => handleExportSingleListPDF(list.id, list.name)}>
-                                    <FileDown className="h-4 w-4 mr-2" /> PDF
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </div>
-                            <Button 
-                              variant="destructive" 
-                              size="sm"
-                              onClick={() => handleDeleteList(list.id)}
-                            >
-                              Eliminar
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-              {/* Paginación de listas (abajo) */}
-              <div className="mt-4">
-                <Pagination className="pagination-fixed-container">
-                  <PaginationContent className="pagination-fixed-content">
-                    <PaginationItem>
-                      <PaginationPrevious
-                        onClick={handleListPreviousPage}
-                        disabled={listCurrentPage === 1}
-                      />
-                    </PaginationItem>
-
-                    {getFixedPageNumbers(listCurrentPage, listTotalPages).map((pageNum, index) => {
-                      if (pageNum === -1 || pageNum === -2) {
-                        return (
-                          <PaginationItem key={`list-ellipsis-${index}`} className="pagination-fixed-item">
-                            <PaginationEllipsis />
-                          </PaginationItem>
-                        );
-                      }
-                      
-                      return (
-                        <PaginationItem key={`list-${pageNum}`} className="pagination-fixed-item">
-                          <PaginationLink
-                            isActive={listCurrentPage === pageNum}
-                            onClick={() => handleListPageClick(pageNum)}
-                          >
-                            {pageNum}
-                          </PaginationLink>
-                        </PaginationItem>
-                      );
-                    })}
-
-                    <PaginationItem>
-                      <PaginationNext
-                        onClick={handleListNextPage}
-                        disabled={listCurrentPage === listTotalPages}
-                      />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-                <div className="text-center mt-2">
-                  <p className="text-sm text-gray-500">
-                    Mostrando página {listCurrentPage} de {listTotalPages} 
-                    ({filteredLists.length} resultados)
-                  </p>
-                </div>
               </div>
             </TabsContent>
           </Tabs>
         </div>
+      </div>
       </main>
       
       {/* Agregar el Dialog para visualizar contactos de una lista */}
