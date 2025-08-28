@@ -12,7 +12,7 @@ async function main() {
     create: {
       username: 'admin1',
       email: 'admin1@example.com',
-      password: '$2b$10$zsZSD64KuWC9p/8bx6Gw4OGwI8yWxmVOP4BREujwTPDMe3xy1pzey',
+      password: '$2b$10$JuVoN6uJp1FPUqf8E5F88umz3BbFL1UVaW/wbTq2B7iioue0AuXAO',
       fullName: 'Administrador Uno',
       role: 'admin',
       isActive: true,

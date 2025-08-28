@@ -37,7 +37,7 @@ const TemplateEight: React.FC<TemplateEightProps> = ({
       {/* Logo Banner with Dark Background */}
       <div style={{ 
         backgroundColor: "#2D3748", 
-        padding: "35px 20px",
+        padding: "0px 20px",
         textAlign: "center",
         position: "relative",
         overflow: "hidden",
@@ -62,17 +62,17 @@ const TemplateEight: React.FC<TemplateEightProps> = ({
             src="https://res.cloudinary.com/dolpwpgtw/image/upload/v1746807761/ovkwvqgr7giep2fph31x.png" 
             alt="Cultura Digital" 
             style={{ 
-              height: "60px", 
-              margin: "0 auto 20px auto",
+              height: "45px", 
+              margin: "0 auto 15px auto",
               filter: "brightness(0) invert(1)" // Ensure white logo
             }}
           />
           
           <h1 style={{ 
             color: "#FFFFFF", 
-            fontSize: "32px", 
+            fontSize: "28px", 
             fontWeight: "800", 
-            margin: "0 0 15px 0",
+            margin: "0 0 10px 0",
             letterSpacing: "1px",
             textShadow: "0 2px 4px rgba(0,0,0,0.2)"
           }}>
@@ -81,7 +81,7 @@ const TemplateEight: React.FC<TemplateEightProps> = ({
           
           <h2 style={{ 
             color: "#E2E8F0", 
-            fontSize: "18px", 
+            fontSize: "16px", 
             fontWeight: "400", 
             // Fixed: removed duplicate margin property
             marginTop: "0",

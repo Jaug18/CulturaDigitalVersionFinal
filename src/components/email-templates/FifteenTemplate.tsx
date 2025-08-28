@@ -50,17 +50,21 @@ const FifteenTemplate: React.FC<FifteenTemplateProps> = ({
       {/* Imagen Principal */}
       <div style={{
         position: "relative" as const,
-        height: "200px",
+        height: "auto",
         overflow: "hidden",
-        backgroundColor: "#e9ecef"
+        backgroundColor: "#e9ecef",
+        textAlign: "center",
+        padding: "20px"
       }}>
         <img 
           src={imageUrl} 
           alt="Imagen principal"
           style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover" as const
+            maxWidth: "100%",
+            height: "auto",
+            display: "block",
+            borderRadius: "4px",
+            margin: "0 auto"
           }}
         />
       </div>

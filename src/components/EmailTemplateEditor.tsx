@@ -16,6 +16,7 @@ import TemplateSix from "./email-templates/TemplateSix";
 import TemplateSeven from "./email-templates/TemplateSeven";
 import TemplateEight from "./email-templates/TemplateEight";
 import TemplateNine from "./email-templates/TemplateNine";
+import TemplateTen from "./email-templates/TemplateTen";
 import ThirteenTemplate from "./email-templates/ThirteenTemplate";
 import FourteenTemplate from "./email-templates/FourteenTemplate";
 import FifteenTemplate from "./email-templates/FifteenTemplate";
@@ -187,6 +188,39 @@ const EmailTemplateEditor = () => {
     buttonUrl: "#",
     videoUrl: "https://youtu.be/X16kWXuBrdk", // Video de ejemplo predeterminado
     imageUrl: "",
+    releaseDate: "",
+    eventDate: "",
+    eventTime: "",
+    eventLocation: "",
+    instructorName: "",
+    contactPhone: "",
+    contactEmail: "",
+    footerCompany: "",
+    footerEmail: "",
+    footerPhone: "",
+    departmentName: "",
+    websiteUrl: "",
+    quoteText: "",
+    quoteAuthor: "",
+    socialTitle: "",
+    facebookUrl: "",
+    linkedinUrl: "",
+    twitterUrl: "",
+    copyrightText: "",
+    stat1Number: "",
+    stat1Label: "",
+    stat2Number: "",
+    stat2Label: "",
+    stat3Number: "",
+    stat3Label: "",
+    implementationDate: "",
+    // Timeline steps for TemplateSix
+    step1Number: "",
+    step1Label: "",
+    step2Number: "",
+    step2Label: "",
+    step3Number: "",
+    step3Label: "",
   });
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [emailTo, setEmailTo] = useState<string>("");
@@ -350,6 +384,39 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
       buttonText: templateContent.buttonText,
       videoUrl: templateContent.videoUrl,
       buttonUrl: templateContent.buttonUrl,
+      releaseDate: templateContent.releaseDate,
+      eventDate: templateContent.eventDate,
+      eventTime: templateContent.eventTime,
+      eventLocation: templateContent.eventLocation,
+      instructorName: templateContent.instructorName,
+      contactPhone: templateContent.contactPhone,
+      contactEmail: templateContent.contactEmail,
+      footerCompany: templateContent.footerCompany,
+      footerEmail: templateContent.footerEmail,
+      footerPhone: templateContent.footerPhone,
+      departmentName: templateContent.departmentName,
+      websiteUrl: templateContent.websiteUrl,
+      quoteText: templateContent.quoteText,
+      quoteAuthor: templateContent.quoteAuthor,
+      socialTitle: templateContent.socialTitle,
+      facebookUrl: templateContent.facebookUrl,
+      linkedinUrl: templateContent.linkedinUrl,
+      twitterUrl: templateContent.twitterUrl,
+      copyrightText: templateContent.copyrightText,
+      stat1Number: templateContent.stat1Number,
+      stat1Label: templateContent.stat1Label,
+      stat2Number: templateContent.stat2Number,
+      stat2Label: templateContent.stat2Label,
+      stat3Number: templateContent.stat3Number,
+      stat3Label: templateContent.stat3Label,
+      implementationDate: templateContent.implementationDate,
+      // Timeline steps for TemplateSix
+      step1Number: templateContent.step1Number,
+      step1Label: templateContent.step1Label,
+      step2Number: templateContent.step2Number,
+      step2Label: templateContent.step2Label,
+      step3Number: templateContent.step3Number,
+      step3Label: templateContent.step3Label,
       ...(selectedTemplate !== "videoTemplate" && { imageUrl: getCurrentImage() }),
     };
 
@@ -363,6 +430,7 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
       case "template7": return <TemplateSeven {...templateProps} />;
       case "template8": return <TemplateEight {...templateProps} />;
       case "template9": return <TemplateNine {...templateProps} />;
+      case "template10": return <TemplateTen {...templateProps} />;
       case "template13": return <ThirteenTemplate {...templateProps} />;
       case "template14": return <FourteenTemplate {...templateProps} />;
       case "template15": return <FifteenTemplate {...templateProps} />;
@@ -444,6 +512,38 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
           content: templateContent.content,
           buttonText: templateContent.buttonText,
           buttonUrl: templateContent.buttonUrl,
+          releaseDate: templateContent.releaseDate,
+          eventDate: templateContent.eventDate,
+          eventTime: templateContent.eventTime,
+          eventLocation: templateContent.eventLocation,
+          instructorName: templateContent.instructorName,
+          contactPhone: templateContent.contactPhone,
+          contactEmail: templateContent.contactEmail,
+          footerCompany: templateContent.footerCompany,
+          footerEmail: templateContent.footerEmail,
+          footerPhone: templateContent.footerPhone,
+          departmentName: templateContent.departmentName,
+          websiteUrl: templateContent.websiteUrl,
+          quoteText: templateContent.quoteText,
+          quoteAuthor: templateContent.quoteAuthor,
+          socialTitle: templateContent.socialTitle,
+          facebookUrl: templateContent.facebookUrl,
+          linkedinUrl: templateContent.linkedinUrl,
+          twitterUrl: templateContent.twitterUrl,
+          copyrightText: templateContent.copyrightText,
+          stat1Number: templateContent.stat1Number,
+          stat1Label: templateContent.stat1Label,
+          stat2Number: templateContent.stat2Number,
+          stat2Label: templateContent.stat2Label,
+          stat3Number: templateContent.stat3Number,
+          stat3Label: templateContent.stat3Label,
+          implementationDate: templateContent.implementationDate,
+          step1Number: templateContent.step1Number,
+          step1Label: templateContent.step1Label,
+          step2Number: templateContent.step2Number,
+          step2Label: templateContent.step2Label,
+          step3Number: templateContent.step3Number,
+          step3Label: templateContent.step3Label,
           ...(selectedTemplate === "videoTemplate" && { videoUrl: templateContent.videoUrl }),
           ...(selectedTemplate !== "videoTemplate" && { imageUrl: getCurrentImage() })
         }
@@ -529,6 +629,38 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
           content: templateContent.content,
           buttonText: templateContent.buttonText,
           buttonUrl: templateContent.buttonUrl,
+          releaseDate: templateContent.releaseDate,
+          eventDate: templateContent.eventDate,
+          eventTime: templateContent.eventTime,
+          eventLocation: templateContent.eventLocation,
+          instructorName: templateContent.instructorName,
+          contactPhone: templateContent.contactPhone,
+          contactEmail: templateContent.contactEmail,
+          footerCompany: templateContent.footerCompany,
+          footerEmail: templateContent.footerEmail,
+          footerPhone: templateContent.footerPhone,
+          departmentName: templateContent.departmentName,
+          websiteUrl: templateContent.websiteUrl,
+          quoteText: templateContent.quoteText,
+          quoteAuthor: templateContent.quoteAuthor,
+          socialTitle: templateContent.socialTitle,
+          facebookUrl: templateContent.facebookUrl,
+          linkedinUrl: templateContent.linkedinUrl,
+          twitterUrl: templateContent.twitterUrl,
+          copyrightText: templateContent.copyrightText,
+          stat1Number: templateContent.stat1Number,
+          stat1Label: templateContent.stat1Label,
+          stat2Number: templateContent.stat2Number,
+          stat2Label: templateContent.stat2Label,
+          stat3Number: templateContent.stat3Number,
+          stat3Label: templateContent.stat3Label,
+          implementationDate: templateContent.implementationDate,
+          step1Number: templateContent.step1Number,
+          step1Label: templateContent.step1Label,
+          step2Number: templateContent.step2Number,
+          step2Label: templateContent.step2Label,
+          step3Number: templateContent.step3Number,
+          step3Label: templateContent.step3Label,
           ...(selectedTemplate === "videoTemplate" && { videoUrl: templateContent.videoUrl }),
           ...(selectedTemplate !== "videoTemplate" && { imageUrl: getCurrentImage() })
         },
@@ -1066,6 +1198,498 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
                       onChange={(e) => handleInputChange("buttonUrl", e.target.value)}
                     />
                   </div>
+                  {selectedTemplate === "template3" && (
+                    <>
+                      <div className="space-y-2">
+                        <label htmlFor="releaseDate" className="text-sm font-medium">
+                          Fecha de Lanzamiento
+                        </label>
+                        <Input
+                          id="releaseDate"
+                          placeholder="Ej: 15 de Mayo, 2025"
+                          value={templateContent.releaseDate}
+                          onChange={(e) => handleInputChange("releaseDate", e.target.value)}
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Esta fecha aparecerá en la sección destacada de la plantilla.
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="departmentName" className="text-sm font-medium">
+                          Nombre del Departamento
+                        </label>
+                        <Input
+                          id="departmentName"
+                          placeholder="Ej: Departamento de Tecnología de la Información"
+                          value={templateContent.departmentName}
+                          onChange={(e) => handleInputChange("departmentName", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="contactEmail" className="text-sm font-medium">
+                          Email de Contacto
+                        </label>
+                        <Input
+                          id="contactEmail"
+                          placeholder="Ej: ti@ejemplo.com"
+                          value={templateContent.contactEmail}
+                          onChange={(e) => handleInputChange("contactEmail", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="footerCompany" className="text-sm font-medium">
+                          Nombre de la Empresa (Footer)
+                        </label>
+                        <Input
+                          id="footerCompany"
+                          placeholder="Ej: Cultura Digital"
+                          value={templateContent.footerCompany}
+                          onChange={(e) => handleInputChange("footerCompany", e.target.value)}
+                        />
+                      </div>
+                    </>
+                  )}
+                  {selectedTemplate === "template4" && (
+                    <>
+                      <div className="space-y-2">
+                        <label htmlFor="eventDate" className="text-sm font-medium">
+                          Fecha del Evento
+                        </label>
+                        <Input
+                          id="eventDate"
+                          placeholder="Ej: 15 de Mayo, 2025"
+                          value={templateContent.eventDate}
+                          onChange={(e) => handleInputChange("eventDate", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="eventTime" className="text-sm font-medium">
+                          Hora del Evento
+                        </label>
+                        <Input
+                          id="eventTime"
+                          placeholder="Ej: 10:00 AM - 12:00 PM"
+                          value={templateContent.eventTime}
+                          onChange={(e) => handleInputChange("eventTime", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="eventLocation" className="text-sm font-medium">
+                          Ubicación del Evento
+                        </label>
+                        <Input
+                          id="eventLocation"
+                          placeholder="Ej: Sala de Conferencias Virtual"
+                          value={templateContent.eventLocation}
+                          onChange={(e) => handleInputChange("eventLocation", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="instructorName" className="text-sm font-medium">
+                          Nombre del Instructor
+                        </label>
+                        <Input
+                          id="instructorName"
+                          placeholder="Ej: María González, Especialista en Productividad"
+                          value={templateContent.instructorName}
+                          onChange={(e) => handleInputChange("instructorName", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="contactPhone" className="text-sm font-medium">
+                          Teléfono de Contacto
+                        </label>
+                        <Input
+                          id="contactPhone"
+                          placeholder="Ej: Ext. 1234"
+                          value={templateContent.contactPhone}
+                          onChange={(e) => handleInputChange("contactPhone", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="contactEmail" className="text-sm font-medium">
+                          Email de Contacto
+                        </label>
+                        <Input
+                          id="contactEmail"
+                          placeholder="Ej: cultura.digital@ejemplo.com"
+                          value={templateContent.contactEmail}
+                          onChange={(e) => handleInputChange("contactEmail", e.target.value)}
+                        />
+                      </div>
+                    </>
+                  )}
+                  {selectedTemplate === "template7" && (
+                    <>
+                      <div className="space-y-2">
+                        <label htmlFor="stat1Number" className="text-sm font-medium">
+                          Estadística 1 - Número
+                        </label>
+                        <Input
+                          id="stat1Number"
+                          placeholder="Ej: 25+"
+                          value={templateContent.stat1Number}
+                          onChange={(e) => handleInputChange("stat1Number", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="stat1Label" className="text-sm font-medium">
+                          Estadística 1 - Etiqueta
+                        </label>
+                        <Input
+                          id="stat1Label"
+                          placeholder="Ej: Expositores"
+                          value={templateContent.stat1Label}
+                          onChange={(e) => handleInputChange("stat1Label", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="stat2Number" className="text-sm font-medium">
+                          Estadística 2 - Número
+                        </label>
+                        <Input
+                          id="stat2Number"
+                          placeholder="Ej: 8"
+                          value={templateContent.stat2Number}
+                          onChange={(e) => handleInputChange("stat2Number", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="stat2Label" className="text-sm font-medium">
+                          Estadística 2 - Etiqueta
+                        </label>
+                        <Input
+                          id="stat2Label"
+                          placeholder="Ej: Talleres"
+                          value={templateContent.stat2Label}
+                          onChange={(e) => handleInputChange("stat2Label", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="stat3Number" className="text-sm font-medium">
+                          Estadística 3 - Número
+                        </label>
+                        <Input
+                          id="stat3Number"
+                          placeholder="Ej: 500+"
+                          value={templateContent.stat3Number}
+                          onChange={(e) => handleInputChange("stat3Number", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="stat3Label" className="text-sm font-medium">
+                          Estadística 3 - Etiqueta
+                        </label>
+                        <Input
+                          id="stat3Label"
+                          placeholder="Ej: Asistentes"
+                          value={templateContent.stat3Label}
+                          onChange={(e) => handleInputChange("stat3Label", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="footerEmail" className="text-sm font-medium">
+                          Email del Footer
+                        </label>
+                        <Input
+                          id="footerEmail"
+                          placeholder="Ej: cultura.digital@ejemplo.com"
+                          value={templateContent.footerEmail}
+                          onChange={(e) => handleInputChange("footerEmail", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="footerPhone" className="text-sm font-medium">
+                          Teléfono del Footer
+                        </label>
+                        <Input
+                          id="footerPhone"
+                          placeholder="Ej: +57 300 123 4567"
+                          value={templateContent.footerPhone}
+                          onChange={(e) => handleInputChange("footerPhone", e.target.value)}
+                        />
+                      </div>
+                    </>
+                  )}
+                  {selectedTemplate === "template6" && (
+                    <>
+                      <div className="space-y-2">
+                        <label htmlFor="implementationDate" className="text-sm font-medium">
+                          Fecha de Implementación
+                        </label>
+                        <Input
+                          id="implementationDate"
+                          placeholder="Ej: 1 de junio, 2025"
+                          value={templateContent.implementationDate}
+                          onChange={(e) => handleInputChange("implementationDate", e.target.value)}
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Esta fecha aparecerá en la línea de tiempo del email.
+                        </p>
+                      </div>
+                      
+                      {/* Timeline Steps Configuration */}
+                      <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+                        <h4 className="text-sm font-medium text-gray-900">Configuración de la Línea de Tiempo</h4>
+                        
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-2">
+                            <label htmlFor="step1Number" className="text-sm font-medium">
+                              Paso 1 - Número
+                            </label>
+                            <Input
+                              id="step1Number"
+                              placeholder="1"
+                              value={templateContent.step1Number}
+                              onChange={(e) => handleInputChange("step1Number", e.target.value)}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label htmlFor="step1Label" className="text-sm font-medium">
+                              Paso 1 - Etiqueta
+                            </label>
+                            <Input
+                              id="step1Label"
+                              placeholder="Anuncio"
+                              value={templateContent.step1Label}
+                              onChange={(e) => handleInputChange("step1Label", e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-2">
+                            <label htmlFor="step2Number" className="text-sm font-medium">
+                              Paso 2 - Número
+                            </label>
+                            <Input
+                              id="step2Number"
+                              placeholder="2"
+                              value={templateContent.step2Number}
+                              onChange={(e) => handleInputChange("step2Number", e.target.value)}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label htmlFor="step2Label" className="text-sm font-medium">
+                              Paso 2 - Etiqueta
+                            </label>
+                            <Input
+                              id="step2Label"
+                              placeholder="Preparación"
+                              value={templateContent.step2Label}
+                              onChange={(e) => handleInputChange("step2Label", e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-2">
+                            <label htmlFor="step3Number" className="text-sm font-medium">
+                              Paso 3 - Número
+                            </label>
+                            <Input
+                              id="step3Number"
+                              placeholder="3"
+                              value={templateContent.step3Number}
+                              onChange={(e) => handleInputChange("step3Number", e.target.value)}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label htmlFor="step3Label" className="text-sm font-medium">
+                              Paso 3 - Etiqueta
+                            </label>
+                            <Input
+                              id="step3Label"
+                              placeholder="Implementación"
+                              value={templateContent.step3Label}
+                              onChange={(e) => handleInputChange("step3Label", e.target.value)}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                  {selectedTemplate === "template2" && (
+                    <>
+                      <div className="space-y-2">
+                        <label htmlFor="departmentName" className="text-sm font-medium">
+                          Nombre del Departamento
+                        </label>
+                        <Input
+                          id="departmentName"
+                          placeholder="Ej: Departamento de Seguridad Informática"
+                          value={templateContent.departmentName}
+                          onChange={(e) => handleInputChange("departmentName", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="contactEmail" className="text-sm font-medium">
+                          Email de Contacto
+                        </label>
+                        <Input
+                          id="contactEmail"
+                          placeholder="Ej: seguridadinformatica@ejemplo.com"
+                          value={templateContent.contactEmail}
+                          onChange={(e) => handleInputChange("contactEmail", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="contactPhone" className="text-sm font-medium">
+                          Teléfono de Contacto
+                        </label>
+                        <Input
+                          id="contactPhone"
+                          placeholder="Ej: Ext. 1234"
+                          value={templateContent.contactPhone}
+                          onChange={(e) => handleInputChange("contactPhone", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="footerCompany" className="text-sm font-medium">
+                          Nombre de la Empresa
+                        </label>
+                        <Input
+                          id="footerCompany"
+                          placeholder="Ej: Cultura Digital"
+                          value={templateContent.footerCompany}
+                          onChange={(e) => handleInputChange("footerCompany", e.target.value)}
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Este nombre aparecerá en el copyright del footer.
+                        </p>
+                      </div>
+                    </>
+                  )}
+                  {(selectedTemplate === "template1" || selectedTemplate === "template5" || selectedTemplate === "template6" || selectedTemplate === "videoTemplate") && (
+                    <>
+                      <div className="space-y-2">
+                        <label htmlFor="footerCompany" className="text-sm font-medium">
+                          Nombre de la Empresa
+                        </label>
+                        <Input
+                          id="footerCompany"
+                          placeholder="Ej: Cultura Digital"
+                          value={templateContent.footerCompany}
+                          onChange={(e) => handleInputChange("footerCompany", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="footerEmail" className="text-sm font-medium">
+                          Email del Footer
+                        </label>
+                        <Input
+                          id="footerEmail"
+                          placeholder="Ej: cultura.digital@ejemplo.com"
+                          value={templateContent.footerEmail}
+                          onChange={(e) => handleInputChange("footerEmail", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="footerPhone" className="text-sm font-medium">
+                          Teléfono del Footer
+                        </label>
+                        <Input
+                          id="footerPhone"
+                          placeholder="Ej: +1 234 567 8900"
+                          value={templateContent.footerPhone}
+                          onChange={(e) => handleInputChange("footerPhone", e.target.value)}
+                        />
+                      </div>
+                      {selectedTemplate === "template5" && (
+                        <>
+                          <div className="space-y-2">
+                            <label htmlFor="websiteUrl" className="text-sm font-medium">
+                              Sitio Web
+                            </label>
+                            <Input
+                              id="websiteUrl"
+                              placeholder="Ej: www.ejemplo.com"
+                              value={templateContent.websiteUrl}
+                              onChange={(e) => handleInputChange("websiteUrl", e.target.value)}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label htmlFor="quoteText" className="text-sm font-medium">
+                              Texto de la Cita
+                            </label>
+                            <Textarea
+                              id="quoteText"
+                              placeholder="Ej: La tecnología por sí sola no es suficiente..."
+                              rows={3}
+                              value={templateContent.quoteText}
+                              onChange={(e) => handleInputChange("quoteText", e.target.value)}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label htmlFor="quoteAuthor" className="text-sm font-medium">
+                              Autor de la Cita
+                            </label>
+                            <Input
+                              id="quoteAuthor"
+                              placeholder="Ej: Steve Jobs"
+                              value={templateContent.quoteAuthor}
+                              onChange={(e) => handleInputChange("quoteAuthor", e.target.value)}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label htmlFor="socialTitle" className="text-sm font-medium">
+                              Título de Redes Sociales
+                            </label>
+                            <Input
+                              id="socialTitle"
+                              placeholder="Ej: Síguenos en nuestras redes sociales"
+                              value={templateContent.socialTitle}
+                              onChange={(e) => handleInputChange("socialTitle", e.target.value)}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label htmlFor="facebookUrl" className="text-sm font-medium">
+                              URL de Facebook
+                            </label>
+                            <Input
+                              id="facebookUrl"
+                              placeholder="Ej: https://facebook.com/empresa"
+                              value={templateContent.facebookUrl}
+                              onChange={(e) => handleInputChange("facebookUrl", e.target.value)}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label htmlFor="linkedinUrl" className="text-sm font-medium">
+                              URL de LinkedIn
+                            </label>
+                            <Input
+                              id="linkedinUrl"
+                              placeholder="Ej: https://linkedin.com/company/empresa"
+                              value={templateContent.linkedinUrl}
+                              onChange={(e) => handleInputChange("linkedinUrl", e.target.value)}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label htmlFor="twitterUrl" className="text-sm font-medium">
+                              URL de Twitter/X
+                            </label>
+                            <Input
+                              id="twitterUrl"
+                              placeholder="Ej: https://twitter.com/empresa"
+                              value={templateContent.twitterUrl}
+                              onChange={(e) => handleInputChange("twitterUrl", e.target.value)}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label htmlFor="copyrightText" className="text-sm font-medium">
+                              Texto de Copyright
+                            </label>
+                            <Input
+                              id="copyrightText"
+                              placeholder="Ej: © 2025 Todos los derechos reservados"
+                              value={templateContent.copyrightText}
+                              onChange={(e) => handleInputChange("copyrightText", e.target.value)}
+                            />
+                          </div>
+                        </>
+                      )}
+                    </>
+                  )}
                 </TabsContent>
                 <TabsContent value="image" className="space-y-4 mt-4">
                   {/* Mostrar URL de video solo cuando se selecciona la plantilla de video */}
@@ -1308,6 +1932,13 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
                   onClick={() => setSelectedTemplate("template9")}
                 >
                   <span className="text-xs">Innovación</span>
+                </Button>
+                <Button
+                  variant={selectedTemplate === "template10" ? "default" : "outline"}
+                  className="h-auto p-4 flex flex-col"
+                  onClick={() => setSelectedTemplate("template10")}
+                >
+                  <span className="text-xs">Boletín</span>
                 </Button>
                 <Button
                   variant={selectedTemplate === "template13" ? "default" : "outline"}

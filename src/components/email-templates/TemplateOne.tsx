@@ -10,6 +10,9 @@ interface TemplateOneProps {
   buttonUrl: string;
   imageUrl: string;
   logoBase64?: string;
+  footerCompany?: string;
+  footerEmail?: string;
+  footerPhone?: string;
 }
 
 const TemplateOne: React.FC<TemplateOneProps> = ({
@@ -21,6 +24,9 @@ const TemplateOne: React.FC<TemplateOneProps> = ({
   buttonUrl,
   imageUrl,
   logoBase64,
+  footerCompany,
+  footerEmail,
+  footerPhone,
 }) => {
   const logoSrc = logoBase64 || "https://res.cloudinary.com/dolpwpgtw/image/upload/v1746807761/ovkwvqgr7giep2fph31x.png";
   //0052A5
@@ -82,15 +88,18 @@ const TemplateOne: React.FC<TemplateOneProps> = ({
               href={buttonUrl} 
               style={{ 
                 backgroundColor: "#FFD800", 
-                color: "#0052A5", 
+                color: "#0052A5 !important", 
                 padding: "12px 25px", 
-                textDecoration: "none", 
+                textDecoration: "none !important", 
                 borderRadius: "4px", 
                 fontWeight: "bold",
-                display: "inline-block"
+                display: "inline-block",
+                border: "2px solid #FFD800"
               }}
             >
-              {buttonText}
+              <span style={{ color: "#0052A5 !important", textDecoration: "none !important" }}>
+                {buttonText}
+              </span>
             </a>
           </div>
         </td>
@@ -143,8 +152,15 @@ const TemplateOne: React.FC<TemplateOneProps> = ({
           textAlign: "center"
         }}>
           <p style={{ margin: "0 0 10px 0", fontSize: "14px" }}>
-            © 2025 Cultura Digital - Todos los derechos reservados
+            © 2025 {footerCompany || "Cultura Digital"} - Todos los derechos reservados
           </p>
+          
+          {/* Sección de contacto - siempre se muestra con valores o placeholders */}
+          <p style={{ margin: "0 0 10px 0", fontSize: "12px", lineHeight: "1.4" }}>
+            📧 {footerEmail || "cultura.digital@ejemplo.com"} | 📞 {footerPhone || "+1 234 567 8900"}
+          </p>
+          
+          {/* Texto por defecto que siempre se muestra */}
           <p style={{ margin: "0", fontSize: "12px" }}>
             Este correo fue enviado como parte del programa de Cultura Digital.
           </p>

@@ -27,7 +27,7 @@ const TemplateNine: React.FC<TemplateNineProps> = ({
         position: "relative", 
         backgroundColor: "#4C1D95", 
         overflow: "hidden", 
-        height: "250px" 
+        height: "200px" 
       }}>
         {/* Diagonal Overlay */}
         <div style={{ 
@@ -54,19 +54,19 @@ const TemplateNine: React.FC<TemplateNineProps> = ({
             src="https://res.cloudinary.com/dolpwpgtw/image/upload/v1746807761/ovkwvqgr7giep2fph31x.png" 
             alt="Cultura Digital" 
             style={{ 
-              height: "60px", 
-              marginBottom: "20px",
+              height: "45px", 
+              marginBottom: "15px",
               filter: "brightness(0) invert(1)" // Ensure white logo
             }}
           />
           
           <div style={{ 
             backgroundColor: "rgba(255,255,255,0.15)", 
-            padding: "5px 15px", 
+            padding: "4px 12px", 
             borderRadius: "50px", 
-            marginBottom: "15px",
+            marginBottom: "12px",
             backdropFilter: "blur(5px)",
-            fontSize: "13px",
+            fontSize: "12px",
             color: "white",
             letterSpacing: "1px",
             textTransform: "uppercase"
@@ -76,9 +76,9 @@ const TemplateNine: React.FC<TemplateNineProps> = ({
           
           <h1 style={{ 
             color: "#FFFFFF", 
-            fontSize: "30px", 
+            fontSize: "26px", 
             textAlign: "center", 
-            margin: "0 0 10px 0", 
+            margin: "0 0 8px 0", 
             fontWeight: "700",
             textShadow: "0 2px 4px rgba(0,0,0,0.1)"
           }}>
@@ -87,7 +87,7 @@ const TemplateNine: React.FC<TemplateNineProps> = ({
           
           <h2 style={{ 
             color: "#F3F4F6", 
-            fontSize: "16px", 
+            fontSize: "15px", 
             textAlign: "center", 
             margin: "0", 
             fontWeight: "400",
@@ -100,16 +100,16 @@ const TemplateNine: React.FC<TemplateNineProps> = ({
       </div>
       
       {/* Image Section */}
-      <div style={{ padding: "0 20px", marginTop: "-40px", position: "relative", zIndex: "10" }}>
+      <div style={{ padding: "20px 20px", position: "relative", zIndex: "10", textAlign: "center" }}>
         <img 
           src={imageUrl} 
           alt="Featured Image" 
           style={{ 
-            width: "100%", 
-            borderRadius: "10px", 
-            boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
-            maxHeight: "250px",
-            objectFit: "cover"
+            maxWidth: "100%", 
+            height: "auto", 
+            display: "block", 
+            borderRadius: "4px", 
+            margin: "0 auto"
           }}
         />
       </div>

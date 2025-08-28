@@ -9,6 +9,19 @@ interface TemplateFiveProps {
   buttonText: string;
   buttonUrl: string;
   imageUrl: string;
+  footerCompany?: string;
+  footerEmail?: string;
+  footerPhone?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  websiteUrl?: string;
+  quoteText?: string;
+  quoteAuthor?: string;
+  socialTitle?: string;
+  facebookUrl?: string;
+  linkedinUrl?: string;
+  twitterUrl?: string;
+  copyrightText?: string;
 }
 
 const TemplateFive: React.FC<TemplateFiveProps> = ({
@@ -19,15 +32,28 @@ const TemplateFive: React.FC<TemplateFiveProps> = ({
   buttonText,
   buttonUrl,
   imageUrl,
+  footerCompany,
+  footerEmail,
+  footerPhone,
+  contactEmail,
+  contactPhone,
+  websiteUrl,
+  quoteText,
+  quoteAuthor,
+  socialTitle,
+  facebookUrl,
+  linkedinUrl,
+  twitterUrl,
+  copyrightText,
 }) => {
   return (
     <div style={{ maxWidth: "600px", margin: "0 auto", fontFamily: "'Poppins', 'Roboto', 'Segoe UI', Arial, sans-serif", backgroundColor: "#ffffff" }}>
       {/* Header */}
-      <div style={{ backgroundColor: "#ffffff", padding: "25px 30px", textAlign: "center" }}>
+      <div style={{ backgroundColor: "#ffffff", padding: "15px 30px", textAlign: "center" }}>
         <img 
           src="https://res.cloudinary.com/dolpwpgtw/image/upload/v1746459857/uxt4iqleuilxpqofn5s9.png" 
           alt="Cultura Digital" 
-          style={{ height: "60px" }}
+          style={{ height: "45px" }}
         />
       </div>
       
@@ -44,10 +70,10 @@ const TemplateFive: React.FC<TemplateFiveProps> = ({
       </div>
       
       {/* Hero Section */}
-      <div style={{ padding: "40px 30px", backgroundColor: "#f0f7ff", textAlign: "center" }}>
+      <div style={{ padding: "30px 30px", backgroundColor: "#f0f7ff", textAlign: "center" }}>
         <h1 style={{ 
           color: "#0052A5", 
-          fontSize: "28px", 
+          fontSize: "26px", 
           margin: "0 0 15px 0",
           letterSpacing: "0.5px",
           fontWeight: "600"
@@ -69,16 +95,16 @@ const TemplateFive: React.FC<TemplateFiveProps> = ({
       </div>
       
       {/* Image Section */}
-      <div style={{ backgroundColor: "#ffffff" }}>
+      <div style={{ backgroundColor: "#ffffff", textAlign: "center", padding: "20px 20px" }}>
         <img 
           src={imageUrl} 
           alt="Tendencias Tecnológicas" 
           style={{ 
-            width: "100%", 
+            maxWidth: "100%", 
             height: "auto", 
-            display: "block",
-            maxHeight: "300px",
-            objectFit: "cover"
+            display: "block", 
+            borderRadius: "4px", 
+            margin: "0 auto"
           }}
         />
       </div>
@@ -119,7 +145,7 @@ Le invitamos a explorar estas tendencias y considerar cómo podrían beneficiar 
             fontSize: "16px",
             lineHeight: "1.6"
           }}>
-            "La tecnología por sí sola no es suficiente. Es la tecnología combinada con las artes liberales y las humanidades lo que nos da el resultado que hace cantar a nuestro corazón."
+            "{quoteText || "La tecnología por sí sola no es suficiente. Es la tecnología combinada con las artes liberales y las humanidades lo que nos da el resultado que hace cantar a nuestro corazón."}"
           </p>
           <p style={{ 
             margin: "0", 
@@ -127,7 +153,7 @@ Le invitamos a explorar estas tendencias y considerar cómo podrían beneficiar 
             color: "#777", 
             fontSize: "14px" 
           }}>
-            — Steve Jobs
+            — {quoteAuthor || "Steve Jobs"}
           </p>
         </div>
         
@@ -137,16 +163,19 @@ Le invitamos a explorar estas tendencias y considerar cómo podrían beneficiar 
             href={buttonUrl} 
             style={{ 
               backgroundColor: "#FFD800", 
-              color: "#0052A5", 
+              color: "#0052A5 !important", 
               padding: "14px 28px", 
-              textDecoration: "none", 
+              textDecoration: "none !important", 
               borderRadius: "4px", 
               fontWeight: "bold",
               display: "inline-block",
-              boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+              boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+              border: "2px solid #FFD800"
             }}
           >
-            {buttonText}
+            <span style={{ color: "#0052A5 !important", textDecoration: "none !important" }}>
+              {buttonText}
+            </span>
           </a>
         </div>
       </div>
@@ -158,12 +187,35 @@ Le invitamos a explorar estas tendencias y considerar cómo podrían beneficiar 
         backgroundColor: "#f8f8f8",
         textAlign: "center"
       }}>
-        <p style={{ margin: "0 0 15px 0", color: "#555", fontSize: "14px" }}>Síguenos en nuestras redes sociales</p>
+        <p style={{ margin: "0 0 15px 0", color: "#555", fontSize: "14px" }}>
+          {socialTitle || "Síguenos en nuestras redes sociales"}
+        </p>
         <div style={{ display: "flex", justifyContent: "center", gap: "15px", marginBottom: "20px" }}>
-          {/* Social media icons represented as colored circles */}
-          <div style={{ width: "36px", height: "36px", borderRadius: "50%", backgroundColor: "#0052A5", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "18px" }}>f</div>
-          <div style={{ width: "36px", height: "36px", borderRadius: "50%", backgroundColor: "#0052A5", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "18px" }}>in</div>
-          <div style={{ width: "36px", height: "36px", borderRadius: "50%", backgroundColor: "#0052A5", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "18px" }}>tw</div>
+          {/* Social media icons as clickable links */}
+          {facebookUrl && (
+            <a href={facebookUrl} style={{ textDecoration: "none" }}>
+              <div style={{ width: "36px", height: "36px", borderRadius: "50%", backgroundColor: "#0052A5", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "18px", cursor: "pointer" }}>f</div>
+            </a>
+          )}
+          {linkedinUrl && (
+            <a href={linkedinUrl} style={{ textDecoration: "none" }}>
+              <div style={{ width: "36px", height: "36px", borderRadius: "50%", backgroundColor: "#0052A5", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "18px", cursor: "pointer" }}>in</div>
+            </a>
+          )}
+          {twitterUrl && (
+            <a href={twitterUrl} style={{ textDecoration: "none" }}>
+              <div style={{ width: "36px", height: "36px", borderRadius: "50%", backgroundColor: "#0052A5", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "18px", cursor: "pointer" }}>tw</div>
+            </a>
+          )}
+          
+          {/* Show default icons if no URLs provided */}
+          {!facebookUrl && !linkedinUrl && !twitterUrl && (
+            <>
+              <div style={{ width: "36px", height: "36px", borderRadius: "50%", backgroundColor: "#0052A5", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "18px" }}>f</div>
+              <div style={{ width: "36px", height: "36px", borderRadius: "50%", backgroundColor: "#0052A5", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "18px" }}>in</div>
+              <div style={{ width: "36px", height: "36px", borderRadius: "50%", backgroundColor: "#0052A5", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "18px" }}>tw</div>
+            </>
+          )}
         </div>
       </div>
       
@@ -199,10 +251,18 @@ Le invitamos a explorar estas tendencias y considerar cómo podrían beneficiar 
         {/* Add padding top to ensure text is below the protruding image */}
         <div style={{ paddingTop: "50px" }}>
           <p style={{ margin: "0 0 10px 0", opacity: "0.9" }}>
-            Programa de Cultura Digital | cultura.digital@ejemplo.com
+            {footerCompany || "Programa de Cultura Digital"}
           </p>
+          <p style={{ margin: "0 0 10px 0", opacity: "0.9" }}>
+            📧 {footerEmail || "cultura.digital@ejemplo.com"} | 📞 {footerPhone || "+1 234 567 8900"}
+          </p>
+          {websiteUrl && (
+            <p style={{ margin: "0 0 10px 0", opacity: "0.9" }}>
+              🌐 {websiteUrl}
+            </p>
+          )}
           <p style={{ margin: "0", opacity: "0.7" }}>
-            © 2025 Todos los derechos reservados
+            {copyrightText || "© 2025 Todos los derechos reservados"}
           </p>
         </div>
       </div>

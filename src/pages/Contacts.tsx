@@ -1462,8 +1462,8 @@ const Contacts = () => {
                       onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}
                     >
                       <option value="all">🔘 Todos los estados</option>
-                      <option value="active">✅ Solo activos</option>
-                      <option value="inactive">❌ Solo inactivos</option>
+                      <option value="active">Solo activos</option>
+                      <option value="inactive">Solo inactivos</option>
                     </select>
 
                     <select
@@ -1860,7 +1860,7 @@ const Contacts = () => {
                                         : 'bg-gray-100 text-gray-600 border-gray-200'
                                     }`}
                                   >
-                                    {contact.status === 'active' ? '✅ Activo' : '❌ Inactivo'}
+                                    {contact.status === 'active' ? 'Activo' : 'Inactivo'}
                                   </Badge>
                                   <Switch 
                                     checked={contact.status === 'active'} 

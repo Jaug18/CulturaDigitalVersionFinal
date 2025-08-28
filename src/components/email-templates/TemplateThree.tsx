@@ -9,6 +9,10 @@ interface TemplateThreeProps {
   buttonText: string;
   buttonUrl: string;
   imageUrl: string;
+  releaseDate?: string;
+  departmentName?: string;
+  contactEmail?: string;
+  footerCompany?: string;
 }
 
 const TemplateThree: React.FC<TemplateThreeProps> = ({
@@ -19,6 +23,10 @@ const TemplateThree: React.FC<TemplateThreeProps> = ({
   buttonText,
   buttonUrl,
   imageUrl,
+  releaseDate,
+  departmentName,
+  contactEmail,
+  footerCompany,
 }) => {
   return (
     <div style={{ maxWidth: "600px", margin: "0 auto", fontFamily: "'Poppins', 'Segoe UI', Arial, sans-serif" }}>
@@ -35,20 +43,20 @@ const TemplateThree: React.FC<TemplateThreeProps> = ({
         <img 
           src="https://res.cloudinary.com/dolpwpgtw/image/upload/v1746459857/uxt4iqleuilxpqofn5s9.png" 
           alt="Cultura Digital" 
-          style={{ height: "150px", align: "center", display: "block", margin: "0 auto" }}
+          style={{ height: "100px", display: "block", margin: "0 auto" }}
         />
       </div>
       
       {/* Announcement Banner */}
       <div style={{ 
         backgroundColor: "#FFD800", 
-        padding: "15px 20px", 
+        padding: "12px 20px", 
         textAlign: "center"
       }}>
         <h1 style={{ 
           margin: 0, 
           color: "#0052A5", 
-          fontSize: "26px", 
+          fontSize: "24px", 
           letterSpacing: "1px" 
         }}>
           {subject || "ANUNCIO IMPORTANTE"}
@@ -94,8 +102,10 @@ const TemplateThree: React.FC<TemplateThreeProps> = ({
             alt="Anuncio" 
             style={{ 
               maxWidth: "100%", 
-              borderRadius: "8px",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+              height: "auto", 
+              display: "block", 
+              borderRadius: "4px", 
+              margin: "0 auto"
             }}
           />
         </div>
@@ -131,7 +141,7 @@ Les invitamos a participar en las sesiones de inducción que se realizarán dura
           textAlign: "center"
         }}>
           <p style={{ margin: "0", color: "#0052A5", fontWeight: "bold" }}>
-            Fecha de lanzamiento: 15 de Mayo, 2025
+            Fecha de lanzamiento: {releaseDate || "15 de Mayo, 2025"}
           </p>
         </div>
         
@@ -141,7 +151,7 @@ Les invitamos a participar en las sesiones de inducción que se realizarán dura
             href={buttonUrl} 
             style={{ 
               backgroundColor: "#0052A5", 
-              color: "white", 
+              color: "#ffffff !important", 
               padding: "14px 30px", 
               textDecoration: "none", 
               borderRadius: "50px", 
@@ -150,7 +160,9 @@ Les invitamos a participar en las sesiones de inducción que se realizarán dura
               boxShadow: "0 4px 12px rgba(0,82,165,0.2)"
             }}
           >
-            {buttonText}
+            <span style={{ color: "#ffffff !important", textDecoration: "none" }}>
+              {buttonText}
+            </span>
           </a>
         </div>
       </div>
@@ -186,13 +198,13 @@ Les invitamos a participar en las sesiones de inducción que se realizarán dura
           />
         </div>
         <p style={{ margin: "0 0 15px 0", fontSize: "16px", fontWeight: "bold" }}>
-          Departamento de Tecnología de la Información
+          {departmentName || "Departamento de Tecnología de la Información"}
         </p>
         <p style={{ margin: "0 0 10px 0", fontSize: "14px" }}>
-          ¿Preguntas? Contacte a: ti@ejemplo.com
+          ¿Preguntas? Contacte a: {contactEmail || "ti@ejemplo.com"}
         </p>
         <p style={{ margin: "0", fontSize: "12px", opacity: "0.7" }}>
-          © 2025 Cultura Digital - Todos los derechos reservados
+          © 2025 {footerCompany || "Cultura Digital"} - Todos los derechos reservados
         </p>
         
         <style>

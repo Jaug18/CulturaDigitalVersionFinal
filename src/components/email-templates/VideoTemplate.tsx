@@ -11,6 +11,9 @@ interface VideoTemplateProps {
   imageUrl: string;
   videoUrl?: string;
   logoBase64?: string;
+  footerCompany?: string;
+  footerEmail?: string;
+  footerPhone?: string;
 }
 
 const VideoTemplate: React.FC<VideoTemplateProps> = ({
@@ -22,6 +25,9 @@ const VideoTemplate: React.FC<VideoTemplateProps> = ({
   imageUrl,
   videoUrl,
   logoBase64,
+  footerCompany,
+  footerEmail,
+  footerPhone,
 }) => {
   // Determine si es un enlace de video de YouTube o Vimeo
   const isYouTube = videoUrl?.includes('youtube') || videoUrl?.includes('youtu.be');
@@ -157,111 +163,48 @@ const VideoTemplate: React.FC<VideoTemplateProps> = ({
       overflow: 'hidden',
       boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
     }}>
-      {/* Header con diseño moderno y logo */}
+      {/* Header con diseño compacto */}
       <div style={{ 
-        position: 'relative',
         background: 'linear-gradient(135deg, #0052A5 0%, #4A56E2 100%)',
-        padding: '40px 20px',
+        padding: '20px',
         textAlign: 'center',
-        color: 'white',
-        overflow: 'hidden'
+        color: 'white'
       }}>
-        {/* Elementos decorativos */}
-        <div style={{ 
-          position: 'absolute',
-          top: '-20px',
-          left: '-20px',
-          width: '120px',
-          height: '120px',
-          borderRadius: '50%',
-          background: 'rgba(255, 216, 0, 0.2)',
-          zIndex: 1
-        }}></div>
-        <div style={{ 
-          position: 'absolute',
-          bottom: '-30px',
-          right: '-30px',
-          width: '150px',
-          height: '150px',
-          borderRadius: '50%',
-          background: 'rgba(255, 216, 0, 0.15)',
-          zIndex: 1
-        }}></div>
-        
-        {/* Logo de Cultura Digital */}
-        <div style={{ 
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          marginBottom: '20px',
-          position: 'relative',
-          zIndex: 2
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '10px'
-          }}>
-            {/* Círculo amarillo para el logo */}
-            <div style={{
-              width: '45px',
-              height: '45px',
-              borderRadius: '50%',
-              backgroundColor: '#FFD800',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#0052A5',
-              fontWeight: 'bold',
-              fontSize: '20px',
-            }}>
-              CD
-            </div>
-            <span style={{
-              fontWeight: 'bold',
-              fontSize: '22px',
-              color: 'white'
-            }}>
-              Cultura Digital
-            </span>
-          </div>
-        </div>
-        
-        {logoBase64 && (
-          <div style={{ marginBottom: '15px', position: 'relative', zIndex: 2 }}>
-            <img src={logoBase64} alt="Logo" style={{ maxHeight: '60px', margin: '0 auto' }} />
-          </div>
-        )}
+        {/* Logo de Cultura Digital en el header */}
+        <img 
+          src="https://res.cloudinary.com/dolpwpgtw/image/upload/v1746807761/ovkwvqgr7giep2fph31x.png" 
+          alt="Cultura Digital" 
+          style={{ 
+            height: "40px", 
+            marginBottom: "15px",
+            display: "block",
+            margin: "0 auto 15px auto"
+          }}
+        />
         
         <h1 style={{ 
-          margin: '0 0 10px',
-          fontSize: '28px',
+          margin: '0 0 8px',
+          fontSize: '22px',
           fontWeight: 700,
-          position: 'relative',
-          zIndex: 2,
-          textShadow: '1px 1px 3px rgba(0, 0, 0, 0.2)'
+          textShadow: '1px 1px 3px rgba(0, 0, 0, 0.2)',
+          lineHeight: '1.2'
         }}>
           {heading || "Nuevas estrategias digitales para tu empresa"}
         </h1>
         
         <h2 style={{ 
           margin: '0',
-          fontSize: '18px',
+          fontSize: '14px',
           fontWeight: 400,
           opacity: 0.9,
-          position: 'relative',
-          zIndex: 2,
-          maxWidth: '80%',
-          marginLeft: 'auto',
-          marginRight: 'auto'
+          lineHeight: '1.3'
         }}>
           {subheading || "Aprende a implementar herramientas modernas en tu organización"}
         </h2>
       </div>
       
       {/* Contenido principal */}
-      <div style={{ padding: '25px 30px' }}>
+      <div style={{ padding: '20px 25px' }}>
         {/* Sección de video */}
         {videoUrl && (
           <div style={{ 
@@ -339,44 +282,41 @@ const VideoTemplate: React.FC<VideoTemplateProps> = ({
         </div>
       </div>
       
-      {/* Footer con avatar 3D */}
+      {/* Footer con logo de TemplateOne */}
       <div style={{ 
         backgroundColor: '#0052A5', 
-        padding: '25px', 
+        padding: '20px', 
         color: 'white', 
         textAlign: 'center',
-        fontSize: '13px',
-        position: 'relative',
-        overflow: 'visible'
+        fontSize: '13px'
       }}>
-        {/* Avatar 3D que resalta desde el footer */}
-        <div style={{ 
-          position: 'absolute', 
-          top: '-45px', 
-          left: '50%', 
-          transform: 'translateX(-50%)',
-          filter: 'drop-shadow(0px 6px 12px rgba(0,0,0,0.25))'
-        }}>
-          <img 
-            src="https://branzontech.com/wp-content/uploads/2025/05/ChatGPT_Image_2_may_2025__15_32_43-removebg-preview.png" 
-            alt="Avatar 3D" 
-            style={{ 
-              height: '85px',
-              transform: 'perspective(800px) rotateX(10deg)',
-              animation: 'float 4s ease-in-out infinite'
-            }}
-          />
-        </div>
+        {/* Logo del footer igual al de TemplateOne */}
+        <img 
+          src="https://res.cloudinary.com/dolpwpgtw/image/upload/v1746458788/qqrl0hsrj9wsqqepe0rp.png" 
+          alt="Avatar" 
+          style={{ 
+            height: "40px",
+            width: "80px",
+            display: "block",
+            margin: "0 auto 15px auto",
+            objectFit: "cover",
+            objectPosition: "bottom"
+          }}
+        />
         
-        {/* Añade espaciado superior para que el texto no se solape con la imagen */}
-        <div style={{ paddingTop: '50px' }}>
-          <p style={{ margin: '0 0 10px 0', opacity: '0.9' }}>
-            Programa de Cultura Digital | cultura.digital@ejemplo.com
-          </p>
-          <p style={{ margin: '0', opacity: '0.7' }}>
-            © 2025 Todos los derechos reservados
-          </p>
-        </div>
+        <p style={{ margin: '0 0 10px 0', fontSize: '14px' }}>
+          © 2025 {footerCompany || "Programa de Cultura Digital"} - Todos los derechos reservados
+        </p>
+        
+        {/* Sección de contacto editable */}
+        <p style={{ margin: '0 0 10px 0', fontSize: '12px', lineHeight: '1.4' }}>
+          📧 {footerEmail || "cultura.digital@ejemplo.com"} | 📞 {footerPhone || "+57 300 123 4567"}
+        </p>
+        
+        {/* Texto adicional por defecto */}
+        <p style={{ margin: '0', opacity: '0.8', fontSize: '12px' }}>
+          Este correo fue enviado como parte del programa de transformación digital.
+        </p>
       </div>
     </div>
   );

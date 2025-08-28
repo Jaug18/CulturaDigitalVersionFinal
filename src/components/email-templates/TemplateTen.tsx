@@ -29,37 +29,36 @@ const TemplateTen: React.FC<TemplateTenProps> = ({
       {/* Top Accent Bar */}
       <div style={{ height: "8px", backgroundColor: accentColor }}></div>
       
-      {/* Header with Logo */}
+      {/* Header with Logo and Subject */}
       <div style={{ padding: "25px 20px", textAlign: "center" }}>
         <img 
           src="https://res.cloudinary.com/dolpwpgtw/image/upload/v1746807761/ovkwvqgr7giep2fph31x.png" 
           alt="Cultura Digital" 
-          style={{ height: "60px" }}
+          style={{ height: "60px", marginBottom: "15px" }}
         />
-      </div>
-      
-      {/* Circular Subject Badge */}
-      <div style={{ textAlign: "center", margin: "-15px 0 20px 0" }}>
-        <span style={{ 
+        
+        {/* Subject displayed prominently */}
+        <div style={{ 
           backgroundColor: accentColor, 
           color: "#FFFFFF",
-          padding: "8px 18px",
+          padding: "10px 20px",
           borderRadius: "30px",
-          fontSize: "13px",
+          fontSize: "14px",
           fontWeight: "600",
           display: "inline-block",
           boxShadow: "0 3px 6px rgba(0,0,0,0.1)",
           textTransform: "uppercase",
-          letterSpacing: "1px"
+          letterSpacing: "1px",
+          marginTop: "10px"
         }}>
-          {subject || "Boletín Informativo"}
-        </span>
+          {subject || "📧 Boletín de Cultura Digital - Edición Especial"}
+        </div>
       </div>
       
       {/* Hero Section */}
       <div style={{ position: "relative" }}>
         <img 
-          src={imageUrl} 
+          src={imageUrl || "https://res.cloudinary.com/dolpwpgtw/image/upload/v1746799863/zfxxotknyfjvqz9s4piq.jpg"} 
           alt="Hero Image" 
           style={{ 
             width: "100%", 
@@ -86,7 +85,7 @@ const TemplateTen: React.FC<TemplateTenProps> = ({
             fontWeight: "700",
             textShadow: "0 1px 2px rgba(0,0,0,0.3)"
           }}>
-            {heading || "Innovación Tecnológica"}
+            {heading || "🚀 Innovación Tecnológica 2025"}
           </h1>
           <p style={{ 
             margin: "0", 
@@ -94,7 +93,7 @@ const TemplateTen: React.FC<TemplateTenProps> = ({
             opacity: "0.9",
             fontWeight: "300"
           }}>
-            {subheading || "Construyendo el futuro digital juntos"}
+            {subheading || "Construyendo el futuro digital juntos - Nuevas herramientas y tendencias"}
           </p>
         </div>
       </div>
@@ -116,14 +115,17 @@ const TemplateTen: React.FC<TemplateTenProps> = ({
           }}>
             {content || `Estimados colaboradores:
 
-Nos complace presentarles las últimas novedades tecnológicas que estamos implementando en nuestra organización:
+🌟 Nos complace presentarles las últimas novedades tecnológicas que estamos implementando en nuestra organización para impulsar la transformación digital:
 
-• Plataforma de colaboración unificada
-• Nuevas herramientas de automatización
-• Actualización de sistemas de seguridad
-• Programa de capacitación digital
+• 🤝 Plataforma de colaboración unificada para equipos remotos
+• ⚡ Nuevas herramientas de automatización de procesos
+• 🔒 Actualización de sistemas de seguridad cibernética
+• 📚 Programa de capacitación digital personalizado
+• 🤖 Integración de inteligencia artificial en workflows
 
-Estas innovaciones nos permitirán mejorar nuestra eficiencia y mantenernos a la vanguardia en nuestro sector.`}
+Estas innovaciones nos permitirán mejorar significativamente nuestra eficiencia operativa y mantenernos a la vanguardia tecnológica en nuestro sector.
+
+¡Esperamos que estas herramientas potencien su productividad diaria!`}
           </div>
         </div>
         
@@ -184,7 +186,7 @@ Estas innovaciones nos permitirán mejorar nuestra eficiencia y mantenernos a la
         {/* Button */}
         <div style={{ textAlign: "center", marginTop: "30px" }}>
           <a 
-            href={buttonUrl} 
+            href={buttonUrl || "#"} 
             style={{ 
               backgroundColor: accentColor, 
               color: "white", 
@@ -197,7 +199,7 @@ Estas innovaciones nos permitirán mejorar nuestra eficiencia y mantenernos a la
               boxShadow: `0 4px 8px rgba(0,0,0,0.15)`
             }}
           >
-            {buttonText}
+            {buttonText || "📖 Leer Más"}
           </a>
         </div>
       </div>

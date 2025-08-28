@@ -58,10 +58,11 @@ const ThirteenTemplate: React.FC<ThirteenTemplateProps> = ({
           src={imageUrl} 
           alt="Imagen principal"
           style={{ 
-            width: "100%",
+            maxWidth: "100%",
             height: "auto",
-            borderRadius: "8px",
-            marginBottom: "25px"
+            display: "block",
+            borderRadius: "4px",
+            margin: "0 auto 25px auto"
           }}
         />
 

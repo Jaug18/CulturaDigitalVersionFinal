@@ -9,6 +9,10 @@ interface TemplateTwoProps {
   buttonText: string;
   buttonUrl: string;
   imageUrl: string;
+  departmentName?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  footerCompany?: string;
 }
 
 const TemplateTwo: React.FC<TemplateTwoProps> = ({
@@ -19,20 +23,24 @@ const TemplateTwo: React.FC<TemplateTwoProps> = ({
   buttonText,
   buttonUrl,
   imageUrl,
+  departmentName,
+  contactEmail,
+  contactPhone,
+  footerCompany,
 }) => {
   return (
     <div style={{ maxWidth: "600px", margin: "0 auto", fontFamily: "'Poppins', 'Segoe UI', Arial, sans-serif" }}>
       {/* Header */}
-      <div style={{ backgroundColor: "#FFD800", textAlign: "center", padding: "20px 0px" }}>
+      <div style={{ backgroundColor: "#FFD800", textAlign: "center", padding: "15px 0px" }}>
         <img 
           src="https://res.cloudinary.com/dolpwpgtw/image/upload/v1746807761/ovkwvqgr7giep2fph31x.png" 
           alt="Cultura Digital" 
-          style={{ height: "70px" }}
+          style={{ height: "50px" }}
         />
-        <h1 style={{ color: "#0052A5", fontSize: "28px", margin: "0px 0 5px 0", fontWeight: "600" }}>
+        <h1 style={{ color: "#003366", fontSize: "24px", margin: "8px 0 5px 0", fontWeight: "700", textShadow: "1px 1px 2px rgba(0,0,0,0.1)" }}>
           {heading || "Alerta de Ciber Seguridad"}
         </h1>
-        <h2 style={{ color: "#0052A5", fontSize: "18px", fontWeight: "normal", margin: "0" }}>
+        <h2 style={{ color: "#004080", fontSize: "16px", fontWeight: "500", margin: "0" }}>
           {subheading || "Proteja su información con estas recomendaciones"}
         </h2>
       </div>
@@ -45,7 +53,7 @@ const TemplateTwo: React.FC<TemplateTwoProps> = ({
       </div>
       
       {/* Main Content */}
-      <div style={{ backgroundColor: "#ffffff", padding: "30px 20px" }}>
+      <div style={{ backgroundColor: "#f8f9fa", padding: "30px 20px" }}>
         {/* Security Icon */}
         <div style={{ textAlign: "center", marginBottom: "25px" }}>
           <img 
@@ -53,23 +61,25 @@ const TemplateTwo: React.FC<TemplateTwoProps> = ({
             alt="Ciber Seguridad" 
             style={{ 
               maxWidth: "100%", 
-              borderRadius: "8px",
-              border: "1px solid #e0e0e0",
-              maxHeight: "250px"
+              height: "auto", 
+              display: "block", 
+              borderRadius: "4px", 
+              margin: "0 auto"
             }}
           />
         </div>
         
         {/* Content */}
         <div style={{ 
-          color: "#333333", 
+          color: "#1a1a1a", 
           fontSize: "16px", 
-          lineHeight: "1.6", 
+          lineHeight: "1.7", 
           marginBottom: "25px",
-          padding: "20px",
-          backgroundColor: "#f8f8f8",
-          borderLeft: "4px solid #FFD800",
-          borderRadius: "0 4px 4px 0"
+          padding: "25px",
+          backgroundColor: "#ffffff",
+          border: "2px solid #FFD800",
+          borderRadius: "8px",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
         }}>
           {content || `Estimados colaboradores:
 
@@ -85,14 +95,14 @@ Recuerde que su vigilancia es nuestra primera línea de defensa contra los ciber
         
         {/* Info Box */}
         <div style={{ 
-          padding: "15px", 
-          backgroundColor: "#e6f3ff", 
-          borderRadius: "4px",
+          padding: "20px", 
+          backgroundColor: "#003d82", 
+          borderRadius: "8px",
           marginBottom: "25px",
-          borderLeft: "4px solid #0052A5"
+          border: "1px solid #0052A5"
         }}>
-          <p style={{ margin: "0", fontSize: "14px", color: "#0052A5" }}>
-            <strong>IMPORTANTE:</strong> Si tiene dudas sobre la legitimidad de un correo o ha detectado alguna actividad sospechosa, comuníquese inmediatamente con el equipo de TI.
+          <p style={{ margin: "0", fontSize: "15px", color: "#ffffff", fontWeight: "500" }}>
+            <strong>⚠️ IMPORTANTE:</strong> Si tiene dudas sobre la legitimidad de un correo o ha detectado alguna actividad sospechosa, comuníquese inmediatamente con el equipo de TI.
           </p>
         </div>
         
@@ -102,15 +112,20 @@ Recuerde que su vigilancia es nuestra primera línea de defensa contra los ciber
             href={buttonUrl} 
             style={{ 
               backgroundColor: "#0052A5", 
-              color: "white", 
-              padding: "14px 28px", 
+              color: "#ffffff !important", 
+              padding: "16px 32px", 
               textDecoration: "none", 
-              borderRadius: "4px", 
+              borderRadius: "6px", 
               fontWeight: "bold",
-              display: "inline-block"
+              display: "inline-block",
+              fontSize: "16px",
+              boxShadow: "0 3px 6px rgba(0,82,165,0.3)",
+              border: "2px solid #0052A5"
             }}
           >
-            {buttonText}
+            <span style={{ color: "#ffffff !important", textDecoration: "none" }}>
+              {buttonText}
+            </span>
           </a>
         </div>
       </div>
@@ -139,14 +154,14 @@ Recuerde que su vigilancia es nuestra primera línea de defensa contra los ciber
         </div>
         <div style={{ borderBottom: "1px solid rgba(255,255,255,0.3)", paddingBottom: "15px", marginBottom: "15px" }}>
           <p style={{ margin: "0", fontSize: "14px" }}>
-            <strong>Departamento de Seguridad Informática</strong>
+            <strong>{departmentName || "Departamento de Seguridad Informática"}</strong>
           </p>
           <p style={{ margin: "5px 0 0 0", fontSize: "13px" }}>
-            seguridadinformatica@ejemplo.com | Ext. 1234
+            {contactEmail || "seguridadinformatica@ejemplo.com"} | {contactPhone || "Ext. 1234"}
           </p>
         </div>
         <p style={{ margin: "0", fontSize: "12px" }}>
-          © 2025 Cultura Digital - Todos los derechos reservados
+          © 2025 {footerCompany || "Cultura Digital"} - Todos los derechos reservados
         </p>
       </div>
     </div>

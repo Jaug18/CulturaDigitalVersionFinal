@@ -9,6 +9,16 @@ interface TemplateSixProps {
   buttonText: string;
   buttonUrl: string;
   imageUrl: string;
+  implementationDate?: string;
+  footerEmail?: string;
+  footerPhone?: string;
+  // Timeline steps and labels
+  step1Number?: string;
+  step1Label?: string;
+  step2Number?: string;
+  step2Label?: string;
+  step3Number?: string;
+  step3Label?: string;
 }
 
 const TemplateSix: React.FC<TemplateSixProps> = ({
@@ -19,66 +29,84 @@ const TemplateSix: React.FC<TemplateSixProps> = ({
   buttonText,
   buttonUrl,
   imageUrl,
+  implementationDate,
+  footerEmail,
+  footerPhone,
+  step1Number,
+  step1Label,
+  step2Number,
+  step2Label,
+  step3Number,
+  step3Label,
 }) => {
   return (
     <div style={{ maxWidth: "600px", margin: "0 auto", fontFamily: "'Poppins', 'Inter', 'Trebuchet MS', Arial, sans-serif", backgroundColor: "#ffffff" }}>
-      {/* Curved Header */}
+      {/* Curved Header - More Compact */}
       <div style={{ 
         backgroundColor: "#0052A5", 
-        borderRadius: "0 0 50% 50% / 0 0 20px 20px",
-        padding: "35px 20px 50px 20px",
+        borderRadius: "0 0 50% 50% / 0 0 15px 15px",
+        padding: "25px 20px 40px 20px",
         textAlign: "center",
         position: "relative"
       }}>
         <img 
           src="https://res.cloudinary.com/dolpwpgtw/image/upload/v1746807761/ovkwvqgr7giep2fph31x.png" 
           alt="Cultura Digital" 
-          style={{ height: "60px", marginBottom: "20px" }}
+          style={{ height: "50px", marginBottom: "15px" }}
         />
         
         <div style={{ 
           backgroundColor: "#FFD800",
-          padding: "10px 25px",
+          padding: "8px 20px",
           borderRadius: "50px",
           display: "inline-block",
           color: "#0052A5",
           fontWeight: "bold",
-          fontSize: "14px",
+          fontSize: "13px",
           textTransform: "uppercase",
           letterSpacing: "1px",
-          boxShadow: "0 3px 6px rgba(0,0,0,0.1)"
+          boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
         }}>
           {subject || "Recordatorio Importante"}
         </div>
         
-        {/* Avatar Circle that overlaps the next section */}
+        {/* Avatar Circle - Improved centering for Gmail */}
         <div style={{ 
-          width: "110px",
-          height: "110px",
-          borderRadius: "50%",
-          backgroundColor: "#ffffff",
           position: "absolute",
-          bottom: "-55px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          border: "5px solid #FFD800",
-          overflow: "hidden",
-          boxShadow: "0 4px 10px rgba(0,0,0,0.1)"
+          bottom: "-45px",
+          left: "0",
+          right: "0",
+          textAlign: "center",
+          width: "100%"
         }}>
-          <img 
-            src={imageUrl} 
-            alt="Imagen destacada" 
-            style={{ 
-              width: "100%", 
-              height: "100%", 
-              objectFit: "cover" 
-            }}
-          />
+          <div style={{ 
+            width: "90px",
+            height: "90px",
+            borderRadius: "50%",
+            backgroundColor: "#ffffff",
+            border: "4px solid #FFD800",
+            overflow: "hidden",
+            boxShadow: "0 3px 8px rgba(0,0,0,0.1)",
+            display: "inline-block",
+            margin: "0 auto"
+          }}>
+            <img 
+              src={imageUrl || "https://res.cloudinary.com/dolpwpgtw/image/upload/v1746799863/zfxxotknyfjvqz9s4piq.jpg"} 
+              alt="Imagen destacada" 
+              style={{ 
+                width: "100%", 
+                height: "100%", 
+                objectFit: "cover",
+                borderRadius: "50%",
+                display: "block"
+              }}
+            />
+          </div>
         </div>
       </div>
       
       {/* Main Content */}
-      <div style={{ backgroundColor: "#ffffff", padding: "70px 30px 40px 30px", textAlign: "center" }}>
+      <div style={{ backgroundColor: "#ffffff", padding: "60px 30px 40px 30px", textAlign: "center" }}>
         <h1 style={{ 
           color: "#0052A5", 
           fontSize: "26px", 
@@ -99,9 +127,9 @@ const TemplateSix: React.FC<TemplateSixProps> = ({
           {subheading || "Nuevos lineamientos para el uso de recursos tecnológicos"}
         </h2>
         
-        {/* Content with styled bullet points */}
+        {/* Content with styled bullet points - Centered */}
         <div style={{ 
-          textAlign: "left", 
+          textAlign: "center", 
           maxWidth: "480px", 
           margin: "0 auto 30px auto", 
           fontSize: "16px", 
@@ -120,93 +148,90 @@ Queremos recordarles la importancia de seguir las nuevas políticas de seguridad
 Estas medidas son esenciales para mantener la seguridad de nuestra información y sistemas. Agradecemos su compromiso con estas nuevas directrices.`}
         </div>
         
-        {/* Countdown/Timeline */}
+        {/* Timeline - Editable steps */}
         <div style={{ 
           margin: "40px auto",
           maxWidth: "400px",
           textAlign: "center"
         }}>
-          <div style={{ 
-            display: "flex", 
-            alignItems: "center", 
-            justifyContent: "space-between", 
-            position: "relative" 
+          <table style={{ 
+            width: "100%", 
+            borderCollapse: "collapse",
+            margin: "0 auto"
           }}>
-            {/* Line connecting the circles */}
-            <div style={{ 
-              position: "absolute", 
-              top: "50%", 
-              left: "58px", 
-              right: "58px", 
-              height: "3px", 
-              backgroundColor: "#e0e0e0", 
-              zIndex: "1" 
-            }}></div>
-            
-            {/* Three timeline points */}
-            <div style={{ 
-              width: "50px", 
-              textAlign: "center", 
-              zIndex: "2" 
-            }}>
-              <div style={{ 
-                width: "30px", 
-                height: "30px", 
-                borderRadius: "50%", 
-                backgroundColor: "#FFD800", 
-                margin: "0 auto 8px auto",
-                color: "#0052A5",
-                fontWeight: "bold",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "16px"
-              }}>1</div>
-              <p style={{ margin: "0", fontSize: "12px", color: "#555" }}>Anuncio</p>
-            </div>
-            
-            <div style={{ 
-              width: "50px", 
-              textAlign: "center", 
-              zIndex: "2" 
-            }}>
-              <div style={{ 
-                width: "30px", 
-                height: "30px", 
-                borderRadius: "50%", 
-                backgroundColor: "#FFD800", 
-                margin: "0 auto 8px auto",
-                color: "#0052A5",
-                fontWeight: "bold",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "16px"
-              }}>2</div>
-              <p style={{ margin: "0", fontSize: "12px", color: "#555" }}>Preparación</p>
-            </div>
-            
-            <div style={{ 
-              width: "50px", 
-              textAlign: "center", 
-              zIndex: "2" 
-            }}>
-              <div style={{ 
-                width: "30px", 
-                height: "30px", 
-                borderRadius: "50%", 
-                backgroundColor: "#0052A5", 
-                margin: "0 auto 8px auto",
-                color: "white",
-                fontWeight: "bold",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "16px"
-              }}>3</div>
-              <p style={{ margin: "0", fontSize: "12px", color: "#555" }}>Implementación</p>
-            </div>
-          </div>
+            <tr>
+              <td style={{ width: "33.33%", textAlign: "center", padding: "0 10px", position: "relative" }}>
+                <div style={{ 
+                  width: "30px", 
+                  height: "30px", 
+                  borderRadius: "50%", 
+                  backgroundColor: "#FFD800", 
+                  margin: "0 auto 8px auto",
+                  color: "#0052A5",
+                  fontWeight: "bold",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "16px",
+                  lineHeight: "1"
+                }}>{step1Number || "1"}</div>
+                <p style={{ margin: "0", fontSize: "12px", color: "#555" }}>{step1Label || "Anuncio"}</p>
+                {/* Connecting line */}
+                <div style={{ 
+                  position: "absolute", 
+                  top: "15px", 
+                  right: "-20px", 
+                  width: "40px", 
+                  height: "3px", 
+                  backgroundColor: "#e0e0e0" 
+                }}></div>
+              </td>
+              <td style={{ width: "33.33%", textAlign: "center", padding: "0 10px", position: "relative" }}>
+                <div style={{ 
+                  width: "30px", 
+                  height: "30px", 
+                  borderRadius: "50%", 
+                  backgroundColor: "#FFD800", 
+                  margin: "0 auto 8px auto",
+                  color: "#0052A5",
+                  fontWeight: "bold",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "16px",
+                  lineHeight: "1"
+                }}>{step2Number || "2"}</div>
+                <p style={{ margin: "0", fontSize: "12px", color: "#555" }}>{step2Label || "Preparación"}</p>
+                {/* Connecting line */}
+                <div style={{ 
+                  position: "absolute", 
+                  top: "15px", 
+                  right: "-20px", 
+                  width: "40px", 
+                  height: "3px", 
+                  backgroundColor: "#e0e0e0" 
+                }}></div>
+              </td>
+              <td style={{ width: "33.33%", textAlign: "center", padding: "0 10px" }}>
+                <div style={{ 
+                  width: "30px", 
+                  height: "30px", 
+                  borderRadius: "50%", 
+                  backgroundColor: "#0052A5", 
+                  margin: "0 auto 8px auto",
+                  color: "white",
+                  fontWeight: "bold",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "16px",
+                  lineHeight: "1"
+                }}>{step3Number || "3"}</div>
+                <p style={{ margin: "0", fontSize: "12px", color: "#555" }}>{step3Label || "Implementación"}</p>
+              </td>
+            </tr>
+          </table>
+          
           <p style={{ 
             marginTop: "25px", 
             backgroundColor: "#f0f7ff", 
@@ -215,7 +240,7 @@ Estas medidas son esenciales para mantener la seguridad de nuestra información 
             fontSize: "14px", 
             color: "#0052A5" 
           }}>
-            <strong>Fecha de implementación:</strong> 1 de junio, 2025
+            <strong>Fecha de implementación:</strong> {implementationDate || "1 de junio, 2025"}
           </p>
         </div>
         
@@ -246,64 +271,43 @@ Estas medidas son esenciales para mantener la seguridad de nuestra información 
         </p>
       </div>
       
-      {/* Footer with 3D Image */}
+      {/* Footer with TemplateOne logo */}
       <div style={{ 
-        padding: "30px 20px 20px", 
-        backgroundColor: "#f1f5fb",
-        borderTop: "1px solid #e0e0e0",
-        position: "relative",
-        overflow: "visible"
+        padding: "20px", 
+        backgroundColor: "#0052A5",
+        textAlign: "center",
+        color: "white"
       }}>
-        <div style={{ 
-          position: "absolute", 
-          top: "-55px", 
-          left: "50%", 
-          transform: "translateX(-50%)",
-          filter: "drop-shadow(0px 8px 16px rgba(0,0,0,0.3))"
-        }}>
-          <img 
-            src="https://branzontech.com/wp-content/uploads/2025/05/ChatGPT_Image_2_may_2025__15_50_45-removebg-preview.png" 
-            alt="Imagen Footer 3D" 
-            style={{ 
-              height: "100px",
-              transform: "perspective(1000px) rotateX(15deg)",
-              transition: "transform 0.3s ease"
-            }}
-          />
-        </div>
+        {/* Logo del footer igual al de TemplateOne */}
+        <img 
+          src="https://res.cloudinary.com/dolpwpgtw/image/upload/v1746458788/qqrl0hsrj9wsqqepe0rp.png" 
+          alt="Avatar" 
+          style={{ 
+            height: "40px",
+            width: "80px",
+            display: "block",
+            margin: "0 auto 15px auto",
+            objectFit: "cover",
+            objectPosition: "bottom"
+          }}
+        />
         
-        {/* Add padding top to ensure content is below the protruding image */}
-        <div style={{ paddingTop: "55px" }}>
-          <div style={{ 
-            display: "flex", 
-            alignItems: "center", 
-            justifyContent: "center", 
-            marginBottom: "20px" 
-          }}>
-            <img 
-              src="https://cuidadoseguro.com.co/csc3/wp-content/uploads/2025/04/CULTURA-DIGITAL-CURVAS1.svg" 
-              alt="Cultura Digital" 
-              style={{ height: "30px" }}
-            />
-            <span style={{ 
-              marginLeft: "10px", 
-              fontSize: "14px", 
-              color: "#0052A5", 
-              fontWeight: "bold" 
-            }}>
-              Programa de Cultura Digital
-            </span>
-          </div>
-          
-          <p style={{ 
-            margin: "0", 
-            fontSize: "12px", 
-            textAlign: "center", 
-            color: "#777" 
-          }}>
-            © 2025 Todos los derechos reservados
-          </p>
-        </div>
+        <p style={{ 
+          margin: "0 0 10px 0", 
+          fontSize: "14px" 
+        }}>
+          © 2025 Programa de Cultura Digital - Todos los derechos reservados
+        </p>
+        
+        {/* Información de contacto editable */}
+        <p style={{ 
+          margin: "0", 
+          fontSize: "12px", 
+          lineHeight: "1.4",
+          opacity: "0.9"
+        }}>
+          📧 {footerEmail || "cultura.digital@ejemplo.com"} | 📞 {footerPhone || "+57 300 123 4567"}
+        </p>
       </div>
     </div>
   );

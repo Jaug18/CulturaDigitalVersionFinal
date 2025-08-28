@@ -9,6 +9,12 @@ interface TemplateFourProps {
   buttonText: string;
   buttonUrl: string;
   imageUrl: string;
+  eventDate?: string;
+  eventTime?: string;
+  eventLocation?: string;
+  instructorName?: string;
+  contactPhone?: string;
+  contactEmail?: string;
 }
 
 const TemplateFour: React.FC<TemplateFourProps> = ({
@@ -19,30 +25,34 @@ const TemplateFour: React.FC<TemplateFourProps> = ({
   buttonText,
   buttonUrl,
   imageUrl,
+  eventDate,
+  eventTime,
+  eventLocation,
+  instructorName,
+  contactPhone,
+  contactEmail,
 }) => {
   return (
     <div style={{ maxWidth: "600px", margin: "0 auto", fontFamily: "'Poppins', 'Montserrat', Helvetica, Arial, sans-serif", backgroundColor: "#ffffff" }}>
       {/* Top Bar */}
       <div style={{ backgroundColor: "#0052A5", height: "8px" }}></div>
       
-      {/* Header with Image Background */}
+      {/* Header */}
       <div style={{ 
-        backgroundImage: `linear-gradient(rgba(0, 82, 165, 0.7), rgba(0, 82, 165, 0.7)), url(${imageUrl})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        padding: "60px 20px",
+        backgroundColor: "#0052A5",
+        padding: "0px 20px",
         textAlign: "center",
         color: "white"
       }}>
         <img 
           src="https://res.cloudinary.com/dolpwpgtw/image/upload/v1746807761/ovkwvqgr7giep2fph31x.png" 
           alt="Cultura Digital" 
-          style={{ height: "70px", marginBottom: "20px" }}
+          style={{ height: "50px", marginBottom: "15px" }}
         />
-        <h1 style={{ fontSize: "32px", margin: "10px 0", textShadow: "1px 1px 3px rgba(0,0,0,0.3)", fontWeight: "600" }}>
+        <h1 style={{ fontSize: "32px", margin: "10px 0", fontWeight: "600" }}>
           {heading || "Taller Digital"}
         </h1>
-        <h2 style={{ fontSize: "20px", fontWeight: "normal", margin: "0", opacity: "0.9", textShadow: "1px 1px 2px rgba(0,0,0,0.2)" }}>
+        <h2 style={{ fontSize: "20px", fontWeight: "normal", margin: "0", opacity: "0.9" }}>
           {subheading || "Aprende nuevas habilidades tecnológicas"}
         </h2>
       </div>
@@ -68,6 +78,20 @@ const TemplateFour: React.FC<TemplateFourProps> = ({
             day: 'numeric' 
           })}
         </div>
+      </div>
+      
+      {/* Featured Image */}
+      <div style={{ textAlign: "center", backgroundColor: "#ffffff", paddingTop: "15px" }}>
+        <img 
+          src={imageUrl} 
+          alt="Imagen del taller" 
+          style={{ 
+            maxWidth: "100%", 
+            height: "auto", 
+            display: "block", 
+            margin: "0 auto"
+          }}
+        />
       </div>
       
       {/* Content */}
@@ -104,19 +128,19 @@ El taller está diseñado para todos los niveles de experiencia y proporcionará
             <tbody>
               <tr>
                 <td style={{ padding: "8px 0", fontWeight: "bold", width: "120px", color: "#555" }}>Fecha:</td>
-                <td style={{ padding: "8px 0", color: "#333" }}>15 de Mayo, 2025</td>
+                <td style={{ padding: "8px 0", color: "#333" }}>{eventDate || "15 de Mayo, 2025"}</td>
               </tr>
               <tr>
                 <td style={{ padding: "8px 0", fontWeight: "bold", width: "120px", color: "#555" }}>Hora:</td>
-                <td style={{ padding: "8px 0", color: "#333" }}>10:00 AM - 12:00 PM</td>
+                <td style={{ padding: "8px 0", color: "#333" }}>{eventTime || "10:00 AM - 12:00 PM"}</td>
               </tr>
               <tr>
                 <td style={{ padding: "8px 0", fontWeight: "bold", width: "120px", color: "#555" }}>Lugar:</td>
-                <td style={{ padding: "8px 0", color: "#333" }}>Sala de Conferencias Virtual</td>
+                <td style={{ padding: "8px 0", color: "#333" }}>{eventLocation || "Sala de Conferencias Virtual"}</td>
               </tr>
               <tr>
                 <td style={{ padding: "8px 0", fontWeight: "bold", width: "120px", color: "#555" }}>Instructor:</td>
-                <td style={{ padding: "8px 0", color: "#333" }}>María González, Especialista en Productividad</td>
+                <td style={{ padding: "8px 0", color: "#333" }}>{instructorName || "María González, Especialista en Productividad"}</td>
               </tr>
             </tbody>
           </table>
@@ -128,19 +152,22 @@ El taller está diseñado para todos los niveles de experiencia y proporcionará
             href={buttonUrl} 
             style={{ 
               backgroundColor: "#0052A5", 
-              color: "#FFD800", 
+              color: "#ffffff !important", 
               padding: "15px 30px", 
-              textDecoration: "none", 
+              textDecoration: "none !important", 
               borderRadius: "30px", 
               fontWeight: "bold",
               display: "inline-block",
               fontSize: "16px",
               boxShadow: "0 4px 8px rgba(0,82,165,0.2)",
               textTransform: "uppercase",
-              letterSpacing: "1px"
+              letterSpacing: "1px",
+              border: "2px solid #0052A5"
             }}
           >
-            {buttonText}
+            <span style={{ color: "#ffffff !important", textDecoration: "none !important" }}>
+              {buttonText}
+            </span>
           </a>
         </div>
       </div>
@@ -155,8 +182,8 @@ El taller está diseñado para todos los niveles de experiencia y proporcionará
         textAlign: "center"
       }}>
         <div style={{ marginBottom: "15px", display: "flex", justifyContent: "center", gap: "20px" }}>
-          <span>📞 Ext. 1234</span>
-          <span>📧 cultura.digital@ejemplo.com</span>
+          <span>📞 {contactPhone || "Ext. 1234"}</span>
+          <span>📧 {contactEmail || "cultura.digital@ejemplo.com"}</span>
         </div>
         <p style={{ margin: "0", fontSize: "13px", opacity: "0.7" }}>
           © 2025 Programa de Cultura Digital - Todos los derechos reservados

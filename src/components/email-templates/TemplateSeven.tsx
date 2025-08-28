@@ -9,6 +9,14 @@ interface TemplateSevenProps {
   buttonText: string;
   buttonUrl: string;
   imageUrl: string;
+  footerEmail?: string;
+  footerPhone?: string;
+  stat1Number?: string;
+  stat1Label?: string;
+  stat2Number?: string;
+  stat2Label?: string;
+  stat3Number?: string;
+  stat3Label?: string;
 }
 
 const TemplateSeven: React.FC<TemplateSevenProps> = ({
@@ -19,6 +27,14 @@ const TemplateSeven: React.FC<TemplateSevenProps> = ({
   buttonText,
   buttonUrl,
   imageUrl,
+  footerEmail,
+  footerPhone,
+  stat1Number,
+  stat1Label,
+  stat2Number,
+  stat2Label,
+  stat3Number,
+  stat3Label,
 }) => {
   return (
     <div style={{ maxWidth: "600px", margin: "0 auto", fontFamily: "'Poppins', 'Arial', sans-serif", backgroundColor: "#151B26" }}>
@@ -51,7 +67,7 @@ const TemplateSeven: React.FC<TemplateSevenProps> = ({
           color: "#FFFFFF", 
           fontSize: "18px", 
           fontWeight: "400", 
-          margin: "0 0 15px 0",
+          margin: "0 0 15px 0 ",
           textShadow: "0px 1px 2px rgba(0,0,0,0.2)",
           // Fixed: removed duplicate margin property
           marginLeft: "auto",
@@ -91,14 +107,16 @@ const TemplateSeven: React.FC<TemplateSevenProps> = ({
         boxShadow: "0 5px 15px rgba(0,0,0,0.1)"
       }}>
         {/* Feature Image */}
-        <div style={{ marginBottom: "25px" }}>
+        <div style={{ marginBottom: "25px", textAlign: "center" }}>
           <img 
             src={imageUrl} 
             alt="Featured Image" 
             style={{ 
-              width: "100%", 
-              borderRadius: "6px", 
-              boxShadow: "0 3px 10px rgba(0,0,0,0.1)"
+              maxWidth: "100%", 
+              height: "auto", 
+              display: "block", 
+              borderRadius: "4px", 
+              margin: "0 auto"
             }}
           />
         </div>
@@ -136,8 +154,12 @@ El evento contará con ponentes internacionales que compartirán casos de éxito
             textAlign: "center",
             boxShadow: "0 2px 5px rgba(0,0,0,0.05)"
           }}>
-            <div style={{ fontSize: "24px", fontWeight: "bold", color: "#00416A" }}>25+</div>
-            <div style={{ fontSize: "14px", color: "#666" }}>Expositores</div>
+            <div style={{ fontSize: "24px", fontWeight: "bold", color: "#00416A" }}>
+              {stat1Number || "25+"}
+            </div>
+            <div style={{ fontSize: "14px", color: "#666" }}>
+              {stat1Label || "Expositores"}
+            </div>
           </div>
           <div style={{ 
             flex: "1", 
@@ -147,8 +169,12 @@ El evento contará con ponentes internacionales que compartirán casos de éxito
             textAlign: "center",
             boxShadow: "0 2px 5px rgba(0,0,0,0.05)"
           }}>
-            <div style={{ fontSize: "24px", fontWeight: "bold", color: "#00416A" }}>8</div>
-            <div style={{ fontSize: "14px", color: "#666" }}>Talleres</div>
+            <div style={{ fontSize: "24px", fontWeight: "bold", color: "#00416A" }}>
+              {stat2Number || "8"}
+            </div>
+            <div style={{ fontSize: "14px", color: "#666" }}>
+              {stat2Label || "Talleres"}
+            </div>
           </div>
           <div style={{ 
             flex: "1", 
@@ -158,8 +184,12 @@ El evento contará con ponentes internacionales que compartirán casos de éxito
             textAlign: "center",
             boxShadow: "0 2px 5px rgba(0,0,0,0.05)"
           }}>
-            <div style={{ fontSize: "24px", fontWeight: "bold", color: "#00416A" }}>500+</div>
-            <div style={{ fontSize: "14px", color: "#666" }}>Asistentes</div>
+            <div style={{ fontSize: "24px", fontWeight: "bold", color: "#00416A" }}>
+              {stat3Number || "500+"}
+            </div>
+            <div style={{ fontSize: "14px", color: "#666" }}>
+              {stat3Label || "Asistentes"}
+            </div>
           </div>
         </div>
         
@@ -192,26 +222,25 @@ El evento contará con ponentes internacionales que compartirán casos de éxito
         borderRadius: "0 0 8px 8px",
         color: "#FFFFFF"
       }}>
-        <img 
-          src="https://cuidadoseguro.com.co/csc3/wp-content/uploads/2025/04/CULTURA-DIGITAL-CURVAS1.svg" 
-          alt="Cultura Digital" 
-          style={{ 
-            height: "40px", 
-            margin: "0 auto 15px auto",
-            filter: "brightness(0) invert(1)" // Ensure white logo
-          }}
-        />
+        {/* Enlaces centralizados */}
         <div style={{ 
           display: "flex", 
           justifyContent: "center", 
           gap: "20px", 
-          margin: "15px 0" 
+          margin: "0 0 20px 0" 
         }}>
           <a href="#" style={{ color: "#FFFFFF", textDecoration: "none", fontSize: "14px" }}>Sitio Web</a>
           <a href="#" style={{ color: "#FFFFFF", textDecoration: "none", fontSize: "14px" }}>Contacto</a>
           <a href="#" style={{ color: "#FFFFFF", textDecoration: "none", fontSize: "14px" }}>Privacidad</a>
         </div>
-        <p style={{ fontSize: "12px", color: "#AAAAAA", margin: "15px 0 0 0" }}>
+        
+        {/* Información de contacto editable */}
+        <p style={{ margin: '0 0 15px 0', fontSize: '13px', lineHeight: '1.4', color: "#CCCCCC" }}>
+          📧 {footerEmail || "cultura.digital@ejemplo.com"} | 📞 {footerPhone || "+57 300 123 4567"}
+        </p>
+        
+        {/* Copyright */}
+        <p style={{ fontSize: "12px", color: "#AAAAAA", margin: "0" }}>
           © 2025 Programa de Cultura Digital - Todos los derechos reservados
         </p>
       </div>
