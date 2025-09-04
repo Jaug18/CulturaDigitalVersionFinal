@@ -12,7 +12,7 @@ const fileService = new FileService();
 const upload = multer({
   dest: fileService.ensureUploadsDirectory(),
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB límite
-  fileFilter: (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+  fileFilter: (req: any, file: any, cb: any) => {
     if (file.mimetype === 'text/csv' || file.originalname.endsWith('.csv')) {
       cb(null, true);
     } else {
