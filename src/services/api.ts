@@ -2,20 +2,28 @@ import axios from 'axios';
 
 // Configuración dinámica de la baseURL
 const getBaseURL = () => {
-  // En producción, usar la URL del backend específicamente
-  if (import.meta.env.PROD) {
-    // Usar el hostname actual pero con el puerto del backend (7002)
-    const hostname = window.location.hostname;
-    return `${window.location.protocol}//${hostname}:7002`;
+  // Si existe VITE_API_URL, usarla (para producción)
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
   }
   
-  // En desarrollo, usar string vacío para que el proxy de Vite funcione
-  return '';
+  // En desarrollo local, usar string vacío para que el proxy de Vite funcione
+  if (import.meta.env.DEV) {
+    return '';
+  }
+  
+  // Fallback para desarrollo
+  return 'http://localhost:3000';
 };
 
 // Crear instancia de axios con baseURL dinámica
+const baseURL = getBaseURL();
+console.log(`[API] Configuración inicial - Base URL: ${baseURL}`);
+console.log(`[API] Environment - PROD: ${import.meta.env.PROD}, DEV: ${import.meta.env.DEV}`);
+console.log(`[API] VITE_API_URL: ${import.meta.env.VITE_API_URL}`);
+
 const api = axios.create({
-  baseURL: getBaseURL(),
+  baseURL: baseURL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -27,6 +35,7 @@ const api = axios.create({
 api.interceptors.request.use(
   config => {
     console.log(`[API] Request original URL: ${config.url}`);
+    console.log(`[API] Base URL: ${config.baseURL}`);
     
     // Siempre agregar /api al inicio si no está presente (tanto en desarrollo como en producción)
     if (
