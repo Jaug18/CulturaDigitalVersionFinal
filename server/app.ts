@@ -30,7 +30,8 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 // CORS configuration
 const allowedOrigins = [
   'http://localhost:7001',
-  'http://localhost:7002'
+  'http://localhost:7002',
+  'https://culturadigital1.netlify.app'
 ];
 
 app.use(cors({
