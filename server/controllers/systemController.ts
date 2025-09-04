@@ -4,8 +4,7 @@ import * as contactService from '@/services/contactService';
 import { ListService } from '@/services/listService';
 import { AuthenticatedRequest } from '@/types/requests';
 import { ApiError, handleAsyncError } from '@/utils/errors';
-import multer from 'multer';
-import path from 'path';
+const multer = require('multer');
 
 // Configuración de multer para upload de archivos
 const fileService = new FileService();

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import multer from 'multer';
+const multer = require('multer');
 import contactController from '@/controllers/contactController';
 import { authenticateToken } from '@/config/auth';
 
