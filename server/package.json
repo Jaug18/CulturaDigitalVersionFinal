@@ -4,7 +4,7 @@
   "description": "Servicio de backend para el envío seguro de correos",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc && tsc-alias",
+    "build": "prisma generate && tsc && tsc-alias",
     "start": "node dist/index.js",
     "start:old": "node index.js",
     "dev": "ts-node -r tsconfig-paths/register index.ts",

@@ -222,7 +222,7 @@ export async function exportContactsToCSV(userId: number, listId?: string, statu
     
     // Crear el contenido CSV
     const csvHeader = 'ID,Nombre,Email,Estado\n';
-    const csvRows = result.rows.map(contact => {
+    const csvRows = result.rows.map((contact: any) => {
       return `${contact.id},"${contact.name}","${contact.email}","${contact.status}"`;
     }).join('\n');
     

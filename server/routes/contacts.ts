@@ -9,7 +9,7 @@ const router = Router();
 const upload = multer({ 
   dest: 'uploads/',
   limits: { fileSize: 5 * 1024 * 1024 }, // Límite de 5MB
-  fileFilter: (req, file, cb) => {
+  fileFilter: (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
     if (file.mimetype === 'text/csv' || 
         file.mimetype === 'application/vnd.ms-excel' ||
         file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {

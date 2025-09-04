@@ -34,7 +34,7 @@ const allowedOrigins = [
 ];
 
 app.use(cors({
-  origin: function(origin, callback) {
+  origin: function(origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
     // Para solicitudes sin origen (como herramientas API)
     if (!origin) {
       return callback(null, true);

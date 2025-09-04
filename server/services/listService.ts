@@ -192,7 +192,7 @@ export class ListService {
       }
       
       const csvHeader = 'nombre,descripcion,fecha_creacion,numero_contactos\n';
-      const csvRows = result.rows.map(row => {
+      const csvRows = result.rows.map((row: any) => {
         const name = `"${(row.name || '').replace(/"/g, '""')}"`;
         const description = `"${(row.description || '').replace(/"/g, '""')}"`;
         const createdAt = row.created_at ? new Date(row.created_at).toISOString().split('T')[0] : '';
@@ -223,7 +223,7 @@ export class ListService {
         WHERE list_id = $1 AND contact_id = ANY($2)
       `;
       const existingResult = await pool.query(existingQuery, [listId, contactIds]);
-      const existingContactIds = existingResult.rows.map(row => row.contact_id);
+      const existingContactIds = existingResult.rows.map((row: any) => row.contact_id);
 
       // Filtrar contactos que no están en la lista
       const newContactIds = contactIds.filter(id => !existingContactIds.includes(id));

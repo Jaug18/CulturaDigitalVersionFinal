@@ -14,6 +14,7 @@ export interface AuthenticatedRequest extends Request {
     createdAt: Date;
     updatedAt: Date;
   };
+  file?: Express.Multer.File;
 }
 
 export interface PaginationQuery {
