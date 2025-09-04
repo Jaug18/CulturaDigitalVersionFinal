@@ -3,6 +3,8 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import path from 'path';
 import fs from 'fs';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from '@/config/swagger';
 
 // Rutas
 import authRoutes from '@/routes/auth';
@@ -27,10 +29,6 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
 // CORS configuration
 const allowedOrigins = [
-  // URLs del servidor de destino (Windows Server 2022)
-  'http://192.168.20.155:7001',
-  'http://192.168.20.155:7002',
-  // URLs de desarrollo local
   'http://localhost:7001',
   'http://localhost:7002'
 ];
@@ -71,6 +69,23 @@ if (fs.existsSync(frontendBuildPath)) {
 // Ruta básica
 app.get('/', (req, res) => {
   res.status(200).send('Servidor de correo electrónico funcionando correctamente (Nodemailer)');
+});
+
+// Swagger Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  explorer: true,
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'Cultura Digital API Documentation'
+}));
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Server is running',
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
+  });
 });
 
 // Rutas de la API

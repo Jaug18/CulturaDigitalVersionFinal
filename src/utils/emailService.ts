@@ -10,8 +10,6 @@ import TemplateSeven from "@/components/email-templates/TemplateSeven";
 import TemplateEight from "@/components/email-templates/TemplateEight";
 import TemplateNine from "@/components/email-templates/TemplateNine";
 import TemplateTen from "@/components/email-templates/TemplateTen";
-import TemplateEleven from "@/components/email-templates/TemplateEleven";
-import TemplateTwelve from "@/components/email-templates/TemplateTwelve";
 import VideoTemplate  from "@/components/email-templates/VideoTemplate";
 
 // Configurar la URL base
@@ -515,7 +513,6 @@ export const sendEmail = async (options: EmailSendOptions): Promise<EmailSendRes
   try {
     const fromEmail = "jaug171@gmail.com";
 
-    console.log("Preparando envío de email...");
 
     // Si hay programación, usar el endpoint de programación
     const isScheduled = !!options.scheduledFor;
@@ -656,7 +653,6 @@ export const sendEmail = async (options: EmailSendOptions): Promise<EmailSendRes
       imagenes_total_kb: totalKb
     };
 
-    console.log(`Enviando solicitud al backend (${isScheduled ? 'programado' : 'inmediato'})...`);
 
     const response = await api.post(endpoint, emailData);
 
@@ -733,8 +729,7 @@ const getTemplateComponent = (templateId: string, props: any) => {
     case "template8": return React.createElement(TemplateEight, props);
     case "template9": return React.createElement(TemplateNine, props);
     case "template10": return React.createElement(TemplateTen, props);
-    case "template11": return React.createElement(TemplateEleven, props);
-    case "template12": return React.createElement(TemplateTwelve, props);
+    
     case "videoTemplate": return React.createElement(VideoTemplate, props);
     default: return React.createElement(TemplateOne, props);
   }

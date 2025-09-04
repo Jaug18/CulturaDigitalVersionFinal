@@ -97,7 +97,7 @@ async function sendWithNodemailer(data: {
 }): Promise<EmailSendResult> {
   try {
     const { to, subject, html, from } = data;
-    const defaultFromEmail = process.env.DEFAULT_FROM_EMAIL || 'noreply@example.com';
+    const defaultFromEmail = process.env.EMAIL_USER || 'noreply@example.com';
     let fromEmail;
     
     if (typeof from === 'object' && from.email) {
@@ -305,7 +305,7 @@ export async function sendEmail(emailData: EmailSendRequest, userId: number): Pr
     }
 
     // Validar remitente
-    const defaultFromEmail = process.env.DEFAULT_FROM_EMAIL || 'noreply@example.com';
+    const defaultFromEmail = process.env.EMAIL_USER || 'noreply@example.com';
     const formattedFrom = from?.name 
       ? { email: from.email || defaultFromEmail, name: from.name }
       : { email: defaultFromEmail, name: 'Programa Cultura Digital' };
@@ -407,7 +407,7 @@ export async function scheduleEmail(emailData: EmailScheduleRequest, userId: num
     }
     
     // Validar remitente
-    const defaultFromEmail = process.env.DEFAULT_FROM_EMAIL || 'noreply@example.com';
+    const defaultFromEmail = process.env.EMAIL_USER || 'noreply@example.com';
     const formattedFrom = from?.name 
       ? { email: from.email || defaultFromEmail, name: from.name }
       : { email: defaultFromEmail, name: 'Programa Cultura Digital' };
