@@ -183,7 +183,7 @@ El taller está diseñado para todos los niveles de experiencia y proporcionará
       }}>
         <div style={{ marginBottom: "15px", display: "flex", justifyContent: "center", gap: "20px" }}>
           <span>📞 {contactPhone || "Ext. 1234"}</span>
-          <span>📧 {contactEmail || "cultura.digital@ejemplo.com"}</span>
+          <span>📧 {contactEmail || "culturadigital@ipscsc.com.cojemplo.com"}</span>
         </div>
         <p style={{ margin: "0", fontSize: "13px", opacity: "0.7" }}>
           © 2025 Programa de Cultura Digital - Todos los derechos reservados

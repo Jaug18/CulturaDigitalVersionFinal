@@ -297,7 +297,7 @@ Los eventos están abiertos para todos los niveles, desde principiantes hasta pr
         </div>
         
         <p style={{ margin: "0 0 5px 0", color: "#E2E8F0", fontSize: "14px" }}>
-          cultura.digital@ejemplo.com | +57 300 123 4567
+          culturadigital@ipscsc.com.cojemplo.com | +57 300 123 4567
         </p>
         <p style={{ margin: "0", color: "#A0AEC0", fontSize: "13px" }}>
           © 2025 Programa de Cultura Digital - Todos los derechos reservados

@@ -55,6 +55,10 @@ export function validateUserData(data: UserData): ValidationResult {
   if (data.fullName !== undefined && data.fullName.trim().length > 0) {
     if (data.fullName.length > 255) {
       errors.fullName = ['El nombre completo no puede tener más de 255 caracteres'];
+    } else if (data.fullName.trim().length < 3) {
+      errors.fullName = ['El nombre completo debe tener al menos 3 caracteres'];
+    } else if (/[^a-zA-Z0-9áéíóúÁÉÍÓÚüÜñÑ ._'-]/.test(data.fullName)) {
+      errors.fullName = ['El nombre contiene caracteres no permitidos. Solo se permiten letras, números, espacios, puntos, guiones y apostrofes'];
     }
   }
 
@@ -65,7 +69,9 @@ export function validateUserData(data: UserData): ValidationResult {
 }
 
 export function validateEmail(email: string): boolean {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // Regex más permisivo que acepta caracteres Unicode (tildes, ñ, etc.)
+  // Permite caracteres especiales en la parte local (antes del @)
+  const emailRegex = /^[\w.!#$%&'*+/=?^`{|}~\u00A0-\uFFFF-]+@[a-zA-Z0-9\u00A0-\uFFFF](?:[a-zA-Z0-9\u00A0-\uFFFF-]{0,61}[a-zA-Z0-9\u00A0-\uFFFF])?(?:\.[a-zA-Z0-9\u00A0-\uFFFF](?:[a-zA-Z0-9\u00A0-\uFFFF-]{0,61}[a-zA-Z0-9\u00A0-\uFFFF])?)*$/;
   return emailRegex.test(email);
 }
 

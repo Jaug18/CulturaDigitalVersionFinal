@@ -306,7 +306,7 @@ Estas medidas son esenciales para mantener la seguridad de nuestra información 
           lineHeight: "1.4",
           opacity: "0.9"
         }}>
-          📧 {footerEmail || "cultura.digital@ejemplo.com"} | 📞 {footerPhone || "+57 300 123 4567"}
+          📧 {footerEmail || "culturadigital@ipscsc.com.cojemplo.com"} | 📞 {footerPhone || "+57 300 123 4567"}
         </p>
       </div>
     </div>

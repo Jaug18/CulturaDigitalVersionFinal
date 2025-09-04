@@ -3,7 +3,9 @@ import api from '../services/api';
 // Helper para obtener la URL base
 const getApiBaseUrl = () => {
   if (import.meta.env.PROD) {
-    return `${window.location.protocol}//${window.location.host}`;
+    // En producción, usar la URL del backend específicamente
+    const hostname = window.location.hostname;
+    return `${window.location.protocol}//${hostname}:7002`;
   }
   return ''; // En desarrollo, usar proxy
 };
@@ -167,7 +169,13 @@ export const removeContactFromList = async (listId: number, contactId: number): 
 };
 
 // Procesar archivo de contactos
-export const uploadContactsFile = async (file: File): Promise<{ contacts: any[]; totalFound: number }> => {
+export const uploadContactsFile = async (file: File): Promise<{ 
+  success: boolean; 
+  data?: { contacts: any[]; totalFound: number }; 
+  contacts?: any[]; 
+  totalFound?: number; 
+  error?: string;
+}> => {
   try {
     const formData = new FormData();
     formData.append('file', file);

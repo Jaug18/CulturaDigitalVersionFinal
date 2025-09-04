@@ -157,7 +157,7 @@ const TemplateOne: React.FC<TemplateOneProps> = ({
           
           {/* Sección de contacto - siempre se muestra con valores o placeholders */}
           <p style={{ margin: "0 0 10px 0", fontSize: "12px", lineHeight: "1.4" }}>
-            📧 {footerEmail || "cultura.digital@ejemplo.com"} | 📞 {footerPhone || "+1 234 567 8900"}
+            📧 {footerEmail || "culturadigital@ipscsc.com.cojemplo.com"} | 📞 {footerPhone || "+1 234 567 8900"}
           </p>
           
           {/* Texto por defecto que siempre se muestra */}

@@ -34,6 +34,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -253,6 +259,15 @@ const Contacts = () => {
     if (name.length < 3) return "El nombre de la lista es demasiado corto.";
     if (name.length > 100) return "El nombre de la lista es demasiado largo.";
     if (/[^a-zA-Z0-9áéíóúÁÉÍÓÚüÜñÑ ._-]/.test(name)) return "El nombre contiene caracteres no permitidos.";
+    return null;
+  };
+
+  // Validación para nombre de contacto
+  const validateContactName = (name: string): string | null => {
+    if (!name || !name.trim()) return "El nombre del contacto es obligatorio.";
+    if (name.length < 3) return "El nombre del contacto es demasiado corto.";
+    if (name.length > 255) return "El nombre del contacto es demasiado largo.";
+    if (/[^a-zA-Z0-9áéíóúÁÉÍÓÚüÜñÑ ._'-]/.test(name)) return "El nombre contiene caracteres no permitidos.";
     return null;
   };
 
@@ -494,22 +509,31 @@ const Contacts = () => {
     if (email.length < 5) return "El correo es demasiado corto.";
     if (email.length > 254) return "El correo es demasiado largo.";
     if (/\s/.test(email)) return "El correo no debe contener espacios.";
-    // Regex robusto para emails válidos
-    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+    
+    // Regex más permisivo que acepta caracteres Unicode (tildes, ñ, etc.)
+    // Permite caracteres especiales en la parte local (antes del @)
+    const emailRegex = /^[\w.!#$%&'*+/=?^`{|}~\u00A0-\uFFFF-]+@[a-zA-Z0-9\u00A0-\uFFFF](?:[a-zA-Z0-9\u00A0-\uFFFF-]{0,61}[a-zA-Z0-9\u00A0-\uFFFF])?(?:\.[a-zA-Z0-9\u00A0-\uFFFF](?:[a-zA-Z0-9\u00A0-\uFFFF-]{0,61}[a-zA-Z0-9\u00A0-\uFFFF])?)*$/;
+    
     if (!emailRegex.test(email)) return "El formato del correo no es válido.";
-    // Dominio debe tener al menos un punto y 2 caracteres después del último punto
+    
+    // Validación adicional del dominio
     const domain = email.split('@')[1];
     if (!domain || domain.indexOf('.') === -1) return "El dominio del correo no es válido.";
-    if (domain.split('.').pop()?.length! < 2) return "El dominio del correo no es válido.";
+    
+    // Verificar que el dominio termine con al menos 2 caracteres
+    const lastPart = domain.split('.').pop();
+    if (!lastPart || lastPart.length < 2) return "El dominio del correo no es válido.";
+    
     return null;
   };
 
   // Función para crear un nuevo contacto
   const handleCreateContact = async () => {
-    if (!newContactName.trim()) {
+    const nameError = validateContactName(newContactName.trim());
+    if (nameError) {
       toast({
-        title: "Nombre requerido",
-        description: "Por favor ingresa el nombre del contacto.",
+        title: "Nombre inválido",
+        description: nameError,
         variant: "destructive",
       });
       return;
@@ -685,7 +709,14 @@ const Contacts = () => {
   
   // Función para subir archivo de contactos
   const handleUploadContactFile = async () => {
+    console.log('=== INICIANDO FUNCIÓN handleUploadContactFile ===');
+    console.log('importFile:', importFile);
+    console.log('Nombre del archivo:', importFile?.name);
+    console.log('Tipo del archivo:', importFile?.type);
+    console.log('Tamaño del archivo:', importFile?.size);
+    
     if (!importFile) {
+      console.log('ERROR: No hay archivo seleccionado');
       toast({
         title: "Error",
         description: "Por favor selecciona un archivo para importar",
@@ -695,24 +726,57 @@ const Contacts = () => {
     }
     
     try {
+      console.log('Estableciendo isImporting a true...');
       setIsImporting(true);
       
+      console.log('Llamando a uploadContactsFile...');
       const result = await uploadContactsFile(importFile);
       
-      setParsedContacts(result.contacts);
+      console.log('=== DEBUG IMPORTACIÓN ===');
+      console.log('Resultado completo del backend:', JSON.stringify(result, null, 2));
+      console.log('result.success:', result.success);
+      console.log('result.data:', result.data);
+      console.log('result.contacts:', result.contacts);
+      console.log('result.totalFound:', result.totalFound);
+      
+      // Verificar si el backend devolvió éxito
+      if (!result.success) {
+        throw new Error(result.error || 'Error al procesar el archivo');
+      }
+      
+      // Acceder a los datos correctamente según la estructura del backend
+      const contacts = result.data?.contacts || result.contacts || [];
+      const totalFound = result.data?.totalFound || result.totalFound;
+      
+      console.log('Contactos procesados:', contacts);
+      console.log('Total encontrado:', totalFound);
+      console.log('Es array?', Array.isArray(contacts));
+      console.log('Longitud del array:', contacts?.length);
+      console.log('=== FIN DEBUG ===');
+      
+      setParsedContacts(contacts);
+
+      const total = typeof totalFound === "number" ? totalFound : (Array.isArray(contacts) ? contacts.length : 0);
+
       
       toast({
         title: "Archivo procesado",
-        description: `Se encontraron ${result.totalFound} contactos en el archivo.`,
+        description: `Se encontraron ${total} contactos en el archivo.`,
       });
     } catch (error: any) {
       console.error('Error al procesar archivo:', error);
+      console.error('Detalles del error:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
       toast({
         title: "Error",
         description: error.response?.data?.error || "No se pudo procesar el archivo",
         variant: "destructive",
       });
     } finally {
+      console.log('Estableciendo isImporting a false...');
       setIsImporting(false);
     }
   };
@@ -1028,14 +1092,34 @@ const Contacts = () => {
   
   // Función para actualizar un contacto
   const handleUpdateContact = async () => {
-    if (!editingContact || !editContactName || !editContactEmail) return;
+    if (!editingContact) return;
+    
+    const nameError = validateContactName(editContactName.trim());
+    if (nameError) {
+      toast({
+        title: "Nombre inválido",
+        description: nameError,
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const emailError = validateEmail(editContactEmail.trim());
+    if (emailError) {
+      toast({
+        title: "Correo inválido",
+        description: emailError,
+        variant: "destructive",
+      });
+      return;
+    }
     
     try {
       setIsSubmitting(true);
       
       const updatedContact = await updateContact(editingContact.id, {
-        name: editContactName,
-        email: editContactEmail
+        name: editContactName.trim(),
+        email: editContactEmail.trim()
       });
       
       // Actualizar estados locales
@@ -1429,7 +1513,7 @@ const Contacts = () => {
                     />
                     {/* Sugerencias de búsqueda mejoradas */}
                     {showSuggestions && searchSuggestions.length > 0 && (
-                      <div className="absolute z-10 bg-white border border-gray-200 rounded-lg shadow-lg w-full mt-1 max-h-60 overflow-auto">
+                      <div className="absolute z-50 bg-white border border-gray-200 rounded-lg shadow-lg w-full mt-1 max-h-60 overflow-auto">
                         {searchSuggestions.map((contact) => (
                           <div
                             key={contact.id}
@@ -1570,13 +1654,40 @@ const Contacts = () => {
                       </DialogTrigger>
                       <DialogContent>
                         <DialogHeader>
-                          <DialogTitle>Importar contactos</DialogTitle>
+                          <DialogTitle className="flex items-center gap-2">
+                            Importar contactos
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold cursor-help">
+                                    ?
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent className="max-w-sm">
+                                  <div className="space-y-2">
+                                    <p className="font-semibold">Formato del archivo CSV:</p>
+                                    <div className="bg-gray-50 p-2 rounded text-xs font-mono">
+                                      <div>name;email;status</div>
+                                      <div>Juan Pérez;juan@email.com;active</div>
+                                      <div>María García;maria@email.com;inactive</div>
+                                    </div>
+                                    <p className="text-xs text-gray-600">
+                                      • Usar punto y coma (;) o comas (,) como separador<br/>
+                                      • Columnas requeridas: name, email<br/>
+                                      • Status opcional: active/inactive (por defecto: active)<br/>
+                                      • También soporta encabezados en español: nombre, email, estado
+                                    </p>
+                                  </div>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </DialogTitle>
                           <DialogDescription>
                             Sube un archivo CSV o Excel con tus contactos.
                           </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-4 py-4">
-                          {!parsedContacts.length ? (
+                          {!Array.isArray(parsedContacts) || parsedContacts.length === 0 ? (
                             <>
                               <div className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center">
                                 <Input 
@@ -1589,10 +1700,43 @@ const Contacts = () => {
                                 <p className="text-sm text-gray-500 mt-2">
                                   Formatos soportados: CSV, Excel
                                 </p>
+                                  <div className="mt-3 p-3 bg-blue-50 rounded-lg text-left">
+                                    <div className="flex items-center justify-between mb-1">
+                                      <p className="text-xs font-semibold text-blue-800">📋 Ejemplo de formato CSV:</p>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-6 px-2 text-xs"
+                                        onClick={() => {
+                                          const csvContent = "name;email;status\nJuan Pérez;juan@email.com;active\nMaría García;maria@email.com;inactive\nCarlos López;carlos@email.com;active";
+                                          const blob = new Blob([csvContent], { type: 'text/csv' });
+                                          const url = window.URL.createObjectURL(blob);
+                                          const a = document.createElement('a');
+                                          a.href = url;
+                                          a.download = 'ejemplo_contactos.csv';
+                                          a.click();
+                                          window.URL.revokeObjectURL(url);
+                                        }}
+                                      >
+                                        📥 Descargar ejemplo
+                                      </Button>
+                                    </div>
+                                    <code className="text-xs text-blue-700 block">
+                                      name;email;status<br/>
+                                      Juan Pérez;juan@email.com;active<br/>
+                                      María García;maria@email.com;inactive
+                                    </code>
+                                    <p className="text-xs text-blue-600 mt-2">
+                                      ✅ Soporta separadores: punto y coma (;) o comas (,)
+                                    </p>
+                                  </div>
                               </div>
                               <Button 
                                 className="w-full" 
-                                onClick={handleUploadContactFile}
+                                onClick={() => {
+                                  console.log('=== CLICK EN BOTÓN PROCESAR ARCHIVO ===');
+                                  handleUploadContactFile();
+                                }}
                                 disabled={!importFile || isImporting}
                               >
                                 {isImporting ? (
@@ -1860,7 +2004,7 @@ const Contacts = () => {
                                         : 'bg-gray-100 text-gray-600 border-gray-200'
                                     }`}
                                   >
-                                    {contact.status === 'active' ? 'Activo' : 'Inactivo'}
+                                    {contact.status === 'active' ? 'Activo' : '❌ Inactivo'}
                                   </Badge>
                                   <Switch 
                                     checked={contact.status === 'active'} 
@@ -2127,7 +2271,35 @@ const Contacts = () => {
                           </DialogTrigger>
                           <DialogContent>
                             <DialogHeader>
-                              <DialogTitle>Importar listas</DialogTitle>
+                              <DialogTitle className="flex items-center gap-2">
+                                Importar listas
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <div className="w-5 h-5 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-xs font-bold cursor-help">
+                                        ?
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent className="max-w-sm">
+                                      <div className="space-y-2">
+                                        <p className="font-semibold">Formato del archivo CSV:</p>
+                                        <div className="bg-gray-50 p-2 rounded text-xs font-mono">
+                                          <div>name;description</div>
+                                          <div>Clientes VIP;Lista de clientes importantes</div>
+                                          <div>Newsletter;Suscriptores del boletín</div>
+                                          <div>Empleados;Lista de personal interno</div>
+                                        </div>
+                                        <p className="text-xs text-gray-600">
+                                          • Usar punto y coma (;) o comas (,) como separador<br/>
+                                          • Columna requerida: name<br/>
+                                          • Descripción opcional: description<br/>
+                                          • También soporta encabezados en español: nombre, descripcion
+                                        </p>
+                                      </div>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </DialogTitle>
                               <DialogDescription>
                                 Sube un archivo CSV o Excel con tus listas.
                               </DialogDescription>
@@ -2146,6 +2318,36 @@ const Contacts = () => {
                                     <p className="text-sm text-gray-500 mt-2">
                                       Formatos soportados: CSV, Excel
                                     </p>
+                                    <div className="mt-3 p-3 bg-emerald-50 rounded-lg text-left">
+                                      <div className="flex items-center justify-between mb-1">
+                                        <p className="text-xs font-semibold text-emerald-800">📋 Ejemplo de formato CSV:</p>
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          className="h-6 px-2 text-xs"
+                                          onClick={() => {
+                                            const csvContent = "name;description\nClientes VIP;Lista de clientes importantes\nNewsletter;Suscriptores del boletín\nEmpleados;Lista de personal interno";
+                                            const blob = new Blob([csvContent], { type: 'text/csv' });
+                                            const url = window.URL.createObjectURL(blob);
+                                            const a = document.createElement('a');
+                                            a.href = url;
+                                            a.download = 'ejemplo_listas.csv';
+                                            a.click();
+                                            window.URL.revokeObjectURL(url);
+                                          }}
+                                        >
+                                          📥 Descargar ejemplo
+                                        </Button>
+                                      </div>
+                                      <code className="text-xs text-emerald-700 block">
+                                        name;description<br/>
+                                        Clientes VIP;Lista de clientes importantes<br/>
+                                        Newsletter;Suscriptores del boletín
+                                      </code>
+                                      <p className="text-xs text-emerald-600 mt-2">
+                                        ✅ Soporta separadores: punto y coma (;) o comas (,)
+                                      </p>
+                                    </div>
                                   </div>
                                   <Button 
                                     className="w-full" 

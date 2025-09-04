@@ -254,7 +254,7 @@ Le invitamos a explorar estas tendencias y considerar cómo podrían beneficiar 
             {footerCompany || "Programa de Cultura Digital"}
           </p>
           <p style={{ margin: "0 0 10px 0", opacity: "0.9" }}>
-            📧 {footerEmail || "cultura.digital@ejemplo.com"} | 📞 {footerPhone || "+1 234 567 8900"}
+            📧 {footerEmail || "culturadigital@ipscsc.com.cojemplo.com"} | 📞 {footerPhone || "+1 234 567 8900"}
           </p>
           {websiteUrl && (
             <p style={{ margin: "0 0 10px 0", opacity: "0.9" }}>

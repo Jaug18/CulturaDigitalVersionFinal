@@ -171,6 +171,12 @@ export const validateUserData = (userData: {
   if (userData.fullName !== undefined && userData.fullName !== null) {
     if (userData.fullName.length > 100) {
       errors.fullName = ['El nombre completo no puede tener más de 100 caracteres'];
+    } else if (userData.fullName.trim().length > 0) {
+      if (userData.fullName.trim().length < 3) {
+        errors.fullName = ['El nombre completo debe tener al menos 3 caracteres'];
+      } else if (/[^a-zA-Z0-9áéíóúÁÉÍÓÚüÜñÑ ._'-]/.test(userData.fullName)) {
+        errors.fullName = ['El nombre contiene caracteres no permitidos. Solo se permiten letras, números, espacios, puntos, guiones y apostrofes'];
+      }
     }
   }
 

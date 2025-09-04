@@ -2,9 +2,11 @@ import axios from 'axios';
 
 // Configuración dinámica de la baseURL
 const getBaseURL = () => {
-  // En producción, usar la URL actual sin puerto específico
+  // En producción, usar la URL del backend específicamente
   if (import.meta.env.PROD) {
-    return `${window.location.protocol}//${window.location.host}`;
+    // Usar el hostname actual pero con el puerto del backend (7002)
+    const hostname = window.location.hostname;
+    return `${window.location.protocol}//${hostname}:7002`;
   }
   
   // En desarrollo, usar string vacío para que el proxy de Vite funcione
@@ -24,15 +26,20 @@ const api = axios.create({
 // Interceptor para agregar el token y manejar rutas API
 api.interceptors.request.use(
   config => {
-    // En desarrollo, siempre agregar /api al inicio si no está presente
+    console.log(`[API] Request original URL: ${config.url}`);
+    
+    // Siempre agregar /api al inicio si no está presente (tanto en desarrollo como en producción)
     if (
-      !import.meta.env.PROD && 
       config.url &&
       !config.url.startsWith('/api/') &&
       !config.url.startsWith('http')
     ) {
       config.url = '/api' + (config.url.startsWith('/') ? config.url : '/' + config.url);
+      console.log(`[API] URL modificada a: ${config.url}`);
     }
+    
+    console.log(`[API] Request final URL: ${config.url}`);
+    console.log(`[API] Base URL: ${config.baseURL}`);
     
     // NO agregar token para rutas de autenticación
     const isAuthRoute = config.url?.includes('/auth/login') || 

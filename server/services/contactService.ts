@@ -234,53 +234,145 @@ export async function exportContactsToCSV(userId: number, listId?: string, statu
 }
 
 /**
+ * Detectar el delimitador del archivo CSV
+ */
+function detectDelimiter(filePath: string): Promise<string> {
+  return new Promise((resolve) => {
+    const stream = fs.createReadStream(filePath, { encoding: 'utf8' });
+    let firstLine = '';
+    let bytesRead = 0;
+    const maxBytes = 1024; // Leer solo los primeros 1KB para detectar el delimitador
+
+    stream.on('data', (chunk: string | Buffer) => {
+      const chunkStr = chunk.toString();
+      bytesRead += chunkStr.length;
+      firstLine += chunkStr;
+      
+      // Si hemos leído suficiente o encontramos un salto de línea
+      if (bytesRead >= maxBytes || firstLine.includes('\n')) {
+        stream.destroy();
+        
+        // Tomar solo la primera línea
+        const lines = firstLine.split('\n');
+        const line = lines[0];
+        
+        if (!line) {
+          console.log('No se pudo leer la primera línea, usando coma por defecto');
+          resolve(',');
+          return;
+        }
+        
+        console.log('Primera línea para detectar delimitador:', line);
+        
+        // Contar ocurrencias de posibles delimitadores
+        const commaCount = (line.match(/,/g) || []).length;
+        const semicolonCount = (line.match(/;/g) || []).length;
+        
+        console.log('Conteo de delimitadores - comas:', commaCount, 'punto y coma:', semicolonCount);
+        
+        // Usar el delimitador que más aparezca
+        if (semicolonCount > commaCount) {
+          console.log('Delimitador detectado: punto y coma (;)');
+          resolve(';');
+        } else {
+          console.log('Delimitador detectado: coma (,)');
+          resolve(',');
+        }
+      }
+    });
+
+    stream.on('error', () => {
+      console.log('Error al detectar delimitador, usando coma por defecto');
+      resolve(',');
+    });
+
+    stream.on('end', () => {
+      // Si llegamos al final sin suficientes datos, usar coma por defecto
+      console.log('Fin de archivo alcanzado, usando coma por defecto');
+      resolve(',');
+    });
+  });
+}
+
+/**
  * Procesar archivo CSV de contactos
  */
 export async function processContactsFile(filePath: string): Promise<ApiResponse> {
-  return new Promise((resolve) => {
+  return new Promise(async (resolve) => {
     const results: any[] = [];
     let headers: string[] = [];
 
-    fs.createReadStream(filePath)
-      .pipe(csv({ mapHeaders: ({ header }) => header.trim().toLowerCase() }))
-      .on('headers', (csvHeaders: string[]) => {
-        headers = csvHeaders.map((h: string) => h.trim().toLowerCase());
-      })
-      .on('data', (data) => {
-        // Soportar tanto encabezados en español como en inglés
-        const name = data.nombre || data.name;
-        const email = data.email;
-        const status = (data.estado || data.status || '').toLowerCase();
+    console.log('=== PROCESANDO ARCHIVO CSV ===');
+    console.log('Ruta del archivo:', filePath);
 
-        if (name && email) {
-          results.push({
-            name: name.trim(),
-            email: email.trim(),
-            status: status === 'inactive' || status === 'inactivo' ? 'inactive' : 'active'
-          });
-        }
-      })
-      .on('end', () => {
-        // Eliminar el archivo temporal
-        fs.unlink(filePath, (err) => {
-          if (err) console.error('Error al eliminar archivo temporal:', err);
-        });
+    try {
+      // Detectar el delimitador automáticamente
+      const delimiter = await detectDelimiter(filePath);
+      console.log('Usando delimitador:', delimiter);
 
-        resolve({
-          success: true,
-          data: {
-            contacts: results,
-            totalFound: results.length
+      fs.createReadStream(filePath)
+        .pipe(csv({ 
+          separator: delimiter,
+          mapHeaders: ({ header }) => header.trim().toLowerCase() 
+        }))
+        .on('headers', (csvHeaders: string[]) => {
+          headers = csvHeaders.map((h: string) => h.trim().toLowerCase());
+          console.log('Headers detectados:', headers);
+        })
+        .on('data', (data) => {
+          console.log('Fila procesada:', data);
+          
+          // Soportar tanto encabezados en español como en inglés
+          const name = data.nombre || data.name;
+          const email = data.email;
+          const status = (data.estado || data.status || '').toLowerCase();
+
+          console.log('Campos extraídos:', { name, email, status });
+
+          if (name && email) {
+            const contact = {
+              name: name.trim(),
+              email: email.trim(),
+              status: status === 'inactive' || status === 'inactivo' ? 'inactive' : 'active'
+            };
+            console.log('Contacto agregado:', contact);
+            results.push(contact);
+          } else {
+            console.log('Contacto omitido por datos faltantes:', { name, email });
           }
+        })
+        .on('end', () => {
+          console.log('=== PROCESAMIENTO COMPLETADO ===');
+          console.log('Total de contactos procesados:', results.length);
+          console.log('Contactos:', results);
+          
+          // Eliminar el archivo temporal
+          fs.unlink(filePath, (err) => {
+            if (err) console.error('Error al eliminar archivo temporal:', err);
+          });
+
+          resolve({
+            success: true,
+            data: {
+              contacts: results,
+              totalFound: results.length
+            }
+          });
+        })
+        .on('error', (error) => {
+          console.error('Error al procesar CSV:', error);
+          resolve({
+            success: false,
+            error: 'Error al procesar el archivo'
+          });
         });
-      })
-      .on('error', (error) => {
-        console.error('Error al procesar CSV:', error);
-        resolve({
-          success: false,
-          error: 'Error al procesar el archivo'
-        });
+    } catch (error) {
+      console.error('Error al detectar delimitador:', error);
+      resolve({
+        success: false,
+        error: 'Error al procesar el archivo'
       });
+    }
   });
 }
 

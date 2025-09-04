@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { AlertCircle, Loader2, Eye, EyeOff, CheckCircle, ArrowLeft } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import api from "@/services/api";
 import axios from "axios";
 
 const ResetPassword = () => {
@@ -38,7 +39,7 @@ const ResetPassword = () => {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos timeout
         
-        const response = await axios.get(`/api/auth/verify-reset-token/${token}`, {
+        const response = await api.get(`/api/auth/verify-reset-token/${token}`, {
           signal: controller.signal
         }).catch(err => {
           if (err.name === 'AbortError') {
@@ -92,7 +93,7 @@ const ResetPassword = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('/api/auth/reset-password', {
+      const response = await api.post('/api/auth/reset-password', {
         token,
         password
       });

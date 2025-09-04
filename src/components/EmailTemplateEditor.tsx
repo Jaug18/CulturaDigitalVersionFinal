@@ -32,7 +32,7 @@ import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, Dr
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useMediaQuery } from "@/hooks/use-mobile";
-import axios from "axios";
+import api from "@/services/api";
 
 const ContactsSelectorContent = ({
   contacts,
@@ -300,14 +300,14 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
 
   useEffect(() => {
     // Cargar contactos
-    axios.get('/api/contacts', {
+    api.get('/api/contacts', {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
     }).then(res => setContacts(res.data)).catch(() => setContacts([]));
     
     // Cargar listas con contactos incluidos
     const loadListsWithContacts = async () => {
       try {
-        const response = await axios.get('/api/lists', {
+        const response = await api.get('/api/lists', {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
         
@@ -318,7 +318,7 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
           response.data.map(async (list) => {
             try {
               console.log('Cargando contactos para lista:', list.id, list.name);
-              const contactsResponse = await axios.get(`/api/lists/${list.id}/contacts`, {
+              const contactsResponse = await api.get(`/api/lists/${list.id}/contacts`, {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
               });
               console.log(`Contactos para ${list.name}:`, contactsResponse.data);
@@ -357,7 +357,7 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     formData.append('file', file);
 
     try {
-      const res = await axios.post('/api/contacts/upload', formData, {
+      const res = await api.post('/api/contacts/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -761,7 +761,7 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (isSelected) {
             // Deselect list - necesitamos cargar los contactos para poder deseleccionarlos
             try {
-              const response = await axios.get(`/api/lists/${list.id}/contacts`, {
+              const response = await api.get(`/api/lists/${list.id}/contacts`, {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
               });
               
@@ -784,7 +784,7 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         } else {
             // Select list - cargar contactos desde la API
             try {
-              const response = await axios.get(`/api/lists/${list.id}/contacts`, {
+              const response = await api.get(`/api/lists/${list.id}/contacts`, {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
               });
               
@@ -1312,7 +1312,7 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
                         </label>
                         <Input
                           id="contactEmail"
-                          placeholder="Ej: cultura.digital@ejemplo.com"
+                          placeholder="Ej: culturadigital@ipscsc.com.cojemplo.com"
                           value={templateContent.contactEmail}
                           onChange={(e) => handleInputChange("contactEmail", e.target.value)}
                         />
@@ -1393,7 +1393,7 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
                         </label>
                         <Input
                           id="footerEmail"
-                          placeholder="Ej: cultura.digital@ejemplo.com"
+                          placeholder="Ej: culturadigital@ipscsc.com.cojemplo.com"
                           value={templateContent.footerEmail}
                           onChange={(e) => handleInputChange("footerEmail", e.target.value)}
                         />
@@ -1579,7 +1579,7 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
                         </label>
                         <Input
                           id="footerEmail"
-                          placeholder="Ej: cultura.digital@ejemplo.com"
+                          placeholder="Ej: culturadigital@ipscsc.com.cojemplo.com"
                           value={templateContent.footerEmail}
                           onChange={(e) => handleInputChange("footerEmail", e.target.value)}
                         />

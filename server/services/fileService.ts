@@ -18,8 +18,69 @@ export interface SystemStatus {
 }
 
 export class FileService {
+  /**
+   * Detectar el delimitador del archivo CSV
+   */
+  private detectDelimiter(filePath: string): Promise<string> {
+    return new Promise((resolve) => {
+      const stream = fs.createReadStream(filePath, { encoding: 'utf8' });
+      let firstLine = '';
+      let bytesRead = 0;
+      const maxBytes = 1024; // Leer solo los primeros 1KB para detectar el delimitador
+
+      stream.on('data', (chunk: string | Buffer) => {
+        const chunkStr = chunk.toString();
+        bytesRead += chunkStr.length;
+        firstLine += chunkStr;
+        
+        // Si hemos leído suficiente o encontramos un salto de línea
+        if (bytesRead >= maxBytes || firstLine.includes('\n')) {
+          stream.destroy();
+          
+          // Tomar solo la primera línea
+          const lines = firstLine.split('\n');
+          const line = lines[0];
+          
+          if (!line) {
+            console.log('No se pudo leer la primera línea, usando coma por defecto');
+            resolve(',');
+            return;
+          }
+          
+          console.log('Primera línea para detectar delimitador (listas):', line);
+          
+          // Contar ocurrencias de posibles delimitadores
+          const commaCount = (line.match(/,/g) || []).length;
+          const semicolonCount = (line.match(/;/g) || []).length;
+          
+          console.log('Conteo de delimitadores (listas) - comas:', commaCount, 'punto y coma:', semicolonCount);
+          
+          // Usar el delimitador que más aparezca
+          if (semicolonCount > commaCount) {
+            console.log('Delimitador detectado (listas): punto y coma (;)');
+            resolve(';');
+          } else {
+            console.log('Delimitador detectado (listas): coma (,)');
+            resolve(',');
+          }
+        }
+      });
+
+      stream.on('error', () => {
+        console.log('Error al detectar delimitador (listas), usando coma por defecto');
+        resolve(',');
+      });
+
+      stream.on('end', () => {
+        // Si llegamos al final sin suficientes datos, usar coma por defecto
+        console.log('Fin de archivo alcanzado (listas), usando coma por defecto');
+        resolve(',');
+      });
+    });
+  }
+
   async parseCSVFile(filePath: string): Promise<any[]> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       const results: any[] = [];
       
       if (!fs.existsSync(filePath)) {
@@ -27,23 +88,39 @@ export class FileService {
         return;
       }
 
-      fs.createReadStream(filePath)
-        .pipe(csv())
-        .on('data', (data) => results.push(data))
-        .on('end', () => {
-          // Limpiar el archivo temporal
-          fs.unlink(filePath, (err) => {
-            if (err) console.error('Error al eliminar archivo temporal:', err);
+      try {
+        // Detectar el delimitador automáticamente
+        const delimiter = await this.detectDelimiter(filePath);
+        console.log('Usando delimitador para listas:', delimiter);
+
+        fs.createReadStream(filePath)
+          .pipe(csv({ separator: delimiter }))
+          .on('data', (data) => {
+            console.log('Fila de lista procesada:', data);
+            results.push(data);
+          })
+          .on('end', () => {
+            console.log('Total de listas procesadas:', results.length);
+            
+            // Limpiar el archivo temporal
+            fs.unlink(filePath, (err) => {
+              if (err) console.error('Error al eliminar archivo temporal:', err);
+            });
+            resolve(results);
+          })
+          .on('error', (error) => {
+            console.error('Error al procesar CSV de listas:', error);
+            
+            // Limpiar el archivo temporal en caso de error
+            fs.unlink(filePath, (err) => {
+              if (err) console.error('Error al eliminar archivo temporal:', err);
+            });
+            reject(new ApiError('Error al procesar el archivo CSV', 400));
           });
-          resolve(results);
-        })
-        .on('error', (error) => {
-          // Limpiar el archivo temporal en caso de error
-          fs.unlink(filePath, (err) => {
-            if (err) console.error('Error al eliminar archivo temporal:', err);
-          });
-          reject(new ApiError('Error al procesar el archivo CSV', 400));
-        });
+      } catch (error) {
+        console.error('Error al detectar delimitador (listas):', error);
+        reject(new ApiError('Error al procesar el archivo CSV', 400));
+      }
     });
   }
 

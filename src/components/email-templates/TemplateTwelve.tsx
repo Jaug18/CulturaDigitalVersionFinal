@@ -365,7 +365,7 @@ Cada módulo incluye certificación y materiales prácticos que podrán aplicar 
           margin: "0 0 10px 0",
           fontSize: "14px"
         }}>
-          ¿Preguntas? Contacta a cultura.digital@ejemplo.com
+          ¿Preguntas? Contacta a culturadigital@ipscsc.com.cojemplo.com
         </p>
         
         <div style={{ 

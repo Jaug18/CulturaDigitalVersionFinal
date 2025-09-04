@@ -236,7 +236,7 @@ El evento contará con ponentes internacionales que compartirán casos de éxito
         
         {/* Información de contacto editable */}
         <p style={{ margin: '0 0 15px 0', fontSize: '13px', lineHeight: '1.4', color: "#CCCCCC" }}>
-          📧 {footerEmail || "cultura.digital@ejemplo.com"} | 📞 {footerPhone || "+57 300 123 4567"}
+          📧 {footerEmail || "culturadigital@ipscsc.com.cojemplo.com"} | 📞 {footerPhone || "+57 300 123 4567"}
         </p>
         
         {/* Copyright */}

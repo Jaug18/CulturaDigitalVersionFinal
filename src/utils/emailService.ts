@@ -741,7 +741,9 @@ const getTemplateComponent = (templateId: string, props: any) => {
 };
 
 export const validateEmail = (email: string): boolean => {
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // Regex más permisivo que acepta caracteres Unicode (tildes, ñ, etc.)
+  // Permite caracteres especiales en la parte local (antes del @)
+  const emailPattern = /^[\w.!#$%&'*+/=?^`{|}~\u00A0-\uFFFF-]+@[a-zA-Z0-9\u00A0-\uFFFF](?:[a-zA-Z0-9\u00A0-\uFFFF-]{0,61}[a-zA-Z0-9\u00A0-\uFFFF])?(?:\.[a-zA-Z0-9\u00A0-\uFFFF](?:[a-zA-Z0-9\u00A0-\uFFFF-]{0,61}[a-zA-Z0-9\u00A0-\uFFFF])?)*$/;
   return emailPattern.test(email);
 };
 

@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { AlertCircle, Loader2, ArrowLeft, CheckCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import api from "@/services/api";
 import axios from "axios";
 
 const ForgotPassword = () => {
@@ -28,7 +29,7 @@ const ForgotPassword = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('/api/auth/forgot-password', { email });
+      const response = await api.post('/api/auth/forgot-password', { email });
       
       // Si la solicitud fue exitosa, mostrar mensaje de éxito
       toast.success("Solicitud enviada", {

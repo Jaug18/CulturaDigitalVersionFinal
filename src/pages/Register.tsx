@@ -60,6 +60,9 @@ const Register = () => {
   const validateFullName = (value: string) => {
     if (!value.trim()) return "El nombre completo es obligatorio";
     if (value.trim().length < 3) return "El nombre debe tener al menos 3 caracteres";
+    if (value.length > 255) return "El nombre es demasiado largo (máx 255 caracteres)";
+    // Permitir letras (incluyendo tildes y ñ), números, espacios, puntos, guiones y apostrofes
+    if (/[^a-zA-Z0-9áéíóúÁÉÍÓÚüÜñÑ ._'-]/.test(value)) return "El nombre contiene caracteres no permitidos";
     return "";
   };
 
@@ -72,7 +75,8 @@ const Register = () => {
 
   const validateEmail = (value: string) => {
     if (!value.trim()) return "El correo electrónico es obligatorio";
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Regex más permisivo que acepta caracteres Unicode (tildes, ñ, etc.)
+    const emailRegex = /^[\w.!#$%&'*+/=?^`{|}~\u00A0-\uFFFF-]+@[a-zA-Z0-9\u00A0-\uFFFF](?:[a-zA-Z0-9\u00A0-\uFFFF-]{0,61}[a-zA-Z0-9\u00A0-\uFFFF])?(?:\.[a-zA-Z0-9\u00A0-\uFFFF](?:[a-zA-Z0-9\u00A0-\uFFFF-]{0,61}[a-zA-Z0-9\u00A0-\uFFFF])?)*$/;
     if (!emailRegex.test(value)) return "Introduce un correo electrónico válido";
     return "";
   };

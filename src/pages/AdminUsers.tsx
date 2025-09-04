@@ -42,7 +42,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
-import axios from "axios";
+import api from "@/services/api";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -120,7 +120,7 @@ const AdminUsers = () => {
     try {
       const token = localStorage.getItem('token');
       
-      const response = await axios.get('/api/admin/users', {
+      const response = await api.get('/api/admin/users', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
@@ -176,7 +176,7 @@ const AdminUsers = () => {
     try {
       const token = localStorage.getItem('token');
       
-      await axios.patch(`/api/admin/users/${userId}`, { role: newRole }, {
+      await api.patch(`/api/admin/users/${userId}`, { role: newRole }, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
@@ -197,7 +197,7 @@ const AdminUsers = () => {
     try {
       const token = localStorage.getItem('token');
       
-      await axios.patch(`/api/admin/users/${userId}`, { is_active: isActive }, {
+      await api.patch(`/api/admin/users/${userId}`, { is_active: isActive }, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
@@ -221,7 +221,7 @@ const AdminUsers = () => {
     try {
       const token = localStorage.getItem('token');
       
-      await axios.delete(`/api/admin/users/${userToDelete.id}`, {
+      await api.delete(`/api/admin/users/${userToDelete.id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
@@ -279,7 +279,7 @@ const AdminUsers = () => {
         email_verified: editedValues.email_verified
       };
       
-      await axios.put(`/api/admin/users/${userToEdit.id}`, updatedUserData, {
+      await api.put(`/api/admin/users/${userToEdit.id}`, updatedUserData, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       

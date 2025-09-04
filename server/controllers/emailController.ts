@@ -20,8 +20,6 @@ export class EmailController {
       
       const result = await emailService.sendEmail(emailData, req.user.id);
       
-      res.header('Access-Control-Allow-Origin', '*');
-      
       if (!result.success) {
         res.status(500).json(result);
         return;
@@ -30,7 +28,6 @@ export class EmailController {
       res.status(200).json(result);
     } catch (error) {
       console.error('Error al enviar correo:', error);
-      res.header('Access-Control-Allow-Origin', '*');
       res.status(500).json({
         success: false,
         message: `Error al enviar el correo: ${error instanceof Error ? error.message : 'Unknown error'}`,

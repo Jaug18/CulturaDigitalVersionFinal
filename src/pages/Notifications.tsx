@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmailHistory, getEmailHistory } from "@/utils/emailService";
-import axios from "axios";
+import api from "@/services/api";
 import {
   Dialog,
   DialogContent,
@@ -146,7 +146,7 @@ const Notifications = () => {
       }
 
       console.log("Enviando solicitud de correos programados...");
-      const response = await axios.get('/api/email/scheduled', {
+      const response = await api.get('/api/email/scheduled', {
         headers: { Authorization: `Bearer ${token}` },
         params: { page: 1, limit: 100 }
       });
@@ -558,7 +558,7 @@ const Notifications = () => {
         throw new Error("No hay token de autenticación disponible");
       }
 
-      const response = await axios.put(`/api/email/scheduled/${editingEmail.id}`, {
+      const response = await api.put(`/api/email/scheduled/${editingEmail.id}`, {
         subject: editSubject,
         to_email: editTo.split(',').map(e => e.trim()),
         html_content: editHtml,

@@ -50,20 +50,23 @@ export class AuthController {
    */
   async login(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
-      const { username, password } = req.body;
+      const { username, email, password } = req.body;
       const ipAddress = req.ip || req.connection?.remoteAddress || 'unknown';
       
-      if (!username || !password) {
+      // Aceptar tanto username como email
+      const userIdentifier = username || email;
+      
+      if (!userIdentifier || !password) {
         res.status(400).json({ 
           success: false, 
           error: 'Datos incompletos',
-          message: 'Usuario y contraseña son requeridos' 
+          message: 'Usuario/email y contraseña son requeridos' 
         });
         return;
       }
       
       const result = await authService.loginUser({
-        username,
+        username: userIdentifier,
         password,
         ipAddress
       });

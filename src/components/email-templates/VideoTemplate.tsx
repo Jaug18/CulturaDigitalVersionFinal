@@ -154,171 +154,188 @@ const VideoTemplate: React.FC<VideoTemplateProps> = ({
   };
 
   return (
-    <div style={{ 
+    <table style={{ 
       maxWidth: '600px', 
       margin: '0 auto', 
-      fontFamily: "'Poppins', sans-serif",
+      fontFamily: "'Segoe UI', 'Helvetica Neue', Arial, sans-serif",
       backgroundColor: '#ffffff',
       borderRadius: '8px',
       overflow: 'hidden',
-      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
+      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+      width: '100%',
+      borderCollapse: 'collapse'
     }}>
-      {/* Header con diseño compacto */}
-      <div style={{ 
-        background: 'linear-gradient(135deg, #0052A5 0%, #4A56E2 100%)',
-        padding: '20px',
-        textAlign: 'center',
-        color: 'white'
-      }}>
-        {/* Logo de Cultura Digital en el header */}
-        <img 
-          src="https://res.cloudinary.com/dolpwpgtw/image/upload/v1746807761/ovkwvqgr7giep2fph31x.png" 
-          alt="Cultura Digital" 
-          style={{ 
-            height: "40px", 
-            marginBottom: "15px",
-            display: "block",
-            margin: "0 auto 15px auto"
-          }}
-        />
-        
-        <h1 style={{ 
-          margin: '0 0 8px',
-          fontSize: '22px',
-          fontWeight: 700,
-          textShadow: '1px 1px 3px rgba(0, 0, 0, 0.2)',
-          lineHeight: '1.2'
-        }}>
-          {heading || "Nuevas estrategias digitales para tu empresa"}
-        </h1>
-        
-        <h2 style={{ 
-          margin: '0',
-          fontSize: '14px',
-          fontWeight: 400,
-          opacity: 0.9,
-          lineHeight: '1.3'
-        }}>
-          {subheading || "Aprende a implementar herramientas modernas en tu organización"}
-        </h2>
-      </div>
-      
-      {/* Contenido principal */}
-      <div style={{ padding: '20px 25px' }}>
-        {/* Sección de video */}
-        {videoUrl && (
-          <div style={{ 
-            marginBottom: '25px',
-            borderRadius: '6px',
-            overflow: 'hidden',
-            boxShadow: '0 4px 15px rgba(0, 0, 0, 0.08)'
+      <tbody>
+        {/* Header con diseño compacto - Compatible con Outlook */}
+        <tr>
+          <td style={{ 
+            backgroundColor: '#0052A5',
+            background: '#0052A5',
+            padding: '20px',
+            textAlign: 'center',
+            color: 'white'
           }}>
-            {renderVideoEmbed()}
-          </div>
-        )}
-        
-        {/* Imagen destacada si no hay video o como complemento */}
-        {(!videoUrl || true) && imageUrl && (
-          <div style={{ 
-            marginBottom: '25px',
-            borderRadius: '6px',
-            overflow: 'hidden',
-            boxShadow: '0 4px 15px rgba(0, 0, 0, 0.08)'
-          }}>
+            {/* Logo de Cultura Digital en el header */}
             <img 
-              src={imageUrl} 
-              alt="Imagen destacada" 
+              src="https://res.cloudinary.com/dolpwpgtw/image/upload/v1746807761/ovkwvqgr7giep2fph31x.png" 
+              alt="Cultura Digital" 
               style={{ 
-                width: '100%', 
-                display: 'block',
-                height: 'auto'
-              }} 
+                height: "40px", 
+                marginBottom: "15px",
+                display: "block",
+                margin: "0 auto 15px auto",
+                border: 'none'
+              }}
             />
-          </div>
-        )}
+            
+            <h1 style={{ 
+              margin: '0 0 8px',
+              fontSize: '22px',
+              fontWeight: 700,
+              textShadow: '1px 1px 3px rgba(0, 0, 0, 0.2)',
+              lineHeight: '1.2',
+              color: 'white'
+            }}>
+              {heading || "Nuevas estrategias digitales para tu empresa"}
+            </h1>
+            
+            <h2 style={{ 
+              margin: '0',
+              fontSize: '14px',
+              fontWeight: 400,
+              opacity: 0.9,
+              lineHeight: '1.3',
+              color: 'white'
+            }}>
+              {subheading || "Aprende a implementar herramientas modernas en tu organización"}
+            </h2>
+          </td>
+        </tr>
         
-        {/* Contenido de texto */}
-        <div style={{ 
-          color: '#333',
-          lineHeight: '1.6',
-          fontSize: '16px',
-          marginBottom: '25px'
-        }} dangerouslySetInnerHTML={{ __html: content || `
-          <p>Estimados colaboradores:</p>
-          <p>Nos complace compartir con ustedes este importante video sobre las nuevas tendencias en transformación digital que están revolucionando nuestro sector.</p>
-          <p>En este video, exploramos:</p>
-          <ul>
-            <li>Las tecnologías emergentes que están cambiando la forma de trabajar</li>
-            <li>Estrategias prácticas para implementar estas herramientas en su día a día</li>
-            <li>Casos de éxito de empresas que han aumentado su productividad significativamente</li>
-            <li>Pasos concretos para iniciar la transformación digital en su área</li>
-          </ul>
-          <p>Les invitamos a ver el video completo y a participar en nuestra próxima sesión de preguntas y respuestas donde podremos profundizar en estos temas.</p>
-          <p>¡Juntos hacia la innovación digital!</p>
-        `.replace(/\n/g, '<br />') }}>
-        </div>
-        
-        {/* Botón de llamada a la acción */}
-        <div style={{ textAlign: 'center', marginTop: '30px' }}>
-          <a 
-            href={buttonUrl || "https://ejemplo.com/registro-webinar"} 
-            style={{
-              display: 'inline-block',
-              backgroundColor: '#0052A5',
-              color: 'white',
-              padding: '12px 25px',
-              borderRadius: '6px',
-              textDecoration: 'none',
-              fontWeight: 500,
+        {/* Contenido principal */}
+        <tr>
+          <td style={{ padding: '20px 25px' }}>
+            {/* Sección de video */}
+            {videoUrl && (
+              <div style={{ 
+                marginBottom: '25px',
+                borderRadius: '6px',
+                overflow: 'hidden',
+                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.08)'
+              }}>
+                {renderVideoEmbed()}
+              </div>
+            )}
+            
+            {/* Imagen destacada si no hay video o como complemento */}
+            {(!videoUrl || true) && imageUrl && (
+              <div style={{ 
+                marginBottom: '25px',
+                borderRadius: '6px',
+                overflow: 'hidden',
+                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.08)'
+              }}>
+                <img 
+                  src={imageUrl} 
+                  alt="Imagen destacada" 
+                  style={{ 
+                    width: '100%', 
+                    display: 'block',
+                    height: 'auto',
+                    border: 'none'
+                  }} 
+                />
+              </div>
+            )}
+            
+            {/* Contenido de texto */}
+            <div style={{ 
+              color: '#333',
+              lineHeight: '1.6',
               fontSize: '16px',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 4px 6px rgba(0, 82, 165, 0.25)'
-            }}
-            target="_blank" 
-            rel="noopener noreferrer"
-          >
-            {buttonText || "Registrarse para el próximo webinar"}
-          </a>
-        </div>
-      </div>
-      
-      {/* Footer con logo de TemplateOne */}
-      <div style={{ 
-        backgroundColor: '#0052A5', 
-        padding: '20px', 
-        color: 'white', 
-        textAlign: 'center',
-        fontSize: '13px'
-      }}>
-        {/* Logo del footer igual al de TemplateOne */}
-        <img 
-          src="https://res.cloudinary.com/dolpwpgtw/image/upload/v1746458788/qqrl0hsrj9wsqqepe0rp.png" 
-          alt="Avatar" 
-          style={{ 
-            height: "40px",
-            width: "80px",
-            display: "block",
-            margin: "0 auto 15px auto",
-            objectFit: "cover",
-            objectPosition: "bottom"
-          }}
-        />
+              marginBottom: '25px'
+            }} dangerouslySetInnerHTML={{ __html: content || `
+              <p>Estimados colaboradores:</p>
+              <p>Nos complace compartir con ustedes este importante video sobre las nuevas tendencias en transformación digital que están revolucionando nuestro sector.</p>
+              <p>En este video, exploramos:</p>
+              <ul>
+                <li>Las tecnologías emergentes que están cambiando la forma de trabajar</li>
+                <li>Estrategias prácticas para implementar estas herramientas en su día a día</li>
+                <li>Casos de éxito de empresas que han aumentado su productividad significativamente</li>
+                <li>Pasos concretos para iniciar la transformación digital en su área</li>
+              </ul>
+              <p>Les invitamos a ver el video completo y a participar en nuestra próxima sesión de preguntas y respuestas donde podremos profundizar en estos temas.</p>
+              <p>¡Juntos hacia la innovación digital!</p>
+            `.replace(/\n/g, '<br />') }}>
+            </div>
+            
+            {/* Botón de llamada a la acción */}
+            <div style={{ textAlign: 'center', marginTop: '30px' }}>
+              <a 
+                href={buttonUrl || "https://ejemplo.com/registro-webinar"} 
+                style={{
+                  display: 'inline-block',
+                  backgroundColor: '#0052A5',
+                  color: 'white',
+                  padding: '12px 25px',
+                  borderRadius: '6px',
+                  textDecoration: 'none',
+                  fontWeight: 500,
+                  fontSize: '16px',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 4px 6px rgba(0, 82, 165, 0.25)'
+                }}
+                target="_blank" 
+                rel="noopener noreferrer"
+              >
+                {buttonText || "Registrarse para el próximo webinar"}
+              </a>
+            </div>
+          </td>
+        </tr>
         
-        <p style={{ margin: '0 0 10px 0', fontSize: '14px' }}>
-          © 2025 {footerCompany || "Programa de Cultura Digital"} - Todos los derechos reservados
-        </p>
-        
-        {/* Sección de contacto editable */}
-        <p style={{ margin: '0 0 10px 0', fontSize: '12px', lineHeight: '1.4' }}>
-          📧 {footerEmail || "cultura.digital@ejemplo.com"} | 📞 {footerPhone || "+57 300 123 4567"}
-        </p>
-        
-        {/* Texto adicional por defecto */}
-        <p style={{ margin: '0', opacity: '0.8', fontSize: '12px' }}>
-          Este correo fue enviado como parte del programa de transformación digital.
-        </p>
-      </div>
-    </div>
+        {/* Footer con logo */}
+        <tr>
+          <td style={{ 
+            backgroundColor: '#0052A5', 
+            background: '#0052A5',
+            padding: '20px', 
+            color: 'white', 
+            textAlign: 'center',
+            fontSize: '13px'
+          }}>
+            {/* Logo del footer */}
+            <img 
+              src="https://res.cloudinary.com/dolpwpgtw/image/upload/v1746458788/qqrl0hsrj9wsqqepe0rp.png" 
+              alt="Avatar" 
+              style={{ 
+                height: "40px",
+                width: "80px",
+                display: "block",
+                margin: "0 auto 15px auto",
+                objectFit: "cover",
+                objectPosition: "bottom",
+                border: 'none'
+              }}
+            />
+            
+            <p style={{ margin: '0 0 10px 0', fontSize: '14px', color: 'white' }}>
+              © 2025 {footerCompany || "Programa de Cultura Digital"} - Todos los derechos reservados
+            </p>
+            
+            {/* Sección de contacto editable */}
+            <p style={{ margin: '0 0 10px 0', fontSize: '12px', lineHeight: '1.4', color: 'white' }}>
+              📧 {footerEmail || "culturadigital@ipscsc.com.cojemplo.com"} | 📞 {footerPhone || "+57 300 123 4567"}
+            </p>
+            
+            {/* Texto adicional por defecto */}
+            <p style={{ margin: '0', opacity: '0.8', fontSize: '12px', color: 'white' }}>
+              Este correo fue enviado como parte del programa de transformación digital.
+            </p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   );
 };
 

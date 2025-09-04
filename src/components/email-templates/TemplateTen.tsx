@@ -233,7 +233,7 @@ Estas innovaciones nos permitirán mejorar significativamente nuestra eficiencia
           fontSize: "12px", 
           opacity: "0.8" 
         }}>
-          cultura.digital@ejemplo.com | +57 300 123 4567
+          culturadigital@ipscsc.com.cojemplo.com | +57 300 123 4567
         </p>
       </div>
     </div>
