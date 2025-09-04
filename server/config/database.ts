@@ -14,8 +14,7 @@ if (!connectionString) {
 // Configuración para conectar a PostgreSQL usando solo DATABASE_URL
 export const pool = new Pool({
   connectionString,
-  ssl: process.env.NODE_ENV === 'production' ? 
-    { rejectUnauthorized: false } : false,
+  ssl: false, // Deshabilitamos SSL para desarrollo local en Docker
   connectionTimeoutMillis: 10000,
 });
 

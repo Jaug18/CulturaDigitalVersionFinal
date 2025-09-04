@@ -27,63 +27,39 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
 // CORS configuration
 const allowedOrigins = [
-  // URLs de producción
-  'https://culturadigitalversionfinal-production.up.railway.app',
-  // URLs de desarrollo
-  'http://localhost:8080',
-  'http://localhost:8081', 
-  'http://localhost:5173',
-  'http://127.0.0.1:8080',
-  'http://127.0.0.1:5173'
+  // URLs del servidor de destino (Windows Server 2022)
+  'http://192.168.20.155:7001',
+  'http://192.168.20.155:7002',
+  // URLs de desarrollo local
+  'http://localhost:7001',
+  'http://localhost:7002'
 ];
 
 app.use(cors({
   origin: function(origin, callback) {
-    // Para solicitudes sin origen (como las herramientas API) o en desarrollo
-    if (!origin || process.env.NODE_ENV !== 'production') {
+    // Para solicitudes sin origen (como herramientas API)
+    if (!origin) {
       return callback(null, true);
     }
     
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      console.warn(`Origin ${origin} not allowed by CORS policy. Adding to allowed list temporarily.`);
-      allowedOrigins.push(origin); // Añadir dinámicamente al whitelist
-      callback(null, true);
+      console.warn(`Origin ${origin} not allowed by CORS policy. Allowed origins:`, allowedOrigins);
+      // En desarrollo, permitir cualquier origen
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('Development mode: allowing origin', origin);
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
     }
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept', 'X-Requested-With'],
+  optionsSuccessStatus: 200
 }));
-
-// Middleware adicional para CORS
-app.use((req, res, next) => {
-  if (!res.getHeader('Access-Control-Allow-Origin')) {
-    const origin = req.headers.origin;
-    if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
-      res.header('Access-Control-Allow-Origin', origin || '*');
-    }
-  }
-  
-  if (!res.getHeader('Access-Control-Allow-Methods')) {
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD');
-  }
-  
-  if (!res.getHeader('Access-Control-Allow-Headers')) {
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, Accept');
-  }
-  
-  if (!res.getHeader('Access-Control-Allow-Credentials')) {
-    res.header('Access-Control-Allow-Credentials', 'true');
-  }
-  
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-  
-  return next();
-});
 
 // Configurar archivos estáticos del frontend
 const frontendBuildPath = path.join(__dirname, '../dist');
